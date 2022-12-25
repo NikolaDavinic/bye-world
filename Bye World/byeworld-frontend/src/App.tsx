@@ -18,6 +18,10 @@ function App() {
         >
           Learn React
         </a>
+
+              <p className="text-4xl underline animate-ping">
+          Milan Stojkovic
+        </p>
       </header>
     </div>
   );
