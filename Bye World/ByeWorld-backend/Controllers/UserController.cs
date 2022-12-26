@@ -22,8 +22,12 @@ namespace ByeWorld_backend.Controllers
             var db = _redis.GetDatabase();
             await db.StringSetAsync("user", "stefan");
 
-            _neo4j.Cypher.Match("(n)->[r]->(m)");
+            //await _neo4j.Cypher.Match(@"(n)->[r]->(m)").Return((a) =>
+            //{
 
+            //});
+            _neo4j.Cypher.Match();
+            //return Ok(result);
             return Ok((string)(await db.StringGetAsync("user")));
         }
     }
