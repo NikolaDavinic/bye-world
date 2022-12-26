@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Neo4jClient;
 using StackExchange.Redis;
 
 namespace ByeWorld_backend.Controllers
@@ -8,9 +9,11 @@ namespace ByeWorld_backend.Controllers
     public class UserController : ControllerBase
     {
         private readonly IConnectionMultiplexer _redis;
-        public UserController(IConnectionMultiplexer redis)
+        private readonly IGraphClient _neo4j;
+        public UserController(IConnectionMultiplexer redis, IGraphClient neo4j)
         {
             _redis = redis;
+            _neo4j = neo4j;
         }
 
         [HttpGet("login")]
@@ -18,6 +21,8 @@ namespace ByeWorld_backend.Controllers
         {
             var db = _redis.GetDatabase();
             await db.StringSetAsync("user", "stefan");
+
+            _neo4j.Cypher.Match("(n)->[r]->(m)");
 
             return Ok((string)(await db.StringGetAsync("user")));
         }
