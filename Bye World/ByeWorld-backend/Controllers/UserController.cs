@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ByeWorld_backend.Models;
+using Microsoft.AspNetCore.Mvc;
 using Neo4jClient;
 using StackExchange.Redis;
 
@@ -22,13 +23,12 @@ namespace ByeWorld_backend.Controllers
             var db = _redis.GetDatabase();
             await db.StringSetAsync("user", "stefan");
 
-            //await _neo4j.Cypher.Match(@"(n)->[r]->(m)").Return((a) =>
-            //{
+            var result = _neo4j.Cypher.Match(@"(n:Actor)").Return((n) => n.As<Actor>());
 
-            //});
-            _neo4j.Cypher.Match();
+            return Ok(await result.ResultsAsync);
+            //_neo4j.Cypher.Match();
             //return Ok(result);
-            return Ok((string)(await db.StringGetAsync("user")));
+            //return Ok((string)(await db.StringGetAsync("user")));
         }
     }
 }
