@@ -10,8 +10,8 @@ namespace ByeWorld_backend.Controllers
     public class UserController : ControllerBase
     {
         private readonly IConnectionMultiplexer _redis;
-        private readonly IGraphClient _neo4j;
-        public UserController(IConnectionMultiplexer redis, IGraphClient neo4j)
+        private readonly IBoltGraphClient _neo4j;
+        public UserController(IConnectionMultiplexer redis, IBoltGraphClient neo4j)
         {
             _redis = redis;
             _neo4j = neo4j;
@@ -23,12 +23,9 @@ namespace ByeWorld_backend.Controllers
             var db = _redis.GetDatabase();
             await db.StringSetAsync("user", "stefan");
 
-            var result = _neo4j.Cypher.Match(@"(n:Actor)").Return((n) => n.As<Actor>());
-
+            var result = _neo4j.Cypher.Match(@"(n:Actor)").Return((n) => n.As<Actor>()).Limit(5);
+            
             return Ok(await result.ResultsAsync);
-            //_neo4j.Cypher.Match();
-            //return Ok(result);
-            //return Ok((string)(await db.StringGetAsync("user")));
         }
     }
 }
