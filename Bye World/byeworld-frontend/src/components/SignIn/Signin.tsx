@@ -2,7 +2,7 @@ import { Box, Button, Grid, Stack, TextField } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 
-const SignIn = () => {
+export const SignIn:React.FC = () => {
   const {
     register,
     handleSubmit,
@@ -60,4 +60,3 @@ const SignIn = () => {
   );
 };
 
-export default SignIn;
