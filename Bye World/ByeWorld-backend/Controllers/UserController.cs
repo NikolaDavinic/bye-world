@@ -17,15 +17,15 @@ namespace ByeWorld_backend.Controllers
             _neo4j = neo4j;
         }
 
-        [HttpGet("login")]
-        public async Task<IActionResult> Login()
-        {
-            var db = _redis.GetDatabase();
-            await db.StringSetAsync("user", "stefan");
+        //[HttpGet("login")]
+        //public async Task<IActionResult> Login()
+        //{
+        //    var db = _redis.GetDatabase();
+        //    await db.StringSetAsync("user", "stefan");
 
-            var result = _neo4j.Cypher.Match(@"(n:Actor)").Return((n) => n.As<Actor>()).Limit(5);
+        //    //var result = _neo4j.Cypher.Match(@"(n:Actor)").Return((n) => n.As<Actor>()).Limit(5);
             
-            return Ok(await result.ResultsAsync);
-        }
+        //    return Ok(await result.ResultsAsync);
+        //}
     }
 }
