@@ -11,7 +11,7 @@ interface FormInputs {
   repeatPassword: string;
 }
 
-export const SignUp : React.FC = () => {
+export const SignUp: React.FC = () => {
   const {
     register,
     handleSubmit,
@@ -102,4 +102,3 @@ export const SignUp : React.FC = () => {
     </Box>
   );
 };
-
