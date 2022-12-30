@@ -1,5 +1,6 @@
 import { Box, Button, Grid, Stack, TextField } from "@mui/material";
 import { useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
 
 const SignIn = () => {
   const {
@@ -46,14 +47,13 @@ const SignIn = () => {
           {...register("password", { required: true })}
           error={Boolean(errors.password)}
         ></TextField>
-        {/* <p style={{ color: "red" }}>{error}</p> */}
         <Button variant="contained" sx={{ p: 1.2 }} type="submit">
           Sign In
         </Button>
         <Grid container justifyContent="flex-end">
-          {/* <Box>
+          <Box>
             Don't have an account? <Link to="/signup"> Sign Up</Link>
-          </Box> */}
+          </Box>
         </Grid>
       </Stack>
     </Box>

@@ -1,12 +1,21 @@
-import React from "react";
-import logo from "./logo.svg";
 import "./App.css";
 import { ThemeProvider, createTheme } from "@mui/material";
+import { Route, Routes } from "react-router";
+import SignUp from "./pages/Signup";
+import SignIn from "./pages/Signin";
 
 const theme = createTheme({
   palette: {
-    primary: {},
-    secondary: {},
+    primary: {
+      light: "#fbc02d",
+      main: "#311b92",
+      dark: "#000063",
+    },
+    secondary: {
+      light: "#fbc02d",
+      main: "#ffd54f",
+      dark: "#000063",
+    },
   },
 });
 
@@ -14,19 +23,11 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <div className="App">
+        <Routes>
+          <Route path="/signin" element={<SignIn />}></Route>
+          <Route path="/signup" element={<SignUp />}></Route>
+        </Routes>
         <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.tsx</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
           <p className="text-4xl underline animate-ping">Milan Stojkovic</p>
         </header>
       </div>

@@ -1,6 +1,7 @@
 import { Box, Button, Grid, Stack, TextField } from "@mui/material";
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
 
 interface FormInputs {
   name: string;
@@ -93,9 +94,9 @@ const SignUp = () => {
           Sign Up
         </Button>
         <Grid container justifyContent="flex-end">
-          {/* <Box>
+          <Box>
             Already have an account? <Link to="/signin">Sign In</Link>
-          </Box> */}
+          </Box>
         </Grid>
       </Stack>
     </Box>
