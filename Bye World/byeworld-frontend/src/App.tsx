@@ -5,6 +5,8 @@ import { SignUp } from "./components/SignUp/Signup";
 import { SignIn } from "./components/SignIn/Signin";
 import { UserProvider } from "./contexts/user.context";
 import { Listings } from "./components/listings/Listings";
+import { Navbar } from "./common/Navbar/Navbar";
+import { Home } from "./components/Home/Home";
 
 const theme = createTheme({
   palette: {
@@ -27,13 +29,13 @@ function App() {
       <UserProvider>
         <div className="App">
           <Routes>
+            <Route path="/" element={<Navbar />}>
+              <Route path="" element={<Home />}></Route>
+            </Route>
             <Route path="/signin" element={<SignIn />}></Route>
             <Route path="/signup" element={<SignUp />}></Route>
             <Route path="/listings" element={<Listings />}></Route>
           </Routes>
-          <header className="App-header">
-            <p className="text-4xl underline animate-ping">Milan Stojkovic</p>
-          </header>
         </div>
       </UserProvider>
     </ThemeProvider>
