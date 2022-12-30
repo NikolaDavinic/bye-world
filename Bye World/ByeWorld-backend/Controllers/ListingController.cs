@@ -19,6 +19,45 @@ namespace ByeWorld_backend.Controllers
             _neo4j = neo4j;
         }
         
+        [HttpGet]
+        public async Task<ActionResult> GetAllListing()
+        {
+            var listings = await _neo4j.Cypher.Match("(n:Listing)")
+                                               .Return(n => n.As<Listing>()).ResultsAsync;
+            return Ok(listings);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult> GetListingById(int id)
+        {
+            var listing = await _neo4j.Cypher.Match("(l:Listing)")
+                                             .Where((Listing l) => l.ID == id)
+                                             .Return(l => l.As<Listing>()).ResultsAsync;
+            return Ok(listing.LastOrDefault());
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult> UpdateListingById(int id, [FromBody]Listing listing)
+        {
+            await _neo4j.Cypher.Match("(l:Listing)")
+                               .Where((Listing l) => l.ID == id)
+                               .Set("l = $listing")
+                               .WithParam("listing", listing)
+                               .ExecuteWithoutResultsAsync();
+
+            return Ok();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteListingById(int id)
+        {
+            await _neo4j.Cypher.Match("(l:Listing)")
+                               .Where((Listing l) => l.ID == id)
+                               .Delete("l")
+                               .ExecuteWithoutResultsAsync();
+            return Ok();
+        }
+
         [HttpPost]
         public async Task<ActionResult> CreateListing([FromBody] Listing listing)
         {
