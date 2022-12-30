@@ -5,9 +5,9 @@ import { Link } from "react-router-dom";
 
 interface FormInputs {
   name: string;
-  surname: string;
   password: string;
   email: string;
+  phone: string;
   repeatPassword: string;
 }
 
@@ -56,19 +56,18 @@ export const SignUp: React.FC = () => {
           {...register("name", { required: true })}
         ></TextField>
         <TextField
-          label="Surname"
-          className="form-field"
-          error={Boolean(errors.surname)}
-          helperText={errors.surname && "Surname field is required"}
-          {...register("surname", { required: true })}
-        ></TextField>
-        <TextField
           label="Email"
           type="email"
           className="form-field"
           error={Boolean(errors.email)}
           helperText={errors.email && "Email is required"}
           {...register("email", { required: true })}
+        ></TextField>
+        <TextField
+          label="Phone number"
+          className="form-field"
+          error={Boolean(errors.phone)}
+          {...register("phone", { required: false })}
         ></TextField>
         <TextField
           label="Password"
