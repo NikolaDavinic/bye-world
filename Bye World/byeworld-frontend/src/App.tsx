@@ -4,6 +4,7 @@ import { Route, Routes } from "react-router";
 import { SignUp } from "./components/SignUp/Signup";
 import { SignIn } from "./components/SignIn/Signin";
 import { UserProvider } from "./contexts/user.context";
+import { Listings } from "./components/listings/Listings";
 
 const theme = createTheme({
   palette: {
@@ -28,6 +29,7 @@ function App() {
           <Routes>
             <Route path="/signin" element={<SignIn />}></Route>
             <Route path="/signup" element={<SignUp />}></Route>
+            <Route path="/listings" element={<Listings />}></Route>
           </Routes>
           <header className="App-header">
             <p className="text-4xl underline animate-ping">Milan Stojkovic</p>
