@@ -23,7 +23,7 @@ namespace ByeWorld_backend.Controllers
         public async Task<ActionResult> GetAllListing()
         {
             var listings = await _neo4j.Cypher.Match("(n:Listing)")
-                                               .Return(n => n.As<Listing>()).ResultsAsync;
+                                              .Return(n => n.As<Listing>()).ResultsAsync;
             return Ok(listings);
         }
 
