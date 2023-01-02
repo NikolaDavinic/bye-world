@@ -38,12 +38,9 @@ function App() {
             <Route path="/" element={<Navbar />}>
               <Route path="" element={<Home />}></Route>
               <Route path="/listings" element={<Listings />}></Route>
-<<<<<<< HEAD
               <Route path="/companies" element={<CompaniesPage />}></Route>
               <Route path="*" element={<NotFound />}></Route>
-=======
               <Route path="/user/:id" element={<User />}></Route>
->>>>>>> ab675129d6d73935dabf7e403c6cd74afa42fe07
             </Route>
             <Route path="/signin" element={<SignIn />}></Route>
             <Route path="/signup" element={<SignUp />}></Route>
