@@ -7,6 +7,7 @@ import { UserProvider } from "./contexts/user.context";
 import { Listings } from "./components/listings/Listings";
 import { Navbar } from "./components/common/Navbar/Navbar";
 import { Home } from "./components/Home/Home";
+import User from "./components/user/User";
 
 const theme = createTheme({
   palette: {
@@ -32,6 +33,7 @@ function App() {
             <Route path="/" element={<Navbar />}>
               <Route path="" element={<Home />}></Route>
               <Route path="/listings" element={<Listings />}></Route>
+              <Route path="/user/:id" element={<User />}></Route>
             </Route>
             <Route path="/signin" element={<SignIn />}></Route>
             <Route path="/signup" element={<SignUp />}></Route>
