@@ -28,10 +28,11 @@ export const SignUp: React.FC = () => {
       name: data.name,
       email: data.email,
       phone: data.phone,
-      password: data.password
+      password: data.password,
+      userType: "User"
     }
     
-    let result = axios.post("https://localhost:7294/User/signup", exampleUser)
+    let result = axios.post("https://localhost:7294/user/signup", exampleUser)
     .then(response => {
       console.log(response)
     })

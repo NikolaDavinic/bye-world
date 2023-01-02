@@ -11,7 +11,7 @@ using System.Text.Json;
 namespace ByeWorld_backend.Controllers
 {
     [ApiController]
-    [Route("User")]
+    [Route("user")]
     public class UserController : ControllerBase
     {
         private readonly IConnectionMultiplexer _redis;
@@ -42,7 +42,7 @@ namespace ByeWorld_backend.Controllers
             var testEmail = await _neo4j.Cypher.Match(("(us:User)"))
                                                .Where((User us) => us.Email == u.Email)
                                                .Return(us => us.As<User>()).ResultsAsync;
-            if(testEmail!=null)
+            if(testEmail.Count() != 0)
             {
                 return BadRequest("This email address is already in use, please enter new email!");
             }
