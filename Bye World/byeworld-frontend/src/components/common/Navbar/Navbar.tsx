@@ -11,9 +11,9 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { Icon } from "@mui/material";
-import { Link, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet } from "react-router-dom";
 
-const pages = ["Products", "Pricing", "Blog"];
+const pages = ["Listings", "Companies"];
 
 const settings = ["Profile"];
 
@@ -42,7 +42,7 @@ export const Navbar = () => {
 
   return (
     <>
-      <AppBar position="static">
+      <AppBar position="static" sx={{ maxHeight: "20vh" }}>
         <Container maxWidth="xl">
           <Toolbar disableGutters>
             <Box sx={{ display: { xs: "none", md: "flex" }, flexGrow: 0 }}>
@@ -100,7 +100,9 @@ export const Navbar = () => {
               >
                 {pages.map((page) => (
                   <MenuItem key={page} onClick={handleCloseNavMenu}>
-                    <Typography textAlign="center">{page}</Typography>
+                    <Typography textAlign="center">
+                      <Link to={`/${page.toLowerCase()}`}>{page}</Link>
+                    </Typography>
                   </MenuItem>
                 ))}
               </Menu>
@@ -133,13 +135,14 @@ export const Navbar = () => {
 
             <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
               {pages.map((page) => (
-                <Button
-                  key={page}
-                  onClick={handleCloseNavMenu}
-                  sx={{ my: 2, color: "white", display: "block" }}
-                >
-                  {page}
-                </Button>
+                <NavLink key={page} to={`/${page.toLowerCase()}`}>
+                  <Button
+                    onClick={handleCloseNavMenu}
+                    sx={{ my: 2, color: "white", display: "block" }}
+                  >
+                    {page}
+                  </Button>
+                </NavLink>
               ))}
             </Box>
 
@@ -175,7 +178,9 @@ export const Navbar = () => {
           </Toolbar>
         </Container>
       </AppBar>
-      <Outlet />
+      <Box sx={{ minHeight: "80vh" }}>
+        <Outlet />
+      </Box>
     </>
   );
 };
