@@ -1,4 +1,5 @@
 import { Box, Button, Grid, Stack, TextField } from "@mui/material";
+import axios from "axios";
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
@@ -21,7 +22,28 @@ export const SignUp: React.FC = () => {
     reValidateMode: "onChange",
   });
 
-  const onSubmit = (data: FormInputs) => {};
+  const onSubmit = (data: FormInputs) => {
+    console.log(data);
+    let exampleUser = {
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      password: data.password
+    }
+    axios.get("https://localhost:7294/Listing/5")
+    .then((response) => {
+      console.log(response);
+      const myData = response.data;
+      console.log(myData);
+    });
+    // let result = axios.post("http://localhost:7474/signup", exampleUser)
+    // .then(response => {
+    //   console.log(response)
+    // })
+    // .catch(error => {
+    //   console.error(error)
+    // })   
+  };
 
   const repeatPasswordValidator = useCallback(
     (value: string) => getValues("password") === value,
