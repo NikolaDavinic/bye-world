@@ -6,7 +6,9 @@ export const Listings: React.FC = () => {
     const [skill, setSkill] = useState<string>("");
     const [city, setCity] = useState<string>("");
     const [seniority, setSeniority] = useState<string>("");
-
+    const onFilter = () =>{
+        
+    }
     return (
         <div className='h-1/4 flex flex-col px-4 py-4 space-y-4 bg-gray-100'>
             <h1 className='font-bold'>Listings search</h1>
@@ -26,6 +28,7 @@ export const Listings: React.FC = () => {
                         filter_alt
                     </Icon>
                 }>
+                    {process.env.REACT_APP_API}
                     Filter
                 </Button>
             </div>

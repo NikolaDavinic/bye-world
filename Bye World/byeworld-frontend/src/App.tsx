@@ -5,7 +5,7 @@ import { SignUp } from "./components/SignUp/Signup";
 import { SignIn } from "./components/SignIn/Signin";
 import { UserProvider } from "./contexts/user.context";
 import { Listings } from "./components/listings/Listings";
-import { Navbar } from "./common/Navbar/Navbar";
+import { Navbar } from "./components/common/Navbar/Navbar";
 import { Home } from "./components/Home/Home";
 
 const theme = createTheme({
