@@ -7,7 +7,7 @@ using StackExchange.Redis;
 namespace ByeWorld_backend.Controllers
 {
     [ApiController]
-    [Route("Listing")]
+    [Route("listing")]
     public class ListingController : ControllerBase
     {
         private readonly IConnectionMultiplexer _redis;
@@ -40,7 +40,7 @@ namespace ByeWorld_backend.Controllers
         public async Task<ActionResult> UpdateListingById(int id, [FromBody]Listing listing)
         {
             await _neo4j.Cypher.Match("(l:Listing)")
-                               .Where((Listing l) => l.ID == id)
+                               .Where((Listing l) => l.Id == id)
                                .Set("l = $listing")
                                .WithParam("listing", listing)
                                .ExecuteWithoutResultsAsync();
@@ -52,7 +52,7 @@ namespace ByeWorld_backend.Controllers
         public async Task<ActionResult> DeleteListingById(int id)
         {
             await _neo4j.Cypher.Match("(l:Listing)")
-                               .Where((Listing l) => l.ID == id)
+                               .Where((Listing l) => l.Id == id)
                                .Delete("l")
                                .ExecuteWithoutResultsAsync();
             return Ok();

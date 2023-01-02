@@ -8,8 +8,11 @@ export interface Company {
   logoUrl: string;
   phone: string;
   email: string;
-  vat: number;
-  adress: string;
-  listings: Listing[];
-  reviews: Review[];
+  vat: string;
+  address: string;
+  reviewsCount: number;
+  listingsCount: number;
+  avgReview: number;
+  listings?: Listing[];
+  reviews?: Review[];
 }

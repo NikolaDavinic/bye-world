@@ -6,11 +6,6 @@ export const Home: React.FC = () => {
     <>
       <Stack>
         <Box>Largest database of jobs</Box>
-        <Box>
-          <header className="App-header">
-            <p className="text-4xl underline animate-ping">Milan Stojkovic</p>
-          </header>
-        </Box>
       </Stack>
     </>
   );

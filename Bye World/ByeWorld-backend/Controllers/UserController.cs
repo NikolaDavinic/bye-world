@@ -39,7 +39,7 @@ namespace ByeWorld_backend.Controllers
                 Email = u.Email,
                 PasswordHash = hashedPassword,
                 Phone = u.Phone,
-                UserType = "User"
+                Role = "User"
             };
 
             var testEmail = await _neo4j.Cypher.Match("(us:User)")
@@ -129,7 +129,8 @@ namespace ByeWorld_backend.Controllers
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim("Id", user.Id.ToString())
+                new Claim("Id", user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role)
             };
 
             var claimsIdentity = new ClaimsIdentity(
