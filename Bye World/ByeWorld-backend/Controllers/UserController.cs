@@ -3,6 +3,7 @@ using ByeWorld_backend.Models;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
 using Neo4jClient;
+using System.Text.Json;
 using StackExchange.Redis;
 using System.Security.Cryptography;
 
@@ -19,6 +20,35 @@ namespace ByeWorld_backend.Controllers
             _redis = redis;
             _neo4j = neo4j;
         }
+
+        [HttpGet("login/{id}")]
+        public async Task<IActionResult> Login(int id)
+        {
+            var tokenSource = new CancellationTokenSource();
+            var cancellationToken = tokenSource.Token;
+            
+            var db = _redis.GetDatabase();
+
+            Task<RedisValue> redisTask = db.StringGetAsync($"user:{id}");
+
+            Task<IEnumerable<User>> neo4jTask = _neo4j.Cypher
+                .Match(@"(n:User)")
+                .Where("n.Id = $id")
+                .WithParam("id", id)
+                .Return((n) => n.As<User>())
+                .Limit(1)
+                .ResultsAsync;
+
+            if ((await Task.WhenAny(redisTask, neo4jTask)) == redisTask)
+            {
+                var redisValue = (await redisTask).ToString();
+                if (!String.IsNullOrEmpty(redisValue))
+                {
+                    tokenSource.Cancel();
+                    //Console.WriteLine("redis");
+                    return Ok(JsonSerializer.Deserialize<User>(redisValue));
+                }
+            }
 
         //ureadjeno je da se ispita da li postoji korisnik sa ovim email-om, ako postoji onda se ne dodaje
         [HttpPost("/signup")]
@@ -63,10 +93,15 @@ namespace ByeWorld_backend.Controllers
         //{
         //    var db = _redis.GetDatabase();
         //    await db.StringSetAsync("user", "stefan");
+            var value = (await neo4jTask).First();
 
-        //    //var result = _neo4j.Cypher.Match(@"(n:Actor)").Return((n) => n.As<Actor>()).Limit(5);
-            
-        //    return Ok(await result.ResultsAsync);
-        //}
+            if (value != null)
+            {
+                _ = db.StringSetAsync($"user:{value.Id}", JsonSerializer.Serialize<User?>(value));
+            }
+
+            //Console.WriteLine("neo4j");
+            return Ok(value);
+        }
     }
 }

@@ -3,6 +3,10 @@ using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"))
+    .AddConsole()
+    .AddDebug();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
