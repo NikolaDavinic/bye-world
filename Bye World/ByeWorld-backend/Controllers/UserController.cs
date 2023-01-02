@@ -1,11 +1,12 @@
-﻿using ByeWorld_backend.DTO;
+using ByeWorld_backend.DTO;
 using ByeWorld_backend.Models;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
 using Neo4jClient;
-using System.Text.Json;
 using StackExchange.Redis;
 using System.Security.Cryptography;
+using System.Text.Json;
+
 
 namespace ByeWorld_backend.Controllers
 {
@@ -21,37 +22,8 @@ namespace ByeWorld_backend.Controllers
             _neo4j = neo4j;
         }
 
-        [HttpGet("login/{id}")]
-        public async Task<IActionResult> Login(int id)
-        {
-            var tokenSource = new CancellationTokenSource();
-            var cancellationToken = tokenSource.Token;
-            
-            var db = _redis.GetDatabase();
-
-            Task<RedisValue> redisTask = db.StringGetAsync($"user:{id}");
-
-            Task<IEnumerable<User>> neo4jTask = _neo4j.Cypher
-                .Match(@"(n:User)")
-                .Where("n.Id = $id")
-                .WithParam("id", id)
-                .Return((n) => n.As<User>())
-                .Limit(1)
-                .ResultsAsync;
-
-            if ((await Task.WhenAny(redisTask, neo4jTask)) == redisTask)
-            {
-                var redisValue = (await redisTask).ToString();
-                if (!String.IsNullOrEmpty(redisValue))
-                {
-                    tokenSource.Cancel();
-                    //Console.WriteLine("redis");
-                    return Ok(JsonSerializer.Deserialize<User>(redisValue));
-                }
-            }
-
         //ureadjeno je da se ispita da li postoji korisnik sa ovim email-om, ako postoji onda se ne dodaje
-        [HttpPost("/signup")]
+        [HttpPost("signup")]
         //[Route("/signup")]
         public async Task<ActionResult> SignUp([FromBody]UserRegisterDTO u)
         {
@@ -82,17 +54,42 @@ namespace ByeWorld_backend.Controllers
             return Ok("User added succesful!");
         }
 
-        [HttpGet("/login")]
+        [HttpGet("login")]
         //[Route("/login")]
         public async Task<ActionResult> SignIn([FromBody]UserLoginDTO u)
         {
             return Ok();
         }
-        //[HttpGet("login")]
-        //public async Task<IActionResult> Login()
-        //{
-        //    var db = _redis.GetDatabase();
-        //    await db.StringSetAsync("user", "stefan");
+
+        [HttpGet("login/{id}")]
+        public async Task<IActionResult> Login(int id)
+        {
+            var tokenSource = new CancellationTokenSource();
+            var cancellationToken = tokenSource.Token;
+
+            var db = _redis.GetDatabase();
+
+            Task<RedisValue> redisTask = db.StringGetAsync($"user:{id}");
+
+            Task<IEnumerable<User>> neo4jTask = _neo4j.Cypher
+                .Match(@"(n:User)")
+                .Where("n.Id = $id")
+                .WithParam("id", id)
+                .Return((n) => n.As<User>())
+                .Limit(1)
+                .ResultsAsync;
+
+            if ((await Task.WhenAny(redisTask, neo4jTask)) == redisTask)
+            {
+                var redisValue = (await redisTask).ToString();
+                if (!String.IsNullOrEmpty(redisValue))
+                {
+                    tokenSource.Cancel();
+                    //Console.WriteLine("redis");
+                    return Ok(JsonSerializer.Deserialize<User>(redisValue));
+                }
+            }
+
             var value = (await neo4jTask).First();
 
             if (value != null)
@@ -103,5 +100,16 @@ namespace ByeWorld_backend.Controllers
             //Console.WriteLine("neo4j");
             return Ok(value);
         }
+        //[HttpGet("login")]
+        //public async Task<IActionResult> Login()
+        //{
+        //    var db = _redis.GetDatabase();
+        //    await db.StringSetAsync("user", "stefan");
+
+        //    //var result = _neo4j.Cypher.Match(@"(n:Actor)").Return((n) => n.As<Actor>()).Limit(5);
+
+        //    return Ok(await result.ResultsAsync);
+        //}
     }
 }
+

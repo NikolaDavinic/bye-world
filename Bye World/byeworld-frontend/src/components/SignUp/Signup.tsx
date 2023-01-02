@@ -30,19 +30,14 @@ export const SignUp: React.FC = () => {
       phone: data.phone,
       password: data.password
     }
-    axios.get("https://localhost:7294/Listing/5")
-    .then((response) => {
-      console.log(response);
-      const myData = response.data;
-      console.log(myData);
-    });
-    // let result = axios.post("http://localhost:7474/signup", exampleUser)
-    // .then(response => {
-    //   console.log(response)
-    // })
-    // .catch(error => {
-    //   console.error(error)
-    // })   
+    
+    let result = axios.post("https://localhost:7294/User/signup", exampleUser)
+    .then(response => {
+      console.log(response)
+    })
+    .catch(error => {
+      console.error(error)
+    })   
   };
 
   const repeatPasswordValidator = useCallback(
