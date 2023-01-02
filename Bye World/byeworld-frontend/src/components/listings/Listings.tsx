@@ -9,7 +9,7 @@ export const Listings: React.FC = () => {
 
     return (
         <div className='h-1/4 flex flex-col px-4 py-4 space-y-4 bg-gray-100'>
-            <h1 className='font-bold'>Listing search</h1>
+            <h1 className='font-bold'>Listings search</h1>
             <div className='flex flex-row justify-center gap-6'>
                 <TextField id="keyword" label="Keyword search" variant="outlined" onChange={e => setKeyword(e.target.value)} value={keyword} />
                 <TextField id="skill" label="Skill" variant="outlined" onChange={e => setSkill(e.target.value)}
