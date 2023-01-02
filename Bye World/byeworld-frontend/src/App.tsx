@@ -4,7 +4,7 @@ import { Route, Routes } from "react-router";
 import { SignUp } from "./components/SignUp/Signup";
 import { SignIn } from "./components/SignIn/Signin";
 import { UserProvider } from "./contexts/user.context";
-import { Listings } from "./components/listings/Listings";
+import { Listings } from "./components/listings/ListingsPage";
 import { Navbar } from "./components/common/Navbar/Navbar";
 import { Home } from "./components/Home/Home";
 
