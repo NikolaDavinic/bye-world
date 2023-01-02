@@ -22,13 +22,52 @@ builder.Services.AddSingleton<IBoltGraphClient>(options =>
     return neo4jClient;
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CORSDevelopment", builder =>
+    {
+        builder.WithOrigins(new string[]
+        {
+            "http://localhost:3000",
+            "https://localhost:3000",
+            "http://127.0.0.1:3000",
+            "https://127.0.0.1:3000",
+            "http://localhost:3000",
+            "https://localhost:3000",
+            "http://127.0.0.1:3000",
+            "https://127.0.0.1:3000",
+            "http://localhost:3000",
+            "https://localhost:3000",
+            "http://127.0.0.1:3000",
+            "https://127.0.0.1:3000",
+        })
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+    });
+
+    options.AddPolicy("CORSProduction", builder =>
+    {
+        builder.WithOrigins(new string[]
+        {
+            ""
+        })
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+    });
+});
+
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseCors("CORSDevelopment");
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+else
+{
+    app.UseCors("CORSProduction");
 }
 
 app.UseHttpsRedirection();
