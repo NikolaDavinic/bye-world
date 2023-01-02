@@ -12,12 +12,12 @@ export default function User() {
     return (
         <main className="flex-1">
 
-            <script>
+            {/* <script>
                 var siteHost = 'www.helloworld.rs';
                 var initSection = 'profil'
-            </script>
+            </script> */}
 
-            <div className="bg-gradient-to-r from-green-500 to-blue-900 relative">
+            <div className="bg-gradient-to-r from-blue-900 to-green-500 relative">
                 <div className="hidden md:flex justify-end absolute right-0 inset-y-0 opacity-10">
                     <svg width="100%" height="100%" viewBox="0 0 99 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-auto">
                         <path d="M47 0H23L0 36H24L47 0Z" fill="white"></path>
