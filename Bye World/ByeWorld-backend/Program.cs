@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Neo4jClient;
 using StackExchange.Redis;
 
@@ -22,6 +23,13 @@ builder.Services.AddSingleton<IBoltGraphClient>(options =>
     return neo4jClient;
 });
 
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "byeworld-auth";
+        options.Cookie.Expiration = TimeSpan.FromHours(1);
+    });
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CORSDevelopment", builder =>
@@ -31,15 +39,7 @@ builder.Services.AddCors(options =>
             "http://localhost:3000",
             "https://localhost:3000",
             "http://127.0.0.1:3000",
-            "https://127.0.0.1:3000",
-            "http://localhost:3000",
-            "https://localhost:3000",
-            "http://127.0.0.1:3000",
-            "https://127.0.0.1:3000",
-            "http://localhost:3000",
-            "https://localhost:3000",
-            "http://127.0.0.1:3000",
-            "https://127.0.0.1:3000",
+            "https://127.0.0.1:3000"
         })
         .AllowAnyHeader()
         .AllowAnyMethod();
@@ -71,6 +71,8 @@ else
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

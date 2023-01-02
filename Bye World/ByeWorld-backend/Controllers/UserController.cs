@@ -1,9 +1,13 @@
 using ByeWorld_backend.DTO;
 using ByeWorld_backend.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
 using Neo4jClient;
 using StackExchange.Redis;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text.Json;
 
@@ -25,10 +29,9 @@ namespace ByeWorld_backend.Controllers
         //ureadjeno je da se ispita da li postoji korisnik sa ovim email-om, ako postoji onda se ne dodaje
         [HttpPost("signup")]
         //[Route("/signup")]
-        public async Task<ActionResult> SignUp([FromBody]UserRegisterDTO u)
+        public async Task<ActionResult> SignUp([FromBody] UserRegisterDTO u)
         {
-            String salt = BCrypt.Net.BCrypt.GenerateSalt(12);
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(u.Password, salt);
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(u.Password);
 
             var newUser = new User { 
                 Id = 1,
@@ -39,10 +42,10 @@ namespace ByeWorld_backend.Controllers
                 UserType = "User"
             };
 
-            var testEmail = await _neo4j.Cypher.Match(("(us:User)"))
+            var testEmail = await _neo4j.Cypher.Match("(us:User)")
                                                .Where((User us) => us.Email == u.Email)
                                                .Return(us => us.As<User>()).ResultsAsync;
-            if(testEmail.Count() != 0)
+            if(testEmail.Any())
             {
                 return BadRequest("This email address is already in use, please enter new email!");
             }
@@ -54,16 +57,36 @@ namespace ByeWorld_backend.Controllers
             return Ok("User added succesful!");
         }
 
-        [HttpGet("login")]
-        //[Route("/login")]
-        public async Task<ActionResult> SignIn([FromBody]UserLoginDTO u)
+        [HttpPost("signin")]
+        public async Task<ActionResult> SignIn([FromBody] UserLoginDTO creds)
         {
-            return Ok();
+            var result = await _neo4j.Cypher
+                .Match("(u:User)")
+                .Where((User u) => u.Email == creds.Email)
+                .Return(u => u.As<User>())
+                .ResultsAsync;
+
+            var user = result.FirstOrDefault();
+
+            if (user == null ||
+                BCrypt.Net.BCrypt.Verify(creds.Password, user.PasswordHash) == false)
+            {
+                return NotFound("User with given email or password does not exist");
+            }
+
+            var db = _redis.GetDatabase();
+
+            await SignInUser(user);
+
+            return Ok("");
         }
 
+        [Authorize]
         [HttpGet("login/{id}")]
         public async Task<IActionResult> Login(int id)
         {
+            var userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
+
             var tokenSource = new CancellationTokenSource();
             var cancellationToken = tokenSource.Token;
 
@@ -100,16 +123,22 @@ namespace ByeWorld_backend.Controllers
             //Console.WriteLine("neo4j");
             return Ok(value);
         }
-        //[HttpGet("login")]
-        //public async Task<IActionResult> Login()
-        //{
-        //    var db = _redis.GetDatabase();
-        //    await db.StringSetAsync("user", "stefan");
 
-        //    //var result = _neo4j.Cypher.Match(@"(n:Actor)").Return((n) => n.As<Actor>()).Limit(5);
+        protected async Task SignInUser(User user)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim("Id", user.Id.ToString())
+            };
 
-        //    return Ok(await result.ResultsAsync);
-        //}
+            var claimsIdentity = new ClaimsIdentity(
+              claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity));
+        }
     }
 }
 
