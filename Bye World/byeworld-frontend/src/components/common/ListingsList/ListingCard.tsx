@@ -17,14 +17,14 @@ export const ListingCard: React.FC<ListingCardProps> = ({
 
     return (
         <Card sx={{ maxWidth: 1200, width:"auto", minWidth:1000 , height: 250 }}>
-            <CardActionArea className='h-full' onClick={() => navigate("/listing/" + listing.ID)}>
+            <CardActionArea className='h-full' onClick={() => navigate("/listing/" + listing.id)}>
                 <CardContent className='h-full'>
                     <div className='flex flex-row justify-between h-full'>
                         <div className='flex flex-col gap-4 px-4 md:pl-4 mb-4 w-2/3'>
                             <div className="grid gap-1">
                                 <div className="flex items-center gap-1 w-1/2 overflow-hidden">
                                     <p className='hover:opacity-50 font-bold text-lg'>
-                                        {listing!.Title}
+                                        {listing!.title}
                                     </p>
                                 </div>
                             </div>
@@ -42,7 +42,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
                             <div className="grid gap-1">
                                 <div className="flex items-center gap-1 w-1/2 overflow-hidden">
                                     <p className="text-sm opacity-90">
-                                        {listing!.Description}
+                                        {listing!.description}
                                     </p>
                                 </div>
                             </div>
@@ -65,7 +65,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
                                     >
                                         schedule
                                     </Icon>
-                                    <p className="text-sm font-semibold">{listing.ClosingDate.toLocaleDateString("de-DE")}</p>
+                                    <p className="text-sm font-semibold">{listing.closingDate.toLocaleDateString("de-DE")}</p>
                                 </div>
                             </div>
                             {/* TODO: Replace with Material UI chip */}
@@ -80,7 +80,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
                             </div>
                         </div>
                         <div className='w-1/5 flex flex-col justify-center align-middle'>
-                            <img className='w-40 h-40' src={listing.Company?.LogoUrl ?? "https://www.adaptivewfs.com/wp-content/uploads/2020/07/logo-placeholder-image.png"} onClick={() => navigate("/company/" + listing.Company?.ID)} />
+                            <img className='w-40 h-40' src={listing.company?.logoUrl ?? "https://www.adaptivewfs.com/wp-content/uploads/2020/07/logo-placeholder-image.png"} onClick={() => navigate("/company/" + listing.company?.id)} />
                         </div>
                     </div>
                 </CardContent>
