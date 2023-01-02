@@ -2,10 +2,10 @@ import { Company } from "./Company";
 import { User } from "./User";
 
 export interface Review {
-    Id: number;
-    Description: string;
-    Value: number;
-    Date: Date;
-    Company?: Company;
-    User?: User;
+  id: number;
+  description: string;
+  value: number;
+  date: Date;
+  company?: Company;
+  user?: User;
 }

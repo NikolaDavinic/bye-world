@@ -2,7 +2,7 @@
 {
     public class Listing
     {
-        public long ID { get; set; }
+        public long Id { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public List<RequiresSkill> Requirements { get; set; } = new List<RequiresSkill>();
