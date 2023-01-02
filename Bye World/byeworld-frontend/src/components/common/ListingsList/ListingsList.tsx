@@ -5,14 +5,14 @@ import { ListingCard } from './ListingCard';
 
 export const ListingsList: React.FC = () => {
     const testListing: Listing = {
-        ID: 1,
-        ClosingDate: new Date(Date.now()),
-        Description: "Ovo je primer opisa posla",
-        PostingDate: new Date(Date.now()),
-        Requirements: [],
-        Title: "Java Senior Developer",
-        City: undefined,
-        Company: undefined
+        id: 1,
+        closingDate: new Date(Date.now()),
+        description: "Ovo je primer opisa posla",
+        postingDate: new Date(Date.now()),
+        requirements: [],
+        title: "Java Senior Developer",
+        city: undefined,
+        company: undefined
     }
     return (
         <div className='h-full px-4 py-4 space-y-4 bg-blue-100'>
