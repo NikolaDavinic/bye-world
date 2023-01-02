@@ -31,10 +31,10 @@ function App() {
           <Routes>
             <Route path="/" element={<Navbar />}>
               <Route path="" element={<Home />}></Route>
+              <Route path="/listings" element={<Listings />}></Route>
             </Route>
             <Route path="/signin" element={<SignIn />}></Route>
             <Route path="/signup" element={<SignUp />}></Route>
-            <Route path="/listings" element={<Listings />}></Route>
           </Routes>
         </div>
       </UserProvider>
