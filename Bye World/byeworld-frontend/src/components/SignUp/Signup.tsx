@@ -3,6 +3,7 @@ import axios from "axios";
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
+import config from "../../app.config.json"
 
 interface FormInputs {
   name: string;
@@ -32,7 +33,8 @@ export const SignUp: React.FC = () => {
       userType: "User"
     }
     
-    let result = axios.post("https://localhost:7294/user/signup", exampleUser)
+    // let result = axios.post("https://localhost:7294/user/signup", exampleUser)
+    let result = axios.post(config.APINAME + "/user/signup", exampleUser)
     .then(response => {
       console.log(response)
     })
