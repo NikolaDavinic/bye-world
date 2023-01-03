@@ -27,7 +27,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     .AddCookie(options =>
     {
         options.Cookie.Name = "byeworld-auth";
-        options.Cookie.Expiration = TimeSpan.FromHours(1);
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(120);
     });
 
 builder.Services.AddCors(options =>
