@@ -12,6 +12,7 @@ import Companies from "./components/CompaniesPage/CompaniesPage";
 import NotFound from "./components/NotFound/NotFound";
 import AddCompanyPage from "./components/AddCompanyPage/AddCompanyPage";
 import CompanyPage from "./components/CompanyPage/CompanyPage";
+import Footer from "./components/common/Footer/Footer";
 
 const theme = createTheme({
   palette: {
@@ -43,6 +44,7 @@ function App() {
               <Route path="/addcompany" element={<AddCompanyPage />}></Route>
               <Route path="/company/:id" element={<CompanyPage />}></Route>
               <Route path="*" element={<NotFound />}></Route>
+              <Route path="/footer" element={<Footer />}></Route>
             </Route>
             <Route path="/signin" element={<SignIn />}></Route>
             <Route path="/signup" element={<SignUp />}></Route>
