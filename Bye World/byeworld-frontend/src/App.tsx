@@ -10,6 +10,7 @@ import { Home } from "./components/Home/Home";
 import User from "./components/user/User";
 import Companies from "./components/CompaniesPage/CompaniesPage";
 import NotFound from "./components/NotFound/NotFound";
+import Footer from "./components/common/Footer/Footer";
 
 const theme = createTheme({
   palette: {
@@ -38,6 +39,7 @@ function App() {
               <Route path="/user/:id" element={<User />}></Route>
               <Route path="/companies" element={<Companies />}></Route>
               <Route path="*" element={<NotFound />}></Route>
+              <Route path="/footer" element={<Footer />}></Route>
             </Route>
             <Route path="/signin" element={<SignIn />}></Route>
             <Route path="/signup" element={<SignUp />}></Route>

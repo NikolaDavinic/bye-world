@@ -1,5 +1,8 @@
 import { Box, TextField, Typography } from "@mui/material";
-import React from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import config from "../../../app.config.json"
+
 
 interface CompaniesPageHeaderProps {
   value: string;
@@ -10,6 +13,37 @@ const CompaniesPageHeader: React.FC<CompaniesPageHeaderProps> = ({
   value,
   onChange,
 }: CompaniesPageHeaderProps) => {
+
+  const [filter, setFilter] = useState("")
+  const [companies, setCompanies] = useState([])
+
+  async function getCompanies(){
+    const response = await axios.get(config.APINAME + "/company/getallcompanies");
+    console.log(response.data);
+    setCompanies(await response.data);
+  }
+  
+  async function getFilteredCompanies(){
+    var filterBody = {
+      Filter: filter
+    }
+    const response = await axios.get(config.APINAME + "/company/filter",{
+      params:{
+        filter
+      }
+    });
+    console.log(response.data);
+    setCompanies(await response.data);
+  }
+
+  useEffect(() => {
+    getCompanies();
+  }, [])
+
+  useEffect(() => {
+    getFilteredCompanies();
+  }, [filter])
+
   return (
     <Box className="relative flex justify-center">
       <Box className="bg-gray-100" minHeight="200px" minWidth="100%"></Box>
@@ -26,7 +60,7 @@ const CompaniesPageHeader: React.FC<CompaniesPageHeaderProps> = ({
         </Box>
         <Box className="relative w-full items-center justify-center flex">
           <TextField
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e) => setFilter(e.target.value)}
             label="Name"
             color="primary"
             className="w-full absolute bg-gray-100"
