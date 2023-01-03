@@ -38,7 +38,7 @@ namespace ByeWorld_backend.Services
                 if (!string.IsNullOrEmpty(redisValue))
                 {
                     tokenSource.Cancel();
-                    return JsonSerializer.Deserialize<User>(redisValue));
+                    return JsonSerializer.Deserialize<User>(redisValue);
                 }
             }
 

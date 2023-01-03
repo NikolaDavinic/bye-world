@@ -9,7 +9,7 @@
         public string Phone { get; set; } = String.Empty;
         public string Email { get; set; } = String.Empty;
         public string Address{ get; set; } = String.Empty;
-        public string VAT { get; set; };
+        public string VAT { get; set; }
         public List<Listing> Listings { get; set; } = new List<Listing>();
         public List<Review> Reviews { get; set; } = new List<Review>();
         public User? User { get; set; } = null;

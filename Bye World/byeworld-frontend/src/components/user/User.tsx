@@ -1,5 +1,5 @@
 import React from 'react'
-import {Button} from "@mui/material"
+import { Button } from "@mui/material"
 import Link from '@mui/material/Link'
 
 
@@ -39,9 +39,9 @@ export default function User() {
                     <div className="flex items-center gap-1 overflow-auto pb-4 scrollbar-thin 
                 scrollbar-thumb-white scrollbar-track-transparent scrollbar-thumb-rounded-full 
                 scrollbar-track-rounded-full">
-                    <Link href="/user/2" color="inherit">
-                        <a  className="text-sm font-medium shrink-0 flex px-2 py-2 rounded leading-none __user-nav-item         text-white hover:bg-white hover:text-blue-800 bg-white text-blue-800" data-section="profil">Moj nalog</a>
-                    </Link>
+                        <Link href="/user/2" color="inherit">
+                            <a className="text-sm font-medium shrink-0 flex px-2 py-2 rounded leading-none __user-nav-item         text-white hover:bg-white hover:text-blue-800 bg-white text-blue-800" data-section="profil">Moj nalog</a>
+                        </Link>
                         <a href="/moj-nalog/prijave" className="text-sm font-medium shrink-0 flex px-2 py-2 rounded leading-none __user-nav-item         text-white hover:bg-white hover:text-blue-800" data-section="prijave">Moje prijave</a>
                         <a href="/moj-nalog/sacuvani-oglasi" className="text-sm font-medium shrink-0 flex px-2 py-2 rounded leading-none __user-nav-item         text-white hover:bg-white hover:text-blue-800" data-section="sacuvani-oglasi">Sačuvani oglasi</a>
                         <a href="/moj-nalog/kompanije" className="text-sm font-medium shrink-0 flex px-2 py-2 rounded leading-none __user-nav-item         text-white hover:bg-white hover:text-blue-800" data-section="kompanije">Kompanije</a>
@@ -58,7 +58,7 @@ export default function User() {
                     </div>        </div>
             </div>
             <div className="relative max-w-5xl mx-auto flex flex-col gap-8 px-4 -mt-12 mb-8
-    w-full __section">
+    w-full __section bg-gradient-to-r from-green-500 to-blue-900 relative">
                 {/* <script src="https://www.helloworld.rs/public/js/plugins/pdfjs/build/pdf.js" type="text/javascript"></script> */}
 
 

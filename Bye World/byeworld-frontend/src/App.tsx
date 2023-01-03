@@ -8,6 +8,8 @@ import { Listings } from "./components/listings/ListingsPage";
 import { Navbar } from "./components/common/Navbar/Navbar";
 import { Home } from "./components/Home/Home";
 import User from "./components/user/User";
+import Companies from "./components/CompaniesPage/CompaniesPage";
+import NotFound from "./components/NotFound/NotFound";
 
 const theme = createTheme({
   palette: {
@@ -34,6 +36,8 @@ function App() {
               <Route path="" element={<Home />}></Route>
               <Route path="/listings" element={<Listings />}></Route>
               <Route path="/user/:id" element={<User />}></Route>
+              <Route path="/companies" element={<Companies />}></Route>
+              <Route path="*" element={<NotFound />}></Route>
             </Route>
             <Route path="/signin" element={<SignIn />}></Route>
             <Route path="/signup" element={<SignUp />}></Route>

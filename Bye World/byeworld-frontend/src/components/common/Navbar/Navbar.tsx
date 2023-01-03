@@ -12,6 +12,7 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { Icon } from "@mui/material";
 import { Link, NavLink, Outlet } from "react-router-dom";
+import LinkMui from "@mui/material/Link"
 
 const pages = ["Listings", "Companies"];
 
@@ -148,9 +149,11 @@ export const Navbar = () => {
 
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
-                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-                </IconButton>
+                <LinkMui href="/user/2">
+                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                  </IconButton>
+                </LinkMui>
               </Tooltip>
               <Menu
                 sx={{ mt: "45px" }}

@@ -31,7 +31,7 @@ namespace ByeWorld_backend.Controllers
         public async Task<ActionResult> GetListingById(int id)
         {
             var listing = await _neo4j.Cypher.Match("(l:Listing)")
-                                             .Where((Listing l) => l.ID == id)
+                                             .Where((Listing l) => l.Id == id)
                                              .Return(l => l.As<Listing>()).ResultsAsync;
             return Ok(listing.LastOrDefault());
         }
@@ -64,7 +64,7 @@ namespace ByeWorld_backend.Controllers
 
             var newListing = new Listing
             {
-                ID=listing.ID,
+                Id=listing.Id,
                 ClosingDate=listing.ClosingDate,
                 PostingDate=listing.PostingDate,
                 Description=listing.Description,
