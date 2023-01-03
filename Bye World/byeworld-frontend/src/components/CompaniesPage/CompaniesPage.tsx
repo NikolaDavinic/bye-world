@@ -13,7 +13,6 @@ const companyEx: Company = {
   reviewsCount: 5,
   listingsCount: 5,
   avgReview: 3.4,
-  phone: "",
   description: "kkddks",
   logoUrl:
     "https://www.logodesign.net/logo/line-art-house-roof-and-buildings-4485ld.png",

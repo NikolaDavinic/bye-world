@@ -26,6 +26,7 @@ builder.Services.AddSingleton<IBoltGraphClient>(options =>
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
+        options.Cookie.HttpOnly = true;
         options.Cookie.Name = "byeworld-auth";
         options.ExpireTimeSpan = TimeSpan.FromMinutes(120);
     });
@@ -42,7 +43,8 @@ builder.Services.AddCors(options =>
             "https://127.0.0.1:3000"
         })
         .AllowAnyHeader()
-        .AllowAnyMethod();
+        .AllowAnyMethod()
+        .AllowCredentials();
     });
 
     options.AddPolicy("CORSProduction", builder =>

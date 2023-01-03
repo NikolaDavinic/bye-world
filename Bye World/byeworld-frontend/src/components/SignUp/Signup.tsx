@@ -1,9 +1,19 @@
-import { Box, Button, Grid, Stack, TextField } from "@mui/material";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Grid,
+  Stack,
+  Switch,
+  TextField,
+  Typography,
+} from "@mui/material";
 import axios from "axios";
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
-import config from "../../app.config.json"
+import { Link, useNavigate } from "react-router-dom";
+import { constants } from "../../constants";
+import { User } from "../../model/User";
 
 interface FormInputs {
   name: string;
@@ -11,6 +21,7 @@ interface FormInputs {
   email: string;
   phone: string;
   repeatPassword: string;
+  isCompany: boolean;
 }
 
 export const SignUp: React.FC = () => {
@@ -22,25 +33,28 @@ export const SignUp: React.FC = () => {
   } = useForm<FormInputs>({
     reValidateMode: "onChange",
   });
+  const navigate = useNavigate();
 
   const onSubmit = (data: FormInputs) => {
     console.log(data);
-    let exampleUser = {
+    let exampleUser: User & { password: string } = {
       name: data.name,
       email: data.email,
       phone: data.phone,
       password: data.password,
-      userType: "User"
-    }
-    
-    // let result = axios.post("https://localhost:7294/user/signup", exampleUser)
-    let result = axios.post(config.APINAME + "/user/signup", exampleUser)
-    .then(response => {
-      console.log(response)
-    })
-    .catch(error => {
-      console.error(error)
-    })   
+      role: data.isCompany ? "Company" : "User",
+    };
+
+    axios
+      .post(`${constants.apiName}/user/signup`, exampleUser)
+      .then((response) => {
+        if (!data.isCompany) {
+          return navigate("signin");
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   };
 
   const repeatPasswordValidator = useCallback(
@@ -51,7 +65,7 @@ export const SignUp: React.FC = () => {
   return (
     <Box
       sx={{
-        height: "100%",
+        height: "100vh",
         p: "1em",
         display: "flex",
         alignItems: "center",
@@ -108,7 +122,12 @@ export const SignUp: React.FC = () => {
           error={Boolean(errors.repeatPassword)}
           helperText={errors.repeatPassword && "Passwords don't match"}
         ></TextField>
-        <p>{}</p>
+        <Box display="flex" alignItems="center">
+          <Typography>Basic profile</Typography>
+          <Switch {...register("isCompany")}></Switch>
+          <Typography>Company profile</Typography>
+        </Box>
+
         <Button type="submit" variant="contained" color="primary">
           Sign Up
         </Button>

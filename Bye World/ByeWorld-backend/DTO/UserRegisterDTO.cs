@@ -8,6 +8,6 @@ namespace ByeWorld_backend.DTO
         public String Email { get; set; } = String.Empty;
         public String Phone { get; set; } = String.Empty;
         public String Password { get; set; } = String.Empty;
-        public String? UserType { get; set; }
+        public String Role { get; set; } = "User";
     }
 }
