@@ -149,11 +149,11 @@ export const Navbar = () => {
 
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
-                <LinkMui href="/user/2">
-                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-                  </IconButton>
-                </LinkMui>
+                {/* <LinkMui href="/user/2"> */}
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                </IconButton>
+                {/* </LinkMui> */}
               </Tooltip>
               <Menu
                 sx={{ mt: "45px" }}
@@ -173,7 +173,9 @@ export const Navbar = () => {
               >
                 {settings.map((setting) => (
                   <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                    <Typography textAlign="center">{setting}</Typography>
+                    <LinkMui href="/user/2">
+                      <Typography textAlign="center">{setting}</Typography>
+                    </LinkMui>
                   </MenuItem>
                 ))}
               </Menu>
