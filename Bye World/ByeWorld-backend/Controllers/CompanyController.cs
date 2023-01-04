@@ -46,6 +46,7 @@ namespace ByeWorld_backend.Controllers
                 .ResultsAsync;
 
             return Ok(newCompany.First());
+
         }
 
         [HttpPost("addcompanytest")]
