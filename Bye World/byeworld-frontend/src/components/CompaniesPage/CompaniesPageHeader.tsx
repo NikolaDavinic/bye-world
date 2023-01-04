@@ -1,9 +1,9 @@
 import { Box, Link, TextField, Typography } from "@mui/material";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { constants } from "../../../constants";
-import CompanyCard from "../CompanyCard/CompanyCard";
-import CompanyList from "../CompanyList/CompanyList";
+import { constants } from "../../constants";
+import CompanyCard from "../common/CompanyCard/CompanyCard";
+import CompanyList from "../common/CompanyList/CompanyList";
 
 interface CompaniesPageHeaderProps {
   value: string;
@@ -14,35 +14,6 @@ const CompaniesPageHeader: React.FC<CompaniesPageHeaderProps> = ({
   value,
   onChange,
 }: CompaniesPageHeaderProps) => {
-  const [filter, setFilter] = useState("");
-  const [companies, setCompanies] = useState([]);
-
-  async function getCompanies() {
-    const response = await axios.get(
-      constants.apiName + "/company/getallcompanies"
-    );
-    console.log(response.data);
-    setCompanies(await response.data);
-  }
-
-  async function getFilteredCompanies() {
-    const response = await axios.get(constants.apiName + "/company/filter", {
-      params: {
-        filter,
-      },
-    });
-    console.log(response.data);
-    setCompanies(await response.data);
-  }
-
-  useEffect(() => {
-    getCompanies();
-  }, []);
-
-  useEffect(() => {
-    getFilteredCompanies();
-  }, [filter]);
-
   return (
     <>
       <Box className="relative flex justify-center">
@@ -60,7 +31,7 @@ const CompaniesPageHeader: React.FC<CompaniesPageHeaderProps> = ({
           </Box>
           <Box className="relative w-full items-center justify-center flex">
             <TextField
-              onChange={(e) => setFilter(e.target.value)}
+              onChange={(e) => onChange(e.target.value)}
               label="Name"
               color="primary"
               className="w-full absolute bg-gray-100"
@@ -68,9 +39,6 @@ const CompaniesPageHeader: React.FC<CompaniesPageHeaderProps> = ({
             ></TextField>
           </Box>
         </Box>
-      </Box>
-      <Box className="flex justify-center items-center w-full pt-10 flex-wrap gap-5">
-        <CompanyList companies={companies} />
       </Box>
     </>
   );

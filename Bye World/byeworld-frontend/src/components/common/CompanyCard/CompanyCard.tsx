@@ -11,6 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
+import { Link } from "react-router-dom";
 import { Company } from "../../../model/Company";
 
 interface CompanyCardProps {
@@ -45,7 +46,7 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
             }
           />
           <Typography gutterBottom variant="h6" component="div">
-            {company.name}
+            <Link to={`/company/${company.id}`}>{company.name}</Link>
           </Typography>
           <Box></Box>
 
