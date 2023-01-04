@@ -76,7 +76,13 @@ namespace ByeWorld_backend.Controllers
 
             var db = _redis.GetDatabase();
 
-            var sessionId = new PasswordGenerator.Password(passwordLength: 50).Next();
+            string sessionId = new PasswordGenerator.Password(
+                includeLowercase: true,
+                includeUppercase: true,
+                passwordLength: 50,
+                includeSpecial: false,
+                includeNumeric: false).Next();
+
             db.StringSet($"sessions:{sessionId}", JsonSerializer.Serialize(user));
 
             return Ok(new {
