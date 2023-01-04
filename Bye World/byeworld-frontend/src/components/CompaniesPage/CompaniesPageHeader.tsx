@@ -1,9 +1,9 @@
 import { Box, Link, TextField, Typography } from "@mui/material";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { DebounceInput } from "react-debounce-input";
 import { constants } from "../../constants";
 import CompanyCard from "../common/CompanyCard/CompanyCard";
-import CompanyList from "../common/CompanyList/CompanyList";
 
 interface CompaniesPageHeaderProps {
   value: string;
@@ -31,11 +31,11 @@ const CompaniesPageHeader: React.FC<CompaniesPageHeaderProps> = ({
           </Box>
           <Box className="relative w-full items-center justify-center flex">
             <TextField
-              onChange={(e) => onChange(e.target.value)}
               label="Name"
               color="primary"
               className="w-full absolute bg-gray-100"
               sx={{ top: "-1.9rem" }}
+              onChange={(e) => onChange(e.target.value)}
             ></TextField>
           </Box>
         </Box>

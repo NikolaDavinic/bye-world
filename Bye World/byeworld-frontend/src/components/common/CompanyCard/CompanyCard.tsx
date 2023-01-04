@@ -21,7 +21,6 @@ interface CompanyCardProps {
 const CompanyCard: React.FC<CompanyCardProps> = ({
   company,
 }: CompanyCardProps) => {
-  console.log(company);
   return (
     <Card sx={{ maxWidth: 345 }}>
       <CardActionArea>

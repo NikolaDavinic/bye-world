@@ -2,10 +2,11 @@ import { Box } from "@mui/system";
 import React, { useEffect, useState } from "react";
 import { Company } from "../../model/Company";
 import CompaniesPageHeader from "./CompaniesPageHeader";
-import CompanyList from "../common/CompanyList/CompanyList";
 import axios from "axios";
-import { constants } from "../../constants";
+import { api, constants } from "../../constants";
 import { useDebounce } from "../../hooks/debounce,hook";
+import CompanyCard from "../common/CompanyCard/CompanyCard";
+import { Stack } from "@mui/material";
 
 const companyEx: Company = {
   id: 5,
@@ -30,7 +31,7 @@ const Companies: React.FC = () => {
   const debouncedSearchField = useDebounce(searchField, 500);
 
   async function getFilteredCompanies(filter: string) {
-    const response = await axios.get(constants.apiName + "/company/filter", {
+    const response = await api.get("/company/filter", {
       params: {
         filter,
       },
@@ -44,12 +45,19 @@ const Companies: React.FC = () => {
   }, [debouncedSearchField]);
 
   return (
-    <Box>
-      <CompaniesPageHeader onChange={setSearchField} value={searchField} />
-      <Box className="flex justify-center items-center w-full pt-10 flex-wrap gap-5">
-        <CompanyList companies={companies} />
+    <Stack justifyContent="center" alignItems="center">
+      <Box className="w-full">
+        <CompaniesPageHeader onChange={setSearchField} value={searchField} />
       </Box>
-    </Box>
+      <Box
+        className="flex justify-center items-center w-4/5
+       pt-10 flex-wrap gap-5"
+      >
+        {companies.map((company) => (
+          <CompanyCard key={company.id} company={company} />
+        ))}
+      </Box>
+    </Stack>
   );
 };
 
