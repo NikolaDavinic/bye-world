@@ -5,6 +5,7 @@ import CompaniesPageHeader from "./CompaniesPageHeader";
 import CompanyList from "../common/CompanyList/CompanyList";
 import axios from "axios";
 import { constants } from "../../constants";
+import { useDebounce } from "../../hooks/debounce,hook";
 
 const companyEx: Company = {
   id: 5,
@@ -26,6 +27,8 @@ const Companies: React.FC = () => {
   const [searchField, setSearchField] = useState<string>("");
   const [companies, setCompanies] = useState<Company[]>([]);
 
+  const debouncedSearchField = useDebounce(searchField, 500);
+
   async function getFilteredCompanies(filter: string) {
     const response = await axios.get(constants.apiName + "/company/filter", {
       params: {
@@ -36,8 +39,9 @@ const Companies: React.FC = () => {
   }
 
   useEffect(() => {
-    if (searchField.length >= 3) getFilteredCompanies(searchField);
-  }, [searchField]);
+    if (debouncedSearchField.length >= 3)
+      getFilteredCompanies(debouncedSearchField);
+  }, [debouncedSearchField]);
 
   return (
     <Box>
