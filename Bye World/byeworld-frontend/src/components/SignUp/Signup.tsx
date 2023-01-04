@@ -44,13 +44,18 @@ export const SignUp: React.FC = () => {
       password: data.password,
       role: data.isCompany ? "Company" : "User",
     };
+    console.log(exampleUser)
 
     axios
-      .post(`${constants.apiName}/user/signup`, exampleUser)
+      .post(constants.apiName + "/user/signup", exampleUser)
       .then((response) => {
         if (!data.isCompany) {
           return navigate("signin");
         }
+        else{
+          return navigate("/addcompany");
+        }
+        console.log(response)
       })
       .catch((error) => {
         console.error(error);

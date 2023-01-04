@@ -53,7 +53,7 @@ namespace ByeWorld_backend.Controllers
             }
 
             await _neo4j.Cypher.Create("(u:User $user)")
-                               .WithParam("user", JsonSerializer.Serialize(newUser))
+                               .WithParam("user", newUser)
                                .ExecuteWithoutResultsAsync();
 
             return Ok("User added succesful!");

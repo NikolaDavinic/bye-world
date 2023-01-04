@@ -13,6 +13,7 @@ import MenuItem from "@mui/material/MenuItem";
 import { Icon } from "@mui/material";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import LinkMui from "@mui/material/Link"
+import Footer from "../Footer/Footer";
 
 const pages = ["Listings", "Companies"];
 
@@ -186,6 +187,7 @@ export const Navbar = () => {
       <Box sx={{ minHeight: "80vh" }}>
         <Outlet />
       </Box>
+      <Footer />
     </>
   );
 };

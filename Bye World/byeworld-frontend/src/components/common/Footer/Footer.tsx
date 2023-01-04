@@ -13,7 +13,7 @@ export default function Footer() {
                 <Box sx={{ display: { xs: "none", md: "flex" }, flexGrow: 0 }}>
                     <Link href="/">
                         <Box sx={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                            <Icon className="material-symbols-outlined">code</Icon>
+                            <Icon className="material-symbols-outlined text-white">code</Icon>
                             <Typography
                                 variant="h6"
                                 noWrap
@@ -24,7 +24,7 @@ export default function Footer() {
                                     fontFamily: "monospace",
                                     fontWeight: 700,
                                     letterSpacing: ".3rem",
-                                    color: "inherit",
+                                    color: "white",
                                     textDecoration: "none",
                                 }}
                             >

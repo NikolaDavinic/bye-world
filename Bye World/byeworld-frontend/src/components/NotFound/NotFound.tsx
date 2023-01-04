@@ -1,11 +1,15 @@
 import { Box, Button, Grid, Link, Typography } from "@mui/material";
 import { blue } from "@mui/material/colors";
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 
 const primary = blue[100];
 
 const NotFound: React.FC = () => {
+
+  const navigate = useNavigate();
+
   return (
     <Box
       sx={{
@@ -23,9 +27,7 @@ const NotFound: React.FC = () => {
       <Typography variant="h6" style={{ color: 'white' }}>
         The page you’re looking for doesn’t exist.
       </Typography>
-      <Link href="/">
-        <Button variant="contained">Back Home</Button>
-      </Link>
+      <Button variant="contained" onClick={() => navigate(-1)}>Back Home</Button>
     </Box>
   );
 };

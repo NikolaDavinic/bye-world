@@ -8,8 +8,16 @@ const AddCompanyPage = () => {
   const navigate = useNavigate();
 
   const onSubmit = (company: Company) => {
+    console.log(company);
+    let com = {
+      Name: company.name,
+      Description: company.description,
+      Email: company.email,
+      VAT : company.vat,
+      Address: company.address
+    }
     axios
-      .post(`${constants.apiName}/company`, company, { withCredentials: true })
+      .post(`${constants.apiName}/company`, com, { withCredentials: true })
       .then(({ data }) => {
         navigate(`/company/${data.id}`);
       })
