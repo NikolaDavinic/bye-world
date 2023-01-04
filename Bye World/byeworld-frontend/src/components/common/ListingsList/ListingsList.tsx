@@ -1,9 +1,14 @@
-import { Button, Icon, TextField } from '@mui/material'
+import { Button, CircularProgress, Icon, TextField } from '@mui/material'
 import React, { useState } from 'react'
 import { Listing } from '../../../model/Listing';
 import { ListingCard } from './ListingCard';
+interface ListingsListProps {
+    listings: Listing[]
+}
 
-export const ListingsList: React.FC = () => {
+export const ListingsList: React.FC<ListingsListProps> = ({
+    listings
+}) => {
     const testListing: Listing = {
         id: 1,
         closingDate: new Date(Date.now()),
@@ -21,11 +26,14 @@ export const ListingsList: React.FC = () => {
                     <Button variant="outlined">Newest</Button>
                     <Button variant="outlined">Expiring soon</Button>
                 </div>
+                {listings.length == 0 && <CircularProgress className='' color="primary" />}
+                {listings.map(l => (
+                    <ListingCard listing={l} />
+                ))}
+                {/* <ListingCard listing={testListing} />
+                <ListingCard listing={testListing} />
+                <ListingCard listing={testListing} /> */}
 
-                <ListingCard listing={testListing} />
-                <ListingCard listing={testListing} />
-                <ListingCard listing={testListing} />
-                
             </div>
         </div>
     )

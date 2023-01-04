@@ -53,14 +53,14 @@ export const ListingCard: React.FC<ListingCardProps> = ({
                     <Icon className="material-symbols-outlined">
                       location_city
                     </Icon>
-                    <p className="text-sm font-semibold">Beograd</p>
+                    <p className="text-sm font-semibold">{listing.city?.name}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-1">
                   <Icon className="material-symbols-outlined">schedule</Icon>
                   <p className="text-sm font-semibold">
-                    {listing.closingDate.toLocaleDateString("de-DE")}
+                    {new Date(listing.closingDate).toLocaleDateString("de-DE")}
                   </p>
                 </div>
               </div>
