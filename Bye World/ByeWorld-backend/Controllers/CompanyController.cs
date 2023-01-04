@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Neo4jClient;
 using StackExchange.Redis;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 
 namespace ByeWorld_backend.Controllers
 {
@@ -49,24 +50,6 @@ namespace ByeWorld_backend.Controllers
 
         }
 
-        [HttpPost("addcompanytest")]
-        public async Task<ActionResult> AddCompnyTest([FromBody]Company company)
-        {
-            await _neo4j.Cypher.Create("(c:Company $company)")
-                               .WithParam("company", company)
-                               //{
-                               //    Address = company.Address,
-                               //    Description = company.Description,
-                               //    Id = 1,
-                               //    Email = company.Email,
-                               //    Name = company.Name,
-                               //    LogoUrl = company.LogoUrl,
-                               //    Phone = company.Phone,
-                               //})
-                               .ExecuteWithoutResultsAsync();
-            return Ok("Company is added!");
-        }
-
         [HttpGet("getallcompanies")]
         public async Task<ActionResult> GetAllCompanies()
         {
@@ -85,11 +68,18 @@ namespace ByeWorld_backend.Controllers
                 return Ok(companies2);
             }
 
-            var companies = await _neo4j.Cypher.Match("(c:Company)")
-                                                .Where((Company c) => c.Name.ToLower().Contains(filter.ToLower()) || c.Address.ToLower().Contains(filter.ToLower()))
-                                                .Return(c => c.As<Company>()).ResultsAsync;
+            //var query = _neo4j.Cypher.Match("(c:Company)")
+            //                                    .Where((Company c) => c.Name.ToLower().Contains(filter.ToLower()) || c.Address.ToLower().Contains(filter.ToLower()))
+            //                                    .Return(c => c.As<Company>());
 
-            return Ok(companies);
+            var query = _neo4j.Cypher
+                .Match("(c:Company)")
+                .Where("c.Name =~ $query")
+                .OrWhere("c.Address =~ $query")
+                .WithParam("query", $"(?i).*{filter}.*")
+                .Return(c => c.As<Company>());
+
+            return Ok(await query.ResultsAsync);
         }
     }
 }
