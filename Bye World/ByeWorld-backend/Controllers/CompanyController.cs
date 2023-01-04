@@ -86,7 +86,7 @@ namespace ByeWorld_backend.Controllers
             }
 
             var companies = await _neo4j.Cypher.Match("(c:Company)")
-                                                .Where((Company c) => c.Name.Contains(filter) || c.Address.Contains(filter))
+                                                .Where((Company c) => c.Name.ToLower().Contains(filter.ToLower()) || c.Address.ToLower().Contains(filter.ToLower()))
                                                 .Return(c => c.As<Company>()).ResultsAsync;
 
             return Ok(companies);
