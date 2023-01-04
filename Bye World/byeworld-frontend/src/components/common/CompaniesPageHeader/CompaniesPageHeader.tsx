@@ -1,8 +1,7 @@
 import { Box, TextField, Typography } from "@mui/material";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import config from "../../../app.config.json"
-
+import { constants } from "../../../constants";
 
 interface CompaniesPageHeaderProps {
   value: string;
@@ -13,24 +12,25 @@ const CompaniesPageHeader: React.FC<CompaniesPageHeaderProps> = ({
   value,
   onChange,
 }: CompaniesPageHeaderProps) => {
+  const [filter, setFilter] = useState("");
+  const [companies, setCompanies] = useState([]);
 
-  const [filter, setFilter] = useState("")
-  const [companies, setCompanies] = useState([])
-
-  async function getCompanies(){
-    const response = await axios.get(config.APINAME + "/company/getallcompanies");
+  async function getCompanies() {
+    const response = await axios.get(
+      constants.apiName + "/company/getallcompanies"
+    );
     console.log(response.data);
     setCompanies(await response.data);
   }
-  
-  async function getFilteredCompanies(){
+
+  async function getFilteredCompanies() {
     var filterBody = {
-      Filter: filter
-    }
-    const response = await axios.get(config.APINAME + "/company/filter",{
-      params:{
-        filter
-      }
+      Filter: filter,
+    };
+    const response = await axios.get(constants.apiName + "/company/filter", {
+      params: {
+        filter,
+      },
     });
     console.log(response.data);
     setCompanies(await response.data);
@@ -38,11 +38,11 @@ const CompaniesPageHeader: React.FC<CompaniesPageHeaderProps> = ({
 
   useEffect(() => {
     getCompanies();
-  }, [])
+  }, []);
 
   useEffect(() => {
     getFilteredCompanies();
-  }, [filter])
+  }, [filter]);
 
   return (
     <Box className="relative flex justify-center">
