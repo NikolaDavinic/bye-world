@@ -26,9 +26,7 @@ namespace ByeWorld_backend.Controllers
             _neo4j = neo4j;
         }
 
-        //ureadjeno je da se ispita da li postoji korisnik sa ovim email-om, ako postoji onda se ne dodaje
         [HttpPost("signup")]
-        //[Route("/signup")]
         public async Task<ActionResult> SignUp([FromBody] UserRegisterDTO u)
         {
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(u.Password);
@@ -78,21 +76,32 @@ namespace ByeWorld_backend.Controllers
 
             var db = _redis.GetDatabase();
 
-            await SignInUser(user);
+            var sessionId = new PasswordGenerator.Password(passwordLength: 50).Next();
+            db.StringSet($"sessions:{sessionId}", JsonSerializer.Serialize(user));
 
-            return Ok(user);
+            return Ok(new {
+                SessionId = sessionId, 
+                User = user
+            });
         }
 
-        [Authorize]
         [HttpGet("login/{id}")]
         public async Task<IActionResult> Login(int id)
         {
+            var db = _redis.GetDatabase();
+
+            db.StringSet("sessions:8283848238423884238", JsonSerializer.Serialize(new User
+            {
+                Id = 5,
+                Email = "bann",
+                Name = "Stefan",
+                Role = "User"
+            }));
+            // PQOWPQPWPQWP
             var userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
 
             var tokenSource = new CancellationTokenSource();
             var cancellationToken = tokenSource.Token;
-
-            var db = _redis.GetDatabase();
 
             Task<RedisValue> redisTask = db.StringGetAsync($"user:{id}");
 
@@ -124,23 +133,6 @@ namespace ByeWorld_backend.Controllers
 
             //Console.WriteLine("neo4j");
             return Ok(value);
-        }
-
-        protected async Task SignInUser(User user)
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim("Id", user.Id.ToString()),
-                new Claim(ClaimTypes.Role, user.Role)
-            };
-
-            var claimsIdentity = new ClaimsIdentity(
-              claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity));
         }
     }
 }
