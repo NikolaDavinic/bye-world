@@ -39,19 +39,21 @@ namespace ByeWorld_backend.Controllers
                 Email = u.Email,
                 PasswordHash = hashedPassword,
                 Phone = u.Phone,
-                Role = "User"
+                Role = u.Role
             };
 
-            var testEmail = await _neo4j.Cypher.Match("(us:User)")
-                                               .Where((User us) => us.Email == u.Email)
-                                               .Return(us => us.As<User>()).ResultsAsync;
+            var testEmail = await _neo4j.Cypher
+                .Match("(us:User)")
+                .Where((User us) => us.Email == u.Email)
+                .Return(us => us.As<User>()).ResultsAsync;
+
             if(testEmail.Any())
             {
                 return BadRequest("This email address is already in use, please enter new email!");
             }
 
             await _neo4j.Cypher.Create("(u:User $user)")
-                               .WithParam("user", newUser)
+                               .WithParam("user", JsonSerializer.Serialize(newUser))
                                .ExecuteWithoutResultsAsync();
 
             return Ok("User added succesful!");
@@ -78,7 +80,7 @@ namespace ByeWorld_backend.Controllers
 
             await SignInUser(user);
 
-            return Ok("");
+            return Ok(user);
         }
 
         [Authorize]

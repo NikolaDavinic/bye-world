@@ -1,9 +1,12 @@
 import { Box, Button, Grid, Stack, TextField } from "@mui/material";
+import axios from "axios";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
-
+import { Link, useNavigate } from "react-router-dom";
+import { constants } from "../../constants";
+import { User } from "../../model/User";
 
 export const SignIn: React.FC = () => {
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -12,12 +15,20 @@ export const SignIn: React.FC = () => {
     reValidateMode: "onSubmit",
   });
 
-  const onSubmit = handleSubmit((creds) => {});
+  const onSubmit = handleSubmit((creds) => {
+    axios
+      .post<User>(`${constants.apiName}/user/signin`, creds)
+      .then((res) => {
+        console.log(res.data);
+        navigate("/home");
+      })
+      .catch((err) => {});
+  });
 
   return (
     <Box
       sx={{
-        height: "100%",
+        height: "100vh",
         p: "1em",
         display: "flex",
         alignItems: "center",

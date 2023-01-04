@@ -1,5 +1,6 @@
 ﻿using ByeWorld_backend.DTO;
 using ByeWorld_backend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Neo4jClient;
@@ -20,40 +21,31 @@ namespace ByeWorld_backend.Controllers
             _neo4j = neo4j;
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult> AddCompany([FromBody] AddCompanyDTO company)
         {
-            //var claims = HttpContext.User.Claims;
-            //var userId = claims.Where(c => c.Type == "Id").FirstOrDefault()?.Value;
-            //var role = claims.Where(c => c.Type == ClaimTypes.Role).FirstOrDefault()?.Value;
+            var claims = HttpContext.User.Claims;
 
-            //if (role == null || role != "Company")
-            //{
-            //    return Unauthorized("User not authorized");
-            //}
+            var userId = Int32.Parse(claims.Where(c => c.Type == "Id").FirstOrDefault()?.Value ?? "0");
+            var role = claims.Where(c => c.Type == ClaimTypes.Role).FirstOrDefault()?.Value;
 
-            //await _neo4j.Cypher.Create("(u:Company $company)")
-            //                   .WithParam("company", new Company
-            //                   {
-            //                       Address = company.Address,
-            //                       Description = company.Description,
-            //                       Id = 1,
-            //                       Email = company.Email,
-            //                       Name = company.Name,
-            //                       LogoUrl = company.LogoUrl,
-            //                       Phone = company.Phone,
-            //                   })
-            //                   .Return(c => c.As<Company>())
-            //                   .ResultsAsync;
+            var newCompany = await _neo4j.Cypher
+                .Match("(u:User)")
+                .Where((User u) => u.Id == userId)
+                .Create("(u)-[:HAS]->(c:Company $newcompany)")
+                .WithParam("newcompany", new Company
+                {
+                    //Id = 1,
+                    Address = company.Address,
+                    Description = company.Description,
+                    Email = company.Email,
+                    Name = company.Name
+                })
+                .Return(c => c.As<Company>())
+                .ResultsAsync;
 
-            //await _neo4j.Cypher
-            //    .Match("(c:User)")
-            //    .Where((User u) => u.Id == userId)
-            //    .Create("(c)-[:ADDED]->(:Company $company)")
-            //    .WithParam("company", new Listing { ID = 2, Title = "Full Stack Developer" })
-            //    .ExecuteWithoutResultsAsync();
-
-            return Ok();
+            return Ok(newCompany.First());
         }
 
         [HttpPost("addcompanytest")]

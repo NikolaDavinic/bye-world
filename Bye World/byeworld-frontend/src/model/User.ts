@@ -1,11 +1,11 @@
 import { HasSkill } from "./HasSkill";
 
 export interface User {
-  id: number;
+  id?: number;
   name: string;
   email: string;
-  phone: string;
-  imageUrl: string;
-  userType: string;
-  skills: HasSkill[];
+  phone?: string;
+  imageUrl?: string;
+  role: "User" | "Company";
+  skills?: HasSkill[];
 }
