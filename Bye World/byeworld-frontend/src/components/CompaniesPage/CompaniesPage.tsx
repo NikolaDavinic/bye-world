@@ -4,25 +4,9 @@ import { Company } from "../../model/Company";
 import CompaniesPageHeader from "./CompaniesPageHeader";
 import axios from "axios";
 import { api, constants } from "../../constants";
-import { useDebounce } from "../../hooks/debounce,hook";
+import { useDebounce } from "../../hooks/debounce.hook";
 import CompanyCard from "../common/CompanyCard/CompanyCard";
 import { Stack } from "@mui/material";
-
-const companyEx: Company = {
-  id: 5,
-  vat: "0",
-  name: "Levi",
-  address: "Belgrade",
-  email: "email",
-  reviewsCount: 5,
-  listingsCount: 5,
-  avgReview: 3.4,
-  description: "kkddks",
-  logoUrl:
-    "https://www.logodesign.net/logo/line-art-house-roof-and-buildings-4485ld.png",
-  listings: [],
-  reviews: [],
-};
 
 const Companies: React.FC = () => {
   const [searchField, setSearchField] = useState<string>("");

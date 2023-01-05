@@ -18,7 +18,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   return (
     <Card sx={{ maxWidth: 1200, width: "auto", minWidth: 1000, height: 250 }}>
       <CardActionArea
-        className="h-full"
+        className="h-full hover:bg-blue-100"
         onClick={() => navigate("/listing/" + listing.id)}
       >
         <CardContent className="h-full">

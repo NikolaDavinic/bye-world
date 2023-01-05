@@ -3,11 +3,13 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { api, constants } from "../../constants";
+import { useAuthContext } from "../../contexts/auth.context";
 import { User } from "../../model/User";
-import { setSessionId, setUser } from "../../utils/helpers";
 
 export const SignIn: React.FC = () => {
+  const { signin } = useAuthContext();
   const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -20,9 +22,7 @@ export const SignIn: React.FC = () => {
     api
       .post<{ user: User; sessionId: string }>(`/user/signin`, creds)
       .then(({ data }) => {
-        setSessionId(data.sessionId);
-        setUser(data.user);
-
+        signin(data);
         navigate("/home");
       })
       .catch((err) => {});
