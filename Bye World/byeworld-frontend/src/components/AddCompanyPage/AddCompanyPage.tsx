@@ -7,7 +7,7 @@ import AddCompanyForm from "../common/AddCompanyForm/AddCompanyForm";
 const AddCompanyPage = () => {
   const navigate = useNavigate();
 
-  const onSubmit = (company: Company) => {
+  const onSubmit = async (company: Company) => {
     console.log(company);
     let com = {
       Name: company.name,
@@ -16,8 +16,8 @@ const AddCompanyPage = () => {
       VAT : company.vat,
       Address: company.address
     }
-    axios
-      .post(`${constants.apiName}/company`, com, { withCredentials: true })
+    await axios
+      .post(constants.apiName + "/company", com, { withCredentials: true })
       .then(({ data }) => {
         navigate(`/company/${data.id}`);
       })

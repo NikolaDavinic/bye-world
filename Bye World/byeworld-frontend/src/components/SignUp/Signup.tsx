@@ -50,7 +50,7 @@ export const SignUp: React.FC = () => {
       .post(constants.apiName + "/user/signup", exampleUser)
       .then((response) => {
         if (!data.isCompany) {
-          return navigate("signin");
+          return navigate("/signin");
         }
         else{
           return navigate("/addcompany");
