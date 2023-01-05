@@ -12,7 +12,7 @@ import axios from "axios";
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import { constants } from "../../constants";
+import { api, constants } from "../../constants";
 import { User } from "../../model/User";
 
 interface FormInputs {
@@ -44,18 +44,17 @@ export const SignUp: React.FC = () => {
       password: data.password,
       role: data.isCompany ? "Company" : "User",
     };
-    console.log(exampleUser)
+    console.log(exampleUser);
 
-    axios
-      .post(constants.apiName + "/user/signup", exampleUser)
+    api
+      .post("/user/signup", exampleUser)
       .then((response) => {
         if (!data.isCompany) {
-          return navigate("signin");
+          return navigate("/signin");
         }
         else{
           return navigate("/addcompany");
         }
-        console.log(response)
       })
       .catch((error) => {
         console.error(error);

@@ -1,4 +1,7 @@
+using ByeWorld_backend.Middlewares;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Neo4jClient;
 using StackExchange.Redis;
 
@@ -23,25 +26,28 @@ builder.Services.AddSingleton<IBoltGraphClient>(options =>
     return neo4jClient;
 });
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.Cookie.HttpOnly = true;
-        options.Cookie.Name = "byeworld-auth";
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(120);
-    });
+builder.Services.AddAuthentication("session-scheme")
+   .AddScheme<AuthenticationSchemeOptions, SessionAuthenticationSchemeHandler>("session-scheme", options => { });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.DefaultPolicy = new AuthorizationPolicyBuilder()
+        .AddAuthenticationSchemes("session-scheme")
+        .RequireAuthenticatedUser()
+        .Build();
+});
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CORSDevelopment", builder =>
     {
-        builder.WithOrigins(new string[]
-        {
+        builder
+        .WithOrigins(
             "http://localhost:3000",
             "https://localhost:3000",
             "http://127.0.0.1:3000",
             "https://127.0.0.1:3000"
-        })
+        )
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials();

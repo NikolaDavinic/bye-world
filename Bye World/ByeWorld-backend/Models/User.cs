@@ -11,7 +11,7 @@ namespace ByeWorld_backend.Models
         public string ImageUrl { get; set; } = String.Empty;
         [JsonIgnore]
         public string PasswordHash{ get; set; } = String.Empty;
-        public string Role { get; set; } = String.Empty;
+        public string Role { get; set; } = "User";
         public List<HasSkill> Skills { get; set; } = new List<HasSkill>();
     }
 }

@@ -2,8 +2,9 @@ import { Box, Button, Grid, Stack, TextField } from "@mui/material";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import { constants } from "../../constants";
+import { api, constants } from "../../constants";
 import { User } from "../../model/User";
+import { setSessionId, setUser } from "../../utils/helpers";
 
 export const SignIn: React.FC = () => {
   const navigate = useNavigate();
@@ -16,10 +17,12 @@ export const SignIn: React.FC = () => {
   });
 
   const onSubmit = handleSubmit((creds) => {
-    axios
-      .post<User>(`${constants.apiName}/user/signin`, creds)
-      .then((res) => {
-        console.log(res.data);
+    api
+      .post<{ user: User; sessionId: string }>(`/user/signin`, creds)
+      .then(({ data }) => {
+        setSessionId(data.sessionId);
+        setUser(data.user);
+
         navigate("/home");
       })
       .catch((err) => {});

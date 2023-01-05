@@ -43,7 +43,7 @@ namespace ByeWorld_backend.Controllers
                     Email = company.Email,
                     Name = company.Name
                 })
-                .Return(c => c.As<Company>())
+                .Return((u, c) => c.As<Company>())
                 .ResultsAsync;
 
             return Ok(newCompany.First());
