@@ -19,30 +19,30 @@ namespace ByeWorld_backend.Controllers
             _neo4j = neo4j;
         }
         
-        [HttpGet("Listings")]
-        public async Task<ActionResult> GetAllListings([FromQuery] string? keyword, [FromQuery]string? city, [FromQuery]string? position, [FromQuery] string? seniority)
+        [HttpGet("filter")]
+        public async Task<ActionResult> GetAllListings([FromQuery] string? keyword, [FromQuery]string? city, [FromQuery]string? position, [FromQuery] string? seniority, [FromQuery] bool sortNewest=true)
         {
 
             //var listings = await _neo4j.Cypher.Match("(n:Listing)")
             //                                  .Return(n => n.As<Listing>()).ResultsAsync;
-            var listings = _neo4j.Cypher.Match("(l:Listing)-[r]-(c:City)").Where((Listing l)=>true);
+            var query = _neo4j.Cypher.Match("(l:Listing)-[r]-(c:City)").Where((Listing l)=>true);
             if (!String.IsNullOrEmpty(keyword))
             {
-                listings=listings.AndWhere((Listing l) => l.Title.ToLower().Contains(keyword.ToLower()));
+                query=query.AndWhere((Listing l) => l.Title.Contains(keyword));
             }
             if (!String.IsNullOrEmpty(city))
             {
-                listings=listings.AndWhere((Listing l,City c) => c.Name.ToLower().Contains(city.ToLower()));
+                query=query.AndWhere((Listing l,City c) => c.Name.Contains(city));
             }
             if (!String.IsNullOrEmpty(position))
-            {
+             {
                 if (!String.IsNullOrEmpty(seniority))
-                    listings=listings.AndWhere((Listing l) => l.Requirements.Any(req => req.Skill.Name.Contains(position) && req.Proficiency.Contains(seniority)));
+                    query=query.AndWhere((Listing l) => l.Requirements.Any(req => req.Skill.Name.Contains(position) && req.Proficiency.Contains(seniority)));
                 else
-                    listings=listings.AndWhere((Listing l) => l.Requirements.Any(req => req.Skill.Name.Contains(position)));
+                    query = query.AndWhere((Listing l) => l.Requirements.Any(req => req.Skill.Name.Contains(position)));
             }
 
-            var retVal = listings.Return((l,c) => new Listing{ 
+            var retVal = query.Return((l,c) => new Listing{ 
                 Title=l.As<Listing>().Title,
                 City=c.As<City>(),
                 Description = l.As<Listing>().Description,
@@ -50,7 +50,15 @@ namespace ByeWorld_backend.Controllers
                 PostingDate = l.As<Listing>().PostingDate,
                 Id=l.As<Listing>().Id,
                 //TODO:Ubaci i company
+                //TODO:Ubaci i skill-ove
+
             });
+            if (sortNewest)
+            {
+                retVal = retVal.OrderBy("l.PostingDate DESC");
+            }
+            else
+                retVal = retVal.OrderBy("l.ClosingDate ASC");
             return Ok(await retVal.ResultsAsync);
         }
 

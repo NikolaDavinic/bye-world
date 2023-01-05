@@ -20,13 +20,13 @@ export const ListingsList: React.FC<ListingsListProps> = ({
         company: undefined
     }
     return (
-        <div className='h-full px-4 py-4 space-y-4 bg-blue-100'>
+        <div className='h-full px-4 py-4 space-y-4 bg-gray-100'>
             <div className='flex flex-col gap-4 items-center w-full'>
-                <div className='flex flex-row gap-5'>
-                    <Button variant="outlined">Newest</Button>
+                {/* <div className='flex flex-row gap-5'>
+                    <Button variant="contained">Newest</Button>
                     <Button variant="outlined">Expiring soon</Button>
-                </div>
-                {listings.length == 0 && <CircularProgress className='' color="primary" />}
+                </div> */}
+                {listings.length === 0 && <CircularProgress className='' color="primary" />}
                 {listings.map(l => (
                     <ListingCard listing={l} />
                 ))}
