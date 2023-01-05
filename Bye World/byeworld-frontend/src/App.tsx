@@ -12,6 +12,9 @@ import NotFound from "./components/NotFound/NotFound";
 import AddCompanyPage from "./components/AddCompanyPage/AddCompanyPage";
 import CompanyPage from "./components/CompanyPage/CompanyPage";
 import Footer from "./components/common/Footer/Footer";
+import { AuthStateProvider, useAuthContext } from "./contexts/auth.context";
+import { useEffect } from "react";
+import ListingPage from "./components/ListingPage/ListingPage";
 
 const theme = createTheme({
   palette: {
@@ -37,7 +40,7 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <UserProvider>
+      <AuthStateProvider>
         <div className="App">
           <Routes>
             <Route path="/" element={<Navbar />}>
@@ -48,6 +51,7 @@ function App() {
               <Route path="/companies" element={<Companies />}></Route>
               <Route path="/addcompany" element={<AddCompanyPage />}></Route>
               <Route path="/company/:id" element={<CompanyPage />}></Route>
+              <Route path="/listing/:id" element={<ListingPage />}></Route>
               <Route path="*" element={<NotFound />}></Route>
               <Route path="/footer" element={<Footer />}></Route>
             </Route>
@@ -55,7 +59,7 @@ function App() {
             <Route path="/signup" element={<SignUp />}></Route>
           </Routes>
         </div>
-      </UserProvider>
+      </AuthStateProvider>
     </ThemeProvider>
   );
 }
