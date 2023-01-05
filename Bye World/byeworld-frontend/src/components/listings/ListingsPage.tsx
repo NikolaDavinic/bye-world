@@ -1,5 +1,6 @@
 import { Button, Icon, TextField } from '@mui/material'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { api } from '../../constants';
 import { Listing } from '../../model/Listing';
 import { ListingCard } from '../common/ListingsList/ListingCard';
 import { ListingsList } from '../common/ListingsList/ListingsList';
@@ -9,18 +10,37 @@ export const Listings: React.FC = () => {
     const [city, setCity] = useState<string>("");
     const [seniority, setSeniority] = useState<string>("");
     const onFilter = () => {
+        getFilteredCompanies(keyword, city, skill, seniority);
+    }
+    const [listings, setListings] = useState<Listing[]>([]);
 
+    async function getFilteredCompanies(keyword: string, city: string, skill: string, seniority: string) {
+        const response = await api.get("/listing/filter", {
+            params: {
+                keyword,
+                city,
+                skill,
+                seniority
+            },
+        });
+        setListings(response.data);
     }
-    const testListing:Listing={
-        id:1,
-        closingDate:new Date(Date.now()),
-        description:"Ovo je primer opisa posla",
-        postingDate:new Date(Date.now()),
-        requirements:[],
-        title:"Java Senior Developer",
-        city:undefined,
-        company:undefined
-    }
+    useEffect(() => {
+        onFilter();
+    }, []);
+    // const testListing:Listing={
+    //     id:1,
+    //     closingDate:new Date(Date.now()),
+    //     description:"Ovo je primer opisa posla",
+    //     postingDate:new Date(Date.now()),
+    //     requirements:[],
+    //     title:"Java Senior Developer",
+    //     city:undefined,
+    //     company:undefined
+    // }
+
+
+
     return (
         <div>
             <div className='h-1/4 flex flex-col px-4 py-4 space-y-4 bg-slate-50'>
@@ -33,7 +53,7 @@ export const Listings: React.FC = () => {
                         value={city} />
                     <TextField id="seniority" label="Seniority" variant="outlined" onChange={e => setSeniority(e.target.value)}
                         value={seniority} />
-                    <Button variant='contained' startIcon={
+                    <Button variant='contained' onClick={() => onFilter()} startIcon={
                         <Icon
                             sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}
                             className="material-symbols-outlined"
@@ -47,10 +67,10 @@ export const Listings: React.FC = () => {
 
             </div>
             <div className='bg-white h-full'>
-                <ListingsList/>
+                <ListingsList listings={listings} />
 
                 {/* <ListingCard listing={testListing} /> */}
-                    
+
             </div>
 
         </div>
