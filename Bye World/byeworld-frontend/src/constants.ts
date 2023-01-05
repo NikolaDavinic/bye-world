@@ -12,11 +12,11 @@ const axiosInstace = axios.create({
 axiosInstace.interceptors.request.use(
   (config) => {
     let sessionId = lsGetSessionId();
-    console.log("interceptor");
     if (sessionId) {
       config["headers"] = config.headers ?? {};
       // @ts-ignore
       config.headers["Authorization"] = `SessionId ${sessionId}`;
+      console.log("interceptor");
     }
 
     return config;

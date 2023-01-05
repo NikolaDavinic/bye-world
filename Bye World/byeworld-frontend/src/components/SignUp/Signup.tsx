@@ -49,12 +49,7 @@ export const SignUp: React.FC = () => {
     api
       .post("/user/signup", exampleUser)
       .then((response) => {
-        if (!data.isCompany) {
-          return navigate("/signin");
-        }
-        else{
-          return navigate("/addcompany");
-        }
+        return navigate("/signin");
       })
       .catch((error) => {
         console.error(error);

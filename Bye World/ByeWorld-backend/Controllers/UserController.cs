@@ -83,12 +83,26 @@ namespace ByeWorld_backend.Controllers
                 includeSpecial: false,
                 includeNumeric: false).Next();
 
-            db.StringSet($"sessions:{sessionId}", JsonSerializer.Serialize(user));
+            db.StringSet($"sessions:{sessionId}", JsonSerializer.Serialize(user), expiry: TimeSpan.FromHours(2));
 
             return Ok(new {
                 SessionId = sessionId, 
                 User = user
             });
+        }
+
+        [Authorize]
+        [HttpPut("signout")]
+        public async Task<ActionResult> UserSignOut()
+        {
+            var claims = HttpContext.User.Claims;
+            var sessionId = claims.Where(c => c.Type == "SessionId").FirstOrDefault()?.Value;
+
+            var db = _redis.GetDatabase();
+
+            await db.KeyDeleteAsync(sessionId);
+
+            return Ok("Signed out successfully");
         }
 
         [HttpGet("login/{id}")]
