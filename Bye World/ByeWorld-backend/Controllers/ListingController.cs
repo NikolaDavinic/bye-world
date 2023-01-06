@@ -123,5 +123,29 @@ namespace ByeWorld_backend.Controllers
                 .ExecuteWithoutResultsAsync();
             return Ok();
         }
+
+        [HttpGet("getfirstthreesimilarlistings")]
+        public async Task<ActionResult> GetFirstThreeSimilarListings([FromBody]Listing l)
+        {
+
+            var SimilarByCompany = _neo4j.Cypher
+                .Match("(l:Listing)")
+                .Where("l.Company = $query")
+                .WithParam("query",l.Company)
+                .Return(l => l.As<Listing>()).Limit(1);
+
+            var SimilarByCity = _neo4j.Cypher
+                .Match("(l:Listing)")
+                .Where("l.City = $query")
+                .WithParam("query", l.City)
+                .Return(l => l.As<Listing>()).Limit(1);
+
+            var SimilarByRequirements = _neo4j.Cypher
+                .Match("(l:Listing)")
+                .Return(l => l.As<Listing>());
+
+
+            return Ok();
+        }
     }
 }
