@@ -1,4 +1,5 @@
 import { createContext, ReactNode, useContext, useState } from "react";
+import { api } from "../constants";
 import { User } from "../model/User";
 import {
   lsGetSessionId,
@@ -51,7 +52,11 @@ export function AuthStateProvider({ children }: AuthStateProviderProps) {
 
   const signout = () => {
     setAuthState(null);
-    lsRemoveSessionId();
+
+    api.put("/user/signout", {}).then(() => {
+      lsRemoveSessionId();
+    });
+
     lsRemoveUser();
   };
 

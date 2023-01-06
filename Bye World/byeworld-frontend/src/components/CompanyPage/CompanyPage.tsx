@@ -1,5 +1,131 @@
+import {
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Icon,
+  IconButton,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import { border } from "@mui/system";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { api } from "../../constants";
+import { useApi } from "../../hooks/api.hook";
+import { Company } from "../../model/Company";
+
+const exCompany: Company = {
+  name: "Microsoft",
+  email: "microsoft@email.com",
+  address:
+    "3097 Satellite Blvd Duluth, Džordžija 30096 Sjedinjene Američke Države",
+  vat: "6652",
+  description:
+    "Microsoft is the largest vendor of computer software in the world." +
+    "It is also a leading provider of cloud computing services, video games," +
+    "computer and gaming hardware, search and other online services. Microsoft's" +
+    "corporate headquarters is located in Redmond, Wash., and it has offices in more than 60 countries.",
+  logoUrl:
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAO2OVFahr5diBUvB6aFTOJvlsqCbT1Yu1TSG_RNg&s",
+  avgReview: 4.8,
+};
+
 const CompanyPage = () => {
-  return <div>CompanyPage</div>;
+  const params = useParams();
+
+  const {
+    result: company,
+    loading,
+    error,
+  } = useApi<Company>(`/company/${params.id}`, exCompany);
+
+  if (!company) {
+    if (loading) {
+      return (
+        <Box className="flex items-center justify-center">
+          <CircularProgress className="" color="primary" />
+        </Box>
+      );
+    } else {
+      console.log(error);
+      return <></>;
+    }
+  }
+
+  return (
+    <>
+      <Box className="bg-gray-100">
+        <Box className="max-w-5xl mx-auto px-4 pt-16 pb-4 md:pb-8 relative">
+          <Box className="flex flex-col gap-4 w-full">
+            <Box
+              className="inline-flex bg-white p-3 rounded shadow-xl"
+              width="160px"
+              height="160px"
+            >
+              <img
+                style={{ objectFit: company.logoUrl ? "cover" : "contain" }}
+                src={company.logoUrl ?? "/company-logo-placeholder.jpg"}
+                alt={`${company.name} logo`}
+              />
+            </Box>
+
+            <Box
+              className="flex flex-col md:flex-row items-start justify-between gap-4 w-full shadow-lg p-3 rounded-2xl"
+              sx={{ border: "1px solid black" }}
+            >
+              <Box className="space-y-2 w-full">
+                <Typography variant="h5" textAlign="left">
+                  {company.name}
+                </Typography>
+
+                <Box>
+                  <Box className="space-y-2">
+                    <Box className="flex items-center gap-2">
+                      <Chip
+                        color="primary"
+                        label={company?.avgReview ?? "/"}
+                        variant="outlined"
+                        icon={
+                          <Icon
+                            style={{
+                              color: `${
+                                company.avgReview
+                                  ? "RGB(246,190,0)"
+                                  : "RGB(70, 70, 70)"
+                              }`,
+                            }}
+                            className="material-symbols-outlined"
+                          >
+                            stars
+                          </Icon>
+                        }
+                      />
+                    </Box>
+                  </Box>
+                </Box>
+              </Box>
+
+              <div className="flex items-center justify-start md:justify-end gap-4 w-full md:mt-1">
+                <Button color="secondary" variant="contained">
+                  LEAVE REVIEW
+                </Button>
+
+                <Box className="flex justify-end items-center">
+                  {company.reviewsCount ?? 0}
+                  <Tooltip title="Number of reviews">
+                    <IconButton>
+                      <Icon className="material-symbols-outlined">reviews</Icon>
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              </div>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+    </>
+  );
 };
 
 export default CompanyPage;

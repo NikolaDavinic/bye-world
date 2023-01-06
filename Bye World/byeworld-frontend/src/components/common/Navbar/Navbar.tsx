@@ -12,15 +12,10 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { Icon } from "@mui/material";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import LinkMui from "@mui/material/Link";
 import Footer from "../Footer/Footer";
 import { useAuthContext } from "../../../contexts/auth.context";
-import { Stack } from "@mui/system";
-import { Divider } from "@mui/joy";
 
 const pages = ["Listings", "Companies"];
-
-const settings = ["Profile"];
 
 export const Navbar = () => {
   const { user, isAuthenticated, signout } = useAuthContext();
@@ -60,9 +55,9 @@ export const Navbar = () => {
 
   return (
     <>
-      <AppBar position="static" sx={{ maxHeight: "20vh" }}>
+      <AppBar position="static" sx={{ maxHeight: "20vh" }} variant="elevation">
         <Container maxWidth="xl">
-          <Toolbar disableGutters>
+          <Toolbar disableGutters variant="dense" style={{ height: "36px" }}>
             <Box sx={{ display: { xs: "none", md: "flex" }, flexGrow: 0 }}>
               <Link to="/">
                 <Box sx={{ display: "flex", alignItems: "center", gap: "5px" }}>

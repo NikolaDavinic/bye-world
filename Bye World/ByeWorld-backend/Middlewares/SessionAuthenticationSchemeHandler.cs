@@ -49,7 +49,8 @@ namespace ByeWorld_backend.Middlewares
                     new Claim(ClaimTypes.Name, user.Name),
                     new Claim(ClaimTypes.Email, user.Email),
                     new Claim("Id", user.Id.ToString()),
-                    new Claim(ClaimTypes.Role, user.Role)
+                    new Claim(ClaimTypes.Role, user.Role),
+                    new Claim("SessionId", sessionId)
                 };
 
                 var claimsIdentity = new ClaimsIdentity(claims, nameof(SessionAuthenticationSchemeHandler));

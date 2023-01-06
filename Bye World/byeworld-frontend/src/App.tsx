@@ -50,7 +50,10 @@ function App() {
               <Route path="/user/:id" element={<User />}></Route>
               <Route path="/companies" element={<Companies />}></Route>
               <Route path="/addcompany" element={<AddCompanyPage />}></Route>
-              <Route path="/company/:id" element={<CompanyPage />}></Route>
+              <Route
+                path="/company/:companyId"
+                element={<CompanyPage />}
+              ></Route>
               <Route path="/listing/:id" element={<ListingPage />}></Route>
               <Route path="*" element={<NotFound />}></Route>
               <Route path="/footer" element={<Footer />}></Route>
