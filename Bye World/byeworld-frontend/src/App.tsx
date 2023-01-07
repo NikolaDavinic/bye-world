@@ -15,6 +15,10 @@ import Footer from "./components/common/Footer/Footer";
 import { AuthStateProvider, useAuthContext } from "./contexts/auth.context";
 import { useEffect } from "react";
 import ListingPage from "./components/ListingPage/ListingPage";
+import AboutCompany from "./components/CompanyPage/AboutCompany";
+import CompanyListings from "./components/CompanyPage/CompanyListings";
+import CompanyReviews from "./components/CompanyPage/CompanyReviews";
+import AddReviewPage from "./components/CompanyPage/AddReviewPage";
 
 const theme = createTheme({
   palette: {
@@ -50,10 +54,12 @@ function App() {
               <Route path="/user/:id" element={<User />}></Route>
               <Route path="/companies" element={<Companies />}></Route>
               <Route path="/addcompany" element={<AddCompanyPage />}></Route>
-              <Route
-                path="/company/:companyId"
-                element={<CompanyPage />}
-              ></Route>
+              <Route path="/company/:companyId" element={<CompanyPage />}>
+                <Route path="about" element={<AboutCompany />}></Route>
+                <Route path="listings" element={<CompanyListings />}></Route>
+                <Route path="reviews" element={<CompanyReviews />}></Route>
+                <Route path="add-review" element={<AddReviewPage />}></Route>
+              </Route>
               <Route path="/listing/:id" element={<ListingPage />}></Route>
               <Route path="*" element={<NotFound />}></Route>
               <Route path="/footer" element={<Footer />}></Route>

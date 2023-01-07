@@ -1,5 +1,6 @@
 ﻿using ByeWorld_backend.DTO;
 using ByeWorld_backend.Models;
+using ByeWorld_backend.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
@@ -16,13 +17,15 @@ namespace ByeWorld_backend.Controllers
     {
         private readonly IConnectionMultiplexer _redis;
         private readonly IBoltGraphClient _neo4j;
-
-        public ListingController(IConnectionMultiplexer redis, IBoltGraphClient neo4j)
+        private readonly IIdentifierService _ids;
+        public ListingController(IConnectionMultiplexer redis, IBoltGraphClient neo4j, IIdentifierService ids)
         {
             _redis = redis;
             _neo4j = neo4j;
+            _ids = ids;
         }
-        
+
+
         [HttpGet("filter")]
         public async Task<ActionResult> GetAllListings([FromQuery] string? keyword, [FromQuery]string? city, [FromQuery]string? position, [FromQuery] string? seniority, [FromQuery] bool sortNewest=true)
         {

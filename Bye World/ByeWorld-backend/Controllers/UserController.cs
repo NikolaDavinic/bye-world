@@ -1,5 +1,6 @@
 using ByeWorld_backend.DTO;
 using ByeWorld_backend.Models;
+using ByeWorld_backend.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -20,10 +21,12 @@ namespace ByeWorld_backend.Controllers
     {
         private readonly IConnectionMultiplexer _redis;
         private readonly IBoltGraphClient _neo4j;
-        public UserController(IConnectionMultiplexer redis, IBoltGraphClient neo4j)
+        private readonly IIdentifierService _ids;
+        public UserController(IConnectionMultiplexer redis, IBoltGraphClient neo4j, IIdentifierService ids)
         {
             _redis = redis;
             _neo4j = neo4j;
+            _ids = ids;
         }
 
         [HttpPost("signup")]
@@ -32,8 +35,8 @@ namespace ByeWorld_backend.Controllers
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(u.Password);
 
             var newUser = new User { 
-                Id = 1,
-                Name=u.Name,
+                Id = await _ids.UserNext(),
+                Name =u.Name,
                 Email = u.Email,
                 PasswordHash = hashedPassword,
                 Phone = u.Phone,
