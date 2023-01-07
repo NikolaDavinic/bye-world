@@ -40,12 +40,11 @@ namespace ByeWorld_backend.Services
 
             return value;
         }
-        
+
         public async Task<long> CompanyNext()
         {
             return await IdNext("Company");
         }
-
         public async Task<long> UserNext()
         {
             return await IdNext("User");
@@ -53,6 +52,10 @@ namespace ByeWorld_backend.Services
         public async Task<long> ListingNext()
         {
             return await IdNext("Listing");
+        }
+        public async Task<long> ReviewNext()
+        {
+            return await IdNext("Review");
         }
     }
 }

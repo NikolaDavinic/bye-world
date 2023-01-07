@@ -17,7 +17,7 @@ namespace ByeWorld_backend.Middlewares
 
         public Task Invoke(HttpContext httpContext)
         {
-            var userId = httpContext.User.Claims.FirstOrDefault(x => x.Type.Equals("Id"))?.Value;
+             var userId = httpContext.User.Claims.FirstOrDefault(x => x.Type.Equals("Id"))?.Value;
 
             if (userId != null)
             {

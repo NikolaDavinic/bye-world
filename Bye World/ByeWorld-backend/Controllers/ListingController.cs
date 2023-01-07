@@ -55,7 +55,6 @@ namespace ByeWorld_backend.Controllers
                 Id=l.As<Listing>().Id,
                 //TODO:Ubaci i company
                 //TODO:Ubaci i skill-ove
-
             });
             if (sortNewest)
             {
