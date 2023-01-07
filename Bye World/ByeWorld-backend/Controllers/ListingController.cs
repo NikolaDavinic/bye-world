@@ -2,6 +2,7 @@
 using ByeWorld_backend.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Neo4jClient;
 using Neo4jClient.Extensions;
 using StackExchange.Redis;
@@ -131,55 +132,73 @@ namespace ByeWorld_backend.Controllers
                 .Return(c => c.As<Company>())
                 .ResultsAsync;
 
-            List<Skill> requiredSkills = new List<Skill>();
+            //List<Skill> requiredSkills = new List<Skill>();
+            //List<String> skillNames = new List<String>();
+            //listing.Requirements.ForEach(req => skillNames.Add(req.Name));
 
-            List<String> skillNames = new List<String>();
-            listing.Requirements.ForEach(req => skillNames.Add(req.Name));
-
+            String skillsName = string.Empty;
+            listing.Requirements.ForEach(req => skillsName +="'"+ req.Name + "', ");
+            skillsName = skillsName.Substring(0,skillsName.Length - 2);
             var skillNodes = await _neo4j.Cypher
                     .Match("(s:Skill)")
-                    .Where((Skill s) => skillNames.Contains(s.Name))
+                    .Where($"s.Name IN [{skillsName}]")
                     .Return(s => s.As<Skill>())
                     .ResultsAsync;
 
+            if(skillNodes.Count()!=listing.Requirements.Count())
+            {
+                foreach (var req in listing.Requirements)
+                {
+                    if (!skillNodes.Any(skillNode=>skillNode.Name==req.Name))
+                    {
+                        skillNodes = skillNodes.Concat(await _neo4j.Cypher
+                            .Create("(s:Skill $newSkill)")
+                            .WithParam("newSkill", new Skill { Id = 55, Name = req.Name })
+                            .Return(s => s.As<Skill>())
+                            .ResultsAsync);
+                    }
+                }
+            }
+            //newListing.Company = companyNode.FirstOrDefault();
+            //newListing.City = cityNode.FirstOrDefault();
 
-            //var city = await _neo4j.Cypher
-            //     .Match("(c:City)")
-            //     .Where((City c) => c.Name == listing.CityName)
-            //     .Return(c => c.As<City>())
-            //     .Union()
-            //     .Create("(c:City $city)")
-            //     .WithParam("city", new City { Name = listing.CityName, Id = 55})
-            //     .Return(c => c.As<City>())
-            //     .ResultsAsync;
-            //var retCity = city.FirstOrDefault();
-            //var city = await _neo4j.Cypher
-            //     .Merge("(c:City)")
-            //     .Where((City c) => c.Name == listing.CityName)
-            //     .OnCreate()
-            //     .Set("c = {newCity}")
-            //     .WithParam("newCity", new City { Name = listing.CityName, Id = 55 })
-            //     .Return(c => c.As<City>())
-            //     .ResultsAsync;
-            //var retCity = city.FirstOrDefault();
-            //var cityNode = await _neo4j.Cypher
-            //    .Match("(c:City)")
-            //    .Where((City c) => c.Name == listing.CityName)
-            //    //.Return(c => c.As<City>())
-            //    .create
-            //    .Merge("(newC:City {name: $cityName})")
-            //    .WithParam("cityName",listing.CityName)
-            //    .Return(newC => newC.As<City>())
-            //    .ResultsAsync;
+            var query = _neo4j.Cypher
+               .Match("(c:Company)")
+               .Where((Company c) => c.Id == listing.CompanyId)
+               .Match("(ci:City)")
+               .Where((City ci) => ci.Name == listing.CityName)
+               .Create("(l:Listing $newListing)<-[:HAS_LISTING]-(c)")
+               .Create("(l)-[:LOCATED_IN]->(ci)")
+               .WithParam("newListing", newListing);
+            //.Return((c, ci, l) => new
+            //{
+            //    Listing = l.As<Listing>(),
+            //    Company = c.As<Company>(),
+            //    //CompanyName = c.As<Company>().Name,
+            //    //CompanyId = c.As<Company>().Id,
+            //    CityName = ci.As<City>().Name
+            //});
 
+            //TODO: Sredi ID samo
+            for (int i = 0; i < listing.Requirements.Count; i++)
+            {
+                query = query.Create($"(l)-[:REQUIRES {{Proficiency: $prof{i}}}]->(c{i}: Skill $newSkill{i})")
+                        .WithParam($"prof{i}", listing.Requirements[i].Proficiency)
+                        .WithParam($"newSkill{i}", new Skill { Name = listing.Requirements[i].Name, Id = 55 });
+            }
+            var retVal=await query.Return((c, ci, l) => new
+             {
+                 Listing = l.As<Listing>(),
+                 Company = c.As<Company>(),
+                 //CompanyName = c.As<Company>().Name,
+                 //CompanyId = c.As<Company>().Id,
+                 CityName = ci.As<City>().Name
+             }).ResultsAsync;
+            //TODO:Sredi proveru da li je uspesno izvrseno dodavanje
+            if (retVal.Count() == 0)
+                return BadRequest("Dodavanje listinga neuspesno");
 
-            //await _neo4j.Cypher
-            //    .Match("(c:City)")
-            //    .Where((City c) => c.Id == listing.CityName.Id)
-            //    .Create("(c)-[:HAS_LISTING]->(:Listing $listing)")
-            //    .WithParam("listing", newListing)
-            //    .ExecuteWithoutResultsAsync();
-            return Ok(cityNode);
+            return Ok(retVal);
         }
 
         [HttpGet("getfirstthreesimilarlistings")]
