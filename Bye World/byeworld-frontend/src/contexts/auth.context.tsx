@@ -63,17 +63,23 @@ export function AuthStateProvider({ children }: AuthStateProviderProps) {
   const autoLogin = () => {
     const user = lsGetUser();
     const sessionId = lsGetSessionId();
-
+    console.log(user, sessionId)
     if (!user || !sessionId) {
       return;
     }
-
-    setAuthState({ sessionId: sessionId, user: user });
+    const token = {sessionId: sessionId, user:user};
+    console.log(token)
+    setAuthState(token);
+    console.log(authState)
+    console.log("autologin se pozvao")
   };
 
   const isAuthenticated = () => {
+    console.log("isAuth");
     return authState?.sessionId ? true : false;
   };
+
+  
 
   return (
     <AuthStateContext.Provider
