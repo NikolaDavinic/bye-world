@@ -42,13 +42,10 @@ const CompanyPage = () => {
   const params = useParams();
 
   const {
-    result,
-    // result: company,
+    result: company,
     loading,
     error,
   } = useApi<Company>(`/company/${params.companyId}`);
-
-  let company = exCompany;
 
   if (!company) {
     if (loading) {

@@ -18,11 +18,15 @@ const ReviewForm = ({
   buttonText = "Add Review",
   onSubmit,
 }: ReviewFormProps) => {
-  const [rating, setRating] = React.useState<number | null>();
+  const [rating, setRating] = React.useState<number>(3);
   const [description, setDescription] = React.useState<string>("");
 
   const handleSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault();
+    onSubmit({
+      value: rating,
+      description: description,
+    });
   };
 
   return (
@@ -37,9 +41,8 @@ const ReviewForm = ({
         </Typography>
         <Rating
           name="rating"
-          value={rating}
           onChange={(event, newValue) => {
-            setRating(newValue);
+            setRating(newValue ?? 0);
           }}
         />
       </Box>
@@ -61,7 +64,7 @@ const ReviewForm = ({
           {description.length} / 500
         </Typography>
       </Box>
-      <Button type="submit" variant="outlined">
+      <Button type="submit" variant="outlined" className="self-end">
         {buttonText}
       </Button>
     </Box>

@@ -2,6 +2,7 @@ import { Button, Icon, TextField } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { api } from '../../constants';
 import { Listing } from '../../model/Listing';
+import { AddListingModal } from '../AddListingModal/AddListingModal';
 import { ListingsList } from '../common/ListingsList/ListingsList';
 export const Listings: React.FC = () => {
     const [keyword, setKeyword] = useState<string>("");
@@ -48,9 +49,18 @@ export const Listings: React.FC = () => {
             onFilter();
         }
     }
-
+    // Modal testing
+    const [open, setOpen] = React.useState(false);
+    const handleModalClose = () => {
+        setOpen(false);
+    }
+    const handleModalOpen = () => {
+        setOpen(true);
+    }
     return (
         <div>
+            {/* Testing new listing modal, delete later */}
+            <AddListingModal isOpen={open} handleModalClose={handleModalClose} />
             <div className='h-1/4 flex flex-col px-4 py-4 space-y-4 bg-white drop-shadow-lg'>
                 <h1 className='font-bold'>Listings search</h1>
                 <div className='flex flex-row justify-center gap-6'>
@@ -80,12 +90,13 @@ export const Listings: React.FC = () => {
                 <div className='flex flex-row gap-5 justify-center'>
                     <Button variant={sortNewest ? "contained" : "outlined"} onClick={() => onSort(true)} >Newest</Button>
                     <Button variant={sortNewest ? "outlined" : "contained"} onClick={() => onSort(false)} >Expiring soon</Button>
+                    {/* Testing new listing modal, delete later */}
+                    <Button variant="text" onClick={() => handleModalOpen()} >New Listing</Button>
                 </div>
             </div>
             <div className='bg-gray-100 h-full min-h-full '>
                 <ListingsList listings={listings} />
             </div>
-
         </div>
     )
 }

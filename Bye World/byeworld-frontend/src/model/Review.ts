@@ -5,7 +5,7 @@ export interface Review {
   id?: number;
   description: string;
   value: number;
-  date?: Date;
+  date?: string;
   company?: Company;
   user?: User;
 }

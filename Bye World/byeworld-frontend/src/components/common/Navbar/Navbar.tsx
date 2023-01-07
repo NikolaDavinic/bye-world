@@ -19,6 +19,7 @@ const pages = ["Listings", "Companies"];
 
 export const Navbar = () => {
   const { user, isAuthenticated, signout } = useAuthContext();
+
   const navigate = useNavigate();
 
   const [loggedIn, setLoggedIn] = React.useState<Boolean>(false);
