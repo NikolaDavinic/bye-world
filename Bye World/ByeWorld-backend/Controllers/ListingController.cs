@@ -1,4 +1,5 @@
-﻿using ByeWorld_backend.Models;
+﻿using ByeWorld_backend.DTO;
+using ByeWorld_backend.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Neo4jClient;
@@ -34,6 +35,7 @@ namespace ByeWorld_backend.Controllers
             {
                 query=query.AndWhere((Listing l,City c) => c.Name.Contains(city));
             }
+            //TODO: Add filtering based on listing requirements
             if (!String.IsNullOrEmpty(position))
              {
                 if (!String.IsNullOrEmpty(seniority))
@@ -93,17 +95,18 @@ namespace ByeWorld_backend.Controllers
             return Ok();
         }
 
-        [HttpPost]
-        public async Task<ActionResult> CreateListing([FromBody] Listing listing)
+        [HttpPost("add")]
+        public async Task<ActionResult> CreateListing([FromBody] AddListingDTO listing)
         {
 
             var newListing = new Listing
             {
-                Id=listing.Id,
+                //TODO: Fix new listing ID
+                Id=55,
                 ClosingDate=listing.ClosingDate,
                 PostingDate=listing.PostingDate,
                 Description=listing.Description,
-                Title=listing.Title
+                Title=listing.Title,
             };
 
             //await _neo4j.Cypher
