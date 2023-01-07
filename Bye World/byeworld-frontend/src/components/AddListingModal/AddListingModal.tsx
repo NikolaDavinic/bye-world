@@ -28,7 +28,7 @@ interface ListingDTO {
     postingDate: Date;
     closingDate: Date;
     companyId: Number;
-    city: string;
+    cityName: string;
 }
 export const AddListingModal: React.FC<AddListingModalProps> = ({
     isOpen,
@@ -61,7 +61,7 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
     const onSubmit = () => {
         const data: ListingDTO = {
             title: title,
-            city: cityName,
+            cityName: cityName,
             closingDate: closingDate,
             postingDate: postingDate,
             companyId: companyId,

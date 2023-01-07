@@ -53,9 +53,9 @@ namespace ByeWorld_backend.Controllers
         [HttpGet("getallcompanies")]
         public async Task<ActionResult> GetAllCompanies()
         {
-            var countries = await _neo4j.Cypher.Match("(c:Company)")
+            var companies = await _neo4j.Cypher.Match("(c:Company)")
                                                .Return(c => c.As<Company>()).ResultsAsync;
-            return Ok(countries);
+            return Ok(companies);
         }
 
         [HttpGet("filter")]

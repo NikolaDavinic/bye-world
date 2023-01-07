@@ -3,6 +3,7 @@ using ByeWorld_backend.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Neo4jClient;
+using Neo4jClient.Extensions;
 using StackExchange.Redis;
 using System.Collections;
 
@@ -107,25 +108,78 @@ namespace ByeWorld_backend.Controllers
                 ClosingDate=listing.ClosingDate,
                 PostingDate=listing.PostingDate,
                 Description=listing.Description,
-                Title=listing.Title,
+                Title=listing.Title
             };
+            var cityNode = await _neo4j.Cypher
+                .Match("(c:City)")
+                .Where((City c) => c.Name == listing.CityName)
+                .Return(c => c.As<City>())
+                .ResultsAsync;
+
+            if(cityNode.Count()==0)
+            {
+                cityNode = await _neo4j.Cypher
+                    .Create("(c:City $newCity)")
+                    .WithParam("newCity", new City { Id = 55, Name = listing.CityName })
+                    .Return(c => c.As<City>())
+                    .ResultsAsync;
+            }
+
+            var companyNode = await _neo4j.Cypher
+                .Match("(c:Company)")
+                .Where((Company c) => c.Id == listing.CompanyId)
+                .Return(c => c.As<Company>())
+                .ResultsAsync;
+
+            List<Skill> requiredSkills = new List<Skill>();
+
+            List<String> skillNames = new List<String>();
+            listing.Requirements.ForEach(req => skillNames.Add(req.Name));
+
+            var skillNodes = await _neo4j.Cypher
+                    .Match("(s:Skill)")
+                    .Where((Skill s) => skillNames.Contains(s.Name))
+                    .Return(s => s.As<Skill>())
+                    .ResultsAsync;
+
+
+            //var city = await _neo4j.Cypher
+            //     .Match("(c:City)")
+            //     .Where((City c) => c.Name == listing.CityName)
+            //     .Return(c => c.As<City>())
+            //     .Union()
+            //     .Create("(c:City $city)")
+            //     .WithParam("city", new City { Name = listing.CityName, Id = 55})
+            //     .Return(c => c.As<City>())
+            //     .ResultsAsync;
+            //var retCity = city.FirstOrDefault();
+            //var city = await _neo4j.Cypher
+            //     .Merge("(c:City)")
+            //     .Where((City c) => c.Name == listing.CityName)
+            //     .OnCreate()
+            //     .Set("c = {newCity}")
+            //     .WithParam("newCity", new City { Name = listing.CityName, Id = 55 })
+            //     .Return(c => c.As<City>())
+            //     .ResultsAsync;
+            //var retCity = city.FirstOrDefault();
+            //var cityNode = await _neo4j.Cypher
+            //    .Match("(c:City)")
+            //    .Where((City c) => c.Name == listing.CityName)
+            //    //.Return(c => c.As<City>())
+            //    .create
+            //    .Merge("(newC:City {name: $cityName})")
+            //    .WithParam("cityName",listing.CityName)
+            //    .Return(newC => newC.As<City>())
+            //    .ResultsAsync;
+
 
             //await _neo4j.Cypher
-            //    .Create("(listing:Listing $newListing)")
-            //    .WithParam("newListing", newListing)
+            //    .Match("(c:City)")
+            //    .Where((City c) => c.Id == listing.CityName.Id)
+            //    .Create("(c)-[:HAS_LISTING]->(:Listing $listing)")
+            //    .WithParam("listing", newListing)
             //    .ExecuteWithoutResultsAsync();
-            //var retVal = await _neo4j.Cypher
-            //    .Create("(listing:Listing $newListing)")
-            //    .WithParam("newListing", newListing)
-            //    .Return(listing => listing.As<Listing>()).Limit(1)
-            //    .ResultsAsync;
-            await _neo4j.Cypher
-                .Match("(c:City)")
-                .Where((City c) => c.Id == listing.City.Id)
-                .Create("(c)-[:HAS_LISTING]->(:Listing $listing)")
-                .WithParam("listing", newListing)
-                .ExecuteWithoutResultsAsync();
-            return Ok();
+            return Ok(cityNode);
         }
 
         [HttpGet("getfirstthreesimilarlistings")]

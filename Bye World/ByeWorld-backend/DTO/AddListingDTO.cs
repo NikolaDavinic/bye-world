@@ -15,6 +15,6 @@ namespace ByeWorld_backend.DTO
         public DateTime PostingDate { get; set; } = DateTime.Now;
         public DateTime ClosingDate { get; set; } = DateTime.MaxValue;
         public int CompanyId { get; set; }
-        public string City { get; set; } = string.Empty;  
+        public string CityName { get; set; } = string.Empty;  
     }
 }
