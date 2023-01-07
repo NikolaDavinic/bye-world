@@ -9,14 +9,18 @@ import { Listing } from "../../model/Listing";
 import { useNavigate } from "react-router-dom";
 interface SimilarListingCardProps {
   listing: Listing;
+  // divWidth: number;
+  divHeight: number;
+  divMaxWidth: number;
+  divMinWidth: number;
 }
 export const SimilarListingCard: React.FC<SimilarListingCardProps> = ({
-  listing,
+  listing, divHeight, divMaxWidth, divMinWidth
 }: SimilarListingCardProps) => {
   const navigate = useNavigate();
 
   return (
-    <Card sx={{ maxWidth: 400, width: "auto", minWidth: 400, height: 300 }}>
+    <Card sx={{ maxWidth: divMaxWidth, width: "auto", minWidth: divMinWidth, height: divHeight }}>
       <CardActionArea
         className="h-full hover:bg-blue-100"
         onClick={() => navigate("/listing/" + listing.id)}

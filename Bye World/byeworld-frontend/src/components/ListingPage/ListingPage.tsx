@@ -1,10 +1,26 @@
-import { Chip, Link } from '@mui/material'
-import React from 'react'
+import { Button, Chip, Link } from '@mui/material'
+import React, { useEffect, useState } from 'react'
 import { Listing } from '../../model/Listing'
 import { ListingCard } from '../common/ListingsList/ListingCard'
 import { SimilarListingCard } from './SimilarListingCard'
+import { useNavigate } from 'react-router-dom'
 
 const ListingPage: React.FC = () => {
+    const navigate = useNavigate()
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    const checkUserToken = () => {
+        const userToken = localStorage.getItem('user')
+        if (!userToken || userToken === "undefined") {
+            setIsLoggedIn(false);
+        }
+        setIsLoggedIn(true)
+    }
+
+    useEffect(() => {
+        checkUserToken()
+        console.log(isLoggedIn)
+    }, [isLoggedIn])
 
     const testListing: Listing = {
         id: 1,
@@ -130,7 +146,8 @@ const ListingPage: React.FC = () => {
                             <div className="flex flex-col w-full md:w-auto gap-1">
                                 <p className='font-semibold text-red-600'>If you want to participate, all you have to do is to fill out the form and send your CV.</p>
 
-                                <a className='btn btn-lg apply-btn rounded-lg bg-blue-700 border-2 p-1 w-52 self-center' href='#'>Apply Here</a>
+                                <Button variant="contained">Apply Here</Button>
+                                {!isLoggedIn && <p className='text-3xl text-red-800 font-semibold'>You must be signed in</p>}
                             </div>
                         </div>
 
@@ -144,7 +161,7 @@ const ListingPage: React.FC = () => {
                         {testListings.map(listing => {
                             console.log(listing);
                             return (
-                                <SimilarListingCard listing={listing} />
+                                <SimilarListingCard listing={listing} divHeight={300} divMaxWidth={400} divMinWidth={350} />
                             )
                         })}
 
