@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getSessionId } from "./utils/helpers";
+import { lsGetSessionId } from "./utils/helpers";
 
 export const constants = {
   apiName: "https://localhost:7294",
@@ -11,12 +11,12 @@ const axiosInstace = axios.create({
 
 axiosInstace.interceptors.request.use(
   (config) => {
-    let sessionId = getSessionId();
-    console.log("interceptor");
+    let sessionId = lsGetSessionId();
     if (sessionId) {
       config["headers"] = config.headers ?? {};
       // @ts-ignore
-      config.headers["Authorization"] = `SessionId ${getSessionId()}`;
+      config.headers["Authorization"] = `SessionId ${sessionId}`;
+      console.log("interceptor");
     }
 
     return config;

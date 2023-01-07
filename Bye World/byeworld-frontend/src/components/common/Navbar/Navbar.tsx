@@ -11,15 +11,16 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { Icon } from "@mui/material";
-import { Link, NavLink, Outlet } from "react-router-dom";
-import LinkMui from "@mui/material/Link"
+import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import Footer from "../Footer/Footer";
+import { useAuthContext } from "../../../contexts/auth.context";
 
 const pages = ["Listings", "Companies"];
 
-const settings = ["Profile"];
-
 export const Navbar = () => {
+  const { user, isAuthenticated, signout } = useAuthContext();
+  const navigate = useNavigate();
+
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
     null
   );
@@ -42,11 +43,21 @@ export const Navbar = () => {
     setAnchorElUser(null);
   };
 
+  const handleSignout = () => {
+    signout();
+    navigate("/signin");
+  };
+
+  const handleSignIn = () => {
+    handleCloseNavMenu();
+    navigate("/signin");
+  };
+
   return (
     <>
-      <AppBar position="static" sx={{ maxHeight: "20vh" }}>
+      <AppBar position="static" sx={{ maxHeight: "20vh" }} variant="elevation">
         <Container maxWidth="xl">
-          <Toolbar disableGutters>
+          <Toolbar disableGutters variant="dense" style={{ height: "36px" }}>
             <Box sx={{ display: { xs: "none", md: "flex" }, flexGrow: 0 }}>
               <Link to="/">
                 <Box sx={{ display: "flex", alignItems: "center", gap: "5px" }}>
@@ -109,8 +120,6 @@ export const Navbar = () => {
                 ))}
               </Menu>
             </Box>
-            {/* <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} /> */}
-
             <Box sx={{ display: { xs: "flex", md: "none" }, flexGrow: 1 }}>
               <Link to="/">
                 <Box sx={{ display: "flex", alignItems: "center", gap: "5px" }}>
@@ -148,42 +157,57 @@ export const Navbar = () => {
               ))}
             </Box>
 
-            <Box sx={{ flexGrow: 0 }}>
-              <Tooltip title="Open settings">
-                {/* <LinkMui href="/user/2"> */}
-                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-                </IconButton>
-                {/* </LinkMui> */}
-              </Tooltip>
-              <Menu
-                sx={{ mt: "45px" }}
-                id="menu-appbar"
-                anchorEl={anchorElUser}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                open={Boolean(anchorElUser)}
-                onClose={handleCloseUserMenu}
-              >
-                {settings.map((setting) => (
-                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                    <LinkMui href="/user/2">
-                      <Typography textAlign="center">{setting}</Typography>
-                    </LinkMui>
+            {!isAuthenticated() ? (
+              <Box sx={{ display: "block" }}>
+                <Button
+                  color="secondary"
+                  variant="contained"
+                  onClick={handleSignIn}
+                >
+                  Sign In
+                </Button>
+              </Box>
+            ) : (
+              <Box sx={{ flexGrow: 0 }}>
+                <Tooltip title="Open settings">
+                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <Avatar
+                      alt="Remy Sharp"
+                      src="/static/images/avatar/2.jpg"
+                    />
+                  </IconButton>
+                </Tooltip>
+                <Menu
+                  sx={{ mt: "45px" }}
+                  id="menu-appbar"
+                  anchorEl={anchorElUser}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUserMenu}
+                >
+                  <MenuItem onClick={handleCloseUserMenu}>
+                    <Link to={`/user/2`}>
+                      <Typography textAlign="center">Profile</Typography>
+                    </Link>
                   </MenuItem>
-                ))}
-              </Menu>
-            </Box>
+                  <MenuItem onClick={handleSignout}>
+                    <Typography sx={{ color: "orange" }}>Sign Out</Typography>
+                  </MenuItem>
+                </Menu>
+              </Box>
+            )}
           </Toolbar>
         </Container>
       </AppBar>
+
       <Box sx={{ minHeight: "80vh" }}>
         <Outlet />
       </Box>

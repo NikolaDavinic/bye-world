@@ -83,12 +83,50 @@ namespace ByeWorld_backend.Controllers
                 includeSpecial: false,
                 includeNumeric: false).Next();
 
-            db.StringSet($"sessions:{sessionId}", JsonSerializer.Serialize(user));
+            db.StringSet($"sessions:{sessionId}", JsonSerializer.Serialize(user), expiry: TimeSpan.FromHours(2));
+            db.SetAdd("users:authenticated", user.Id);
+            db.StringSet($"users:last_active:{user.Id}", DateTime.Now.ToString(), expiry: TimeSpan.FromMinutes(2));
 
             return Ok(new {
                 SessionId = sessionId, 
                 User = user
             });
+        }
+
+        [Authorize]
+        [HttpPut("signout")]
+        public async Task<ActionResult> UserSignOut()
+        {
+            var claims = HttpContext.User.Claims;
+            var sessionId = claims.Where(c => c.Type == "SessionId").FirstOrDefault()?.Value;
+            var userId = claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value;
+
+            var db = _redis.GetDatabase();
+
+            await db.KeyDeleteAsync(sessionId);
+            await db.KeyDeleteAsync($"users:last_active:{userId}");
+            await db.SetRemoveAsync("users:authenticated", userId);
+
+            return Ok("Signed out successfully");
+        }
+
+        [HttpGet("authcount")]
+        public async Task<ActionResult> AuthenticatedUsersCount()
+        {
+            var db = _redis.GetDatabase();
+
+            var count = 0;
+
+            var authenticatedUsers = (await db.SetMembersAsync("users:authenticated")).ToList();
+            foreach(var userId in authenticatedUsers) {
+                var timeActive = Convert.ToDateTime(await db.StringGetAsync($"users:last_active:{userId}"));
+                if (DateTime.Now - timeActive <= TimeSpan.FromMinutes(5))
+                {
+                    count++;
+                }
+            }
+
+            return Ok(new { ActiveUsers = count });
         }
 
         [HttpGet("login/{id}")]

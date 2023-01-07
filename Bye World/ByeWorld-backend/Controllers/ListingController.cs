@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Neo4jClient;
 using StackExchange.Redis;
+using System.Collections;
 
 namespace ByeWorld_backend.Controllers
 {
@@ -125,6 +126,33 @@ namespace ByeWorld_backend.Controllers
                 .WithParam("listing", newListing)
                 .ExecuteWithoutResultsAsync();
             return Ok();
+        }
+
+        [HttpGet("getfirstthreesimilarlistings")]
+        public async Task<ActionResult> GetFirstThreeSimilarListings([FromBody]Listing l)
+        {
+
+            var SimilarByCompany = _neo4j.Cypher
+                .Match("(l:Listing)")
+                .Where("l.Company = $query")
+                .WithParam("query",l.Company)
+                .Return(l => l.As<Listing>()).Limit(2);
+
+            var SimilarByCity = _neo4j.Cypher
+                .Match("(l:Listing)")
+                .Where("l.City = $query")
+                .WithParam("query", l.City)
+                .Return(l => l.As<Listing>()).Limit(1);
+
+            //var SimilarByRequirements = _neo4j.Cypher
+            //    .Match("(l:Listing)")
+            //    .Return(l => l.As<Listing>());
+
+            var rez = new ArrayList();
+            rez.Add(SimilarByCity);
+            rez.Add(SimilarByCompany);
+
+            return Ok(rez);
         }
     }
 }

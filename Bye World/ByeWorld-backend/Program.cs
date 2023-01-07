@@ -84,6 +84,8 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
+app.UseMiddleware<ActiveUsersCounter>();
+
 app.MapControllers();
 
 app.Run();
