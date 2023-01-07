@@ -1,7 +1,9 @@
 using ByeWorld_backend.Middlewares;
+using ByeWorld_backend.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.OpenApi.Models;
 using Neo4jClient;
 using StackExchange.Redis;
 
@@ -25,6 +27,7 @@ builder.Services.AddSingleton<IBoltGraphClient>(options =>
     neo4jClient.ConnectAsync().Wait();
     return neo4jClient;
 });
+builder.Services.AddSingleton<IIdentifierService, IdentifierService>();
 
 builder.Services.AddAuthentication("session-scheme")
    .AddScheme<AuthenticationSchemeOptions, SessionAuthenticationSchemeHandler>("session-scheme", options => { });
@@ -63,7 +66,6 @@ builder.Services.AddCors(options =>
         .AllowAnyMethod();
     });
 });
-
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.

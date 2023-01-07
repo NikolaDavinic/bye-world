@@ -1,4 +1,6 @@
+import { TabPanel } from "@mui/joy";
 import {
+  AppBar,
   Box,
   Button,
   Chip,
@@ -9,13 +11,15 @@ import {
   Typography,
 } from "@mui/material";
 import { border } from "@mui/system";
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { createContext, useEffect, useState } from "react";
+import { Navigate, NavLink, Outlet, useParams, Link } from "react-router-dom";
 import { api } from "../../constants";
+import { useAuthContext } from "../../contexts/auth.context";
 import { useApi } from "../../hooks/api.hook";
 import { Company } from "../../model/Company";
 
 const exCompany: Company = {
+  id: 1,
   name: "Microsoft",
   email: "microsoft@email.com",
   address:
@@ -31,20 +35,26 @@ const exCompany: Company = {
   avgReview: 4.8,
 };
 
+export const CompanyContext = createContext<Company>({} as Company);
+
 const CompanyPage = () => {
+  const { isAuthenticated } = useAuthContext();
   const params = useParams();
 
   const {
-    result: company,
+    result,
+    // result: company,
     loading,
     error,
-  } = useApi<Company>(`/company/${params.id}`, exCompany);
+  } = useApi<Company>(`/company/${params.companyId}`);
+
+  let company = exCompany;
 
   if (!company) {
     if (loading) {
       return (
         <Box className="flex items-center justify-center">
-          <CircularProgress className="" color="primary" />
+          <CircularProgress className="mt-20" color="primary" />
         </Box>
       );
     } else {
@@ -107,9 +117,11 @@ const CompanyPage = () => {
               </Box>
 
               <div className="flex items-center justify-start md:justify-end gap-4 w-full md:mt-1">
-                <Button color="secondary" variant="contained">
-                  LEAVE REVIEW
-                </Button>
+                <Link to="add-review">
+                  <Button color="secondary" variant="contained">
+                    LEAVE REVIEW
+                  </Button>
+                </Link>
 
                 <Box className="flex justify-end items-center">
                   {company.reviewsCount ?? 0}
@@ -124,6 +136,27 @@ const CompanyPage = () => {
           </Box>
         </Box>
       </Box>
+      <AppBar
+        position="static"
+        sx={{ height: "50px", bgcolor: "white", display: "flex" }}
+        className="flex justify-center items-center"
+      >
+        <Box className="flex gap-5">
+          <NavLink to="about">
+            <Button>About</Button>
+          </NavLink>
+          <NavLink to="listings">
+            <Button>Listings</Button>
+          </NavLink>
+          <NavLink to="reviews">
+            <Button>Reviews</Button>
+          </NavLink>
+        </Box>
+      </AppBar>
+
+      <CompanyContext.Provider value={company}>
+        <Outlet />
+      </CompanyContext.Provider>
     </>
   );
 };
