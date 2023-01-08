@@ -22,6 +22,8 @@ export const Navbar = () => {
 
   const navigate = useNavigate();
 
+  const [loggedIn, setLoggedIn] = React.useState<Boolean>(false);
+
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
     null
   );
@@ -54,8 +56,20 @@ export const Navbar = () => {
     navigate("/signin");
   };
 
+  React.useEffect(() => {
+    setLoggedIn(isAuthenticated());
+    console.log(loggedIn);
+  }, [])
+
+  const promeniStanje = () => {
+    console.log(loggedIn);
+    setLoggedIn(!loggedIn);
+    console.log(loggedIn);
+  }
+
   return (
     <>
+      {console.log(isAuthenticated())}
       <AppBar position="static" sx={{ maxHeight: "20vh" }} variant="elevation">
         <Container maxWidth="xl">
           <Toolbar disableGutters variant="dense" style={{ height: "36px" }}>
@@ -163,9 +177,16 @@ export const Navbar = () => {
                 </NavLink>
               ))}
             </Box>
-
+            
             {!isAuthenticated() ? (
               <Box sx={{ display: "block" }}>
+                <Button
+                  color="secondary"
+                  variant="contained"
+                  onClick={promeniStanje}
+                >
+                  Promeni stanje
+                </Button>
                 <Button
                   color="secondary"
                   variant="contained"
@@ -173,9 +194,11 @@ export const Navbar = () => {
                 >
                   Sign In
                 </Button>
+                
               </Box>
             ) : (
               <Box sx={{ flexGrow: 0 }}>
+                
                 <Tooltip title="Open settings">
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                     <Avatar
