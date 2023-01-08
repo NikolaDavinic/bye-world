@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Neo4jClient;
+using Neo4jClient.Cypher;
 using StackExchange.Redis;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
@@ -58,14 +59,30 @@ namespace ByeWorld_backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult> GetCompany(int id)
         {
-            var company = await _neo4j.Cypher
-                .Match("(c:Company)")
+            var query = _neo4j.Cypher
+                .Match("(c:Company)-[:HAS_REVIEW]-(r:Review)")
                 .Where((Company c) => c.Id == id)
-                .Return((c) => c.As<Company>())
-                .Limit(1)
-                .ResultsAsync;
+                .Return((c, r) => new {
+                    Company = c.As<Company>(),
+                    ReviewsCount = r.Count(),
+                    AvgReview = Return.As<double>("avg(r.Value)")
+                })
+                .Limit(1);
 
-            return Ok(company.FirstOrDefault());
+            var result = (await query.ResultsAsync).Select((r) => new 
+            {
+                r.Company.Address,
+                r.Company.Email,
+                r.Company.Id,
+                r.Company.LogoUrl,
+                r.Company.Name,
+                r.Company.VAT,
+                r.Company.Description,
+                r.ReviewsCount,
+                r.AvgReview
+            }).FirstOrDefault();
+
+            return Ok(result);
         }
 
         //[HttpGet("/listings/{id}")]

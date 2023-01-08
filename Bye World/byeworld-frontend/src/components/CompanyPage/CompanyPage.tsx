@@ -60,6 +60,8 @@ const CompanyPage = () => {
     }
   }
 
+  console.log(company);
+
   return (
     <>
       <Box className="bg-gray-100">
@@ -72,7 +74,11 @@ const CompanyPage = () => {
             >
               <img
                 style={{ objectFit: company.logoUrl ? "cover" : "contain" }}
-                src={company.logoUrl ?? "/company-logo-placeholder.jpg"}
+                src={
+                  company.logoUrl
+                    ? company.logoUrl
+                    : "/company-logo-placeholder.jpg"
+                }
                 alt={`${company.name} logo`}
               />
             </Box>
