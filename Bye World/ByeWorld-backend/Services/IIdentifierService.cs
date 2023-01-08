@@ -8,5 +8,8 @@ namespace ByeWorld_backend.Services
         Task<long> ListingNext();
         Task<long> ReviewNext();
         Task<long> UserNext();
+        Task<long> CityNext();
+        Task<long> SkillNext();
+
     }
 }

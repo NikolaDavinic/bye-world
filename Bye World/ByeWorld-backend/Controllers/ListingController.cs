@@ -57,8 +57,8 @@ namespace ByeWorld_backend.Controllers
                 ClosingDate= l.As<Listing>().ClosingDate,
                 PostingDate = l.As<Listing>().PostingDate,
                 Id=l.As<Listing>().Id,
-                //TODO:Ubaci i company
-                //TODO:Ubaci i skill-ove
+                //TODO:Ubaci i company ako uopste treba?? Pravi DTO za vracanje potreban info za prikaz liste Listinga
+                //TODO:Ubaci i skill-ove OVO CE BUDE ZAEBANO 
             });
             if (sortNewest)
             {
@@ -103,11 +103,10 @@ namespace ByeWorld_backend.Controllers
         [HttpPost("add")]
         public async Task<ActionResult> CreateListing([FromBody] AddListingDTO listing)
         {
-
+            long lid = await _ids.ListingNext();
             var newListing = new Listing
             {
-                //TODO: Fix new listing ID
-                Id=55,
+                Id=lid,
                 ClosingDate=listing.ClosingDate,
                 PostingDate=listing.PostingDate,
                 Description=listing.Description,
@@ -121,9 +120,10 @@ namespace ByeWorld_backend.Controllers
 
             if(cityNode.Count()==0)
             {
+                long cityId = await _ids.CityNext();
                 cityNode = await _neo4j.Cypher
                     .Create("(c:City $newCity)")
-                    .WithParam("newCity", new City { Id = 55, Name = listing.CityName })
+                    .WithParam("newCity", new City { Id = cityId, Name = listing.CityName })
                     .Return(c => c.As<City>())
                     .ResultsAsync;
             }
@@ -134,9 +134,6 @@ namespace ByeWorld_backend.Controllers
                 .Return(c => c.As<Company>())
                 .ResultsAsync;
 
-            //List<Skill> requiredSkills = new List<Skill>();
-            //List<String> skillNames = new List<String>();
-            //listing.Requirements.ForEach(req => skillNames.Add(req.Name));
 
             String skillsName = string.Empty;
             listing.Requirements.ForEach(req => skillsName +="'"+ req.Name + "', ");
@@ -153,16 +150,16 @@ namespace ByeWorld_backend.Controllers
                 {
                     if (!skillNodes.Any(skillNode=>skillNode.Name==req.Name))
                     {
+                        //long skillId = await _ids.SkillNext();
                         skillNodes = skillNodes.Concat(await _neo4j.Cypher
                             .Create("(s:Skill $newSkill)")
-                            .WithParam("newSkill", new Skill { Id = 55, Name = req.Name })
+                            .WithParam("newSkill", new Skill { Id = 0, Name = req.Name })
                             .Return(s => s.As<Skill>())
                             .ResultsAsync);
                     }
                 }
             }
-            //newListing.Company = companyNode.FirstOrDefault();
-            //newListing.City = cityNode.FirstOrDefault();
+
 
             var query = _neo4j.Cypher
                .Match("(c:Company)")
@@ -172,31 +169,21 @@ namespace ByeWorld_backend.Controllers
                .Create("(l:Listing $newListing)<-[:HAS_LISTING]-(c)")
                .Create("(l)-[:LOCATED_IN]->(ci)")
                .WithParam("newListing", newListing);
-            //.Return((c, ci, l) => new
-            //{
-            //    Listing = l.As<Listing>(),
-            //    Company = c.As<Company>(),
-            //    //CompanyName = c.As<Company>().Name,
-            //    //CompanyId = c.As<Company>().Id,
-            //    CityName = ci.As<City>().Name
-            //});
 
             //TODO: Sredi ID samo
             for (int i = 0; i < listing.Requirements.Count; i++)
             {
                 query = query.Create($"(l)-[:REQUIRES {{Proficiency: $prof{i}}}]->(c{i}: Skill $newSkill{i})")
                         .WithParam($"prof{i}", listing.Requirements[i].Proficiency)
-                        .WithParam($"newSkill{i}", new Skill { Name = listing.Requirements[i].Name, Id = 55 });
+                        .WithParam($"newSkill{i}", new Skill { Name = listing.Requirements[i].Name, Id = 0 });
             }
             var retVal=await query.Return((c, ci, l) => new
              {
                  Listing = l.As<Listing>(),
+                 Id=l.As<Listing>().Id,
                  Company = c.As<Company>(),
-                 //CompanyName = c.As<Company>().Name,
-                 //CompanyId = c.As<Company>().Id,
                  CityName = ci.As<City>().Name
              }).ResultsAsync;
-            //TODO:Sredi proveru da li je uspesno izvrseno dodavanje
             if (retVal.Count() == 0)
                 return BadRequest("Dodavanje listinga neuspesno");
 
