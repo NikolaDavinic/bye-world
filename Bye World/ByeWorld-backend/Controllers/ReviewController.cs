@@ -109,7 +109,7 @@ namespace ByeWorld_backend.Controllers
                 r.Review.Date,
                 r.Review.Value,
                 r.Review.Description
-            }).First();
+            }).FirstOrDefault();
 
             return Ok(returnVal);
         }

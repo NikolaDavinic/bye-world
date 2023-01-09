@@ -85,15 +85,6 @@ namespace ByeWorld_backend.Controllers
             return Ok(result);
         }
 
-        //[HttpGet("/listings/{id}")]
-        //public async Task<ActionResult> GetCompanyListings(int id)
-        //{
-        //    var query = _neo4j.Cypher
-        //        .Match("(c:Company)-[:HAS_LISTING]->(l:Listing)")
-        //        .Where((Company c) => c.Id == id)
-        //        .AndWhere
-        //}
-
         [HttpGet("filter")]
         public async Task<ActionResult> FilterCompnay([FromQuery] string filter)
         {

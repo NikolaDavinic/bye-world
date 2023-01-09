@@ -78,6 +78,30 @@ namespace ByeWorld_backend.Controllers
             return Ok(listing.LastOrDefault());
         }
 
+        [HttpGet("company/{id}")]
+        public async Task<ActionResult> GetCompanyListings(int id)
+        {
+            var query = _neo4j.Cypher
+                .Match("(c:Company)-[:HAS_LISTING]->(l:Listing)-[:LOCATED_IN]->(ci:City)")
+                .Where((Company c) => c.Id == id)
+                .Return((l, ci, s, r) => new
+                {
+                    City = ci.As<City>(),
+                    Listing = l.As<Listing>(),
+                    Skills = s.CollectAs<Skill>()
+                })
+                .Match("(l)-[r:REQUIRES]->(s:Skill)")
+                .With((r, s) => new
+                {
+                   s,
+                   r.As<RequiresSkill>().Proficiency
+                })
+                .Return<dynamic>((c) => c.As<dynamic>())
+                .Limit(1);
+
+            return Ok(await query.ResultsAsync);
+        }
+
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateListingById(int id, [FromBody]Listing listing)
         {
