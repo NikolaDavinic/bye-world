@@ -32,7 +32,8 @@ namespace ByeWorld_backend.Controllers
 
             //var listings = await _neo4j.Cypher.Match("(n:Listing)")
             //                                  .Return(n => n.As<Listing>()).ResultsAsync;
-            var query = _neo4j.Cypher.Match("(l:Listing)-[r]-(c:City)").Where((Listing l)=>true);
+            var query = _neo4j.Cypher.Match("(s:Skill)-[reqs:REQUIRES]-(l:Listing)-[r]-(c:City)").Match("(l)-[:HAS_LISTING]-(co:Company)").Where((Listing l) => true);
+
             if (!String.IsNullOrEmpty(keyword))
             {
                 query=query.AndWhere((Listing l) => l.Title.Contains(keyword));
@@ -41,24 +42,24 @@ namespace ByeWorld_backend.Controllers
             {
                 query=query.AndWhere((Listing l,City c) => c.Name.Contains(city));
             }
-            //TODO: Add filtering based on listing requirements
+            //TODO: CONTAINS ili = kod pretragu, kad trazis za java da li da vrati i javascript??????
             if (!String.IsNullOrEmpty(position))
              {
-                if (!String.IsNullOrEmpty(seniority))
-                    query=query.AndWhere((Listing l) => l.Requirements.Any(req => req.Skill.Name.Contains(position) && req.Proficiency.Contains(seniority)));
-                else
-                    query = query.AndWhere((Listing l) => l.Requirements.Any(req => req.Skill.Name.Contains(position)));
+                query = query.AndWhere($"toLower(s.Name) CONTAINS toLower('{position}')");
             }
+            if (!String.IsNullOrEmpty(seniority))
+                query = query.AndWhere($"toLower(reqs.Proficiency) CONTAINS toLower('{seniority}')");
 
-            var retVal = query.Return((l,c) => new Listing{ 
+            //TODO: Pravi DTO isti za back i front za formiranje liste listinga
+            var retVal = query.Return((l,c,s,co) => new /*Listing*/{ 
                 Title=l.As<Listing>().Title,
                 City=c.As<City>(),
                 Description = l.As<Listing>().Description,
                 ClosingDate= l.As<Listing>().ClosingDate,
                 PostingDate = l.As<Listing>().PostingDate,
                 Id=l.As<Listing>().Id,
-                //TODO:Ubaci i company ako uopste treba?? Pravi DTO za vracanje potreban info za prikaz liste Listinga
-                //TODO:Ubaci i skill-ove OVO CE BUDE ZAEBANO 
+                Requirements=s.CollectAs<Skill>(),
+                Company =co.As<Company>()
             });
             if (sortNewest)
             {
