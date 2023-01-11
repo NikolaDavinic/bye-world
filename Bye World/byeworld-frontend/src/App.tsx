@@ -38,60 +38,6 @@ const theme = createTheme({
 });
 
 function App() {
-  const { autoLogin } = useAuthContext();
-  // const { authProvider } = AuthStateProvider();
-
-  const navigate = useNavigate()
-  // const requireLogin = (to, from, next) => {
-  //   if (to.meta.auth){
-  //     if()
-  //   }
-  // }
-
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [itemsFromUser, setItemsFromUser] = useState();
-  const [userType, setUserType] = useState("");
-
-  // const checkUserToken = () => {
-  //   const userToken = localStorage.getItem('user')
-  //   if (!userToken || userToken === "undefined") {
-  //     setIsLoggedIn(false);
-  //     // return navigate('/signin')
-  //   }
-  //   setIsLoggedIn(true)
-  //   // return navigate('/notfound')
-  // }
-  // //ova fja vraca tip korisnika
-  //  const getUserType = () => {
-  //   const items = JSON.parse(localStorage.getItem('user')!)
-  //   setItemsFromUser(items)
-  //   console.log(items)
-  //   if(items.role === "" || items === "undefined") {
-  //     setUserType("")
-  //   }
-  //   else  {
-  //     if(items.role == "Company"){
-  //       setUserType("Company")
-  //       // console.log(userType)
-  //     }
-  //     else if(items.role == "User") {
-  //       setUserType("User")
-  //       // console.log(userType)
-  //     }
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   checkUserToken()
-  //   console.log(isLoggedIn)
-  // }, [isLoggedIn])
-
-  useEffect(() => {
-    autoLogin();
-    // getUserType()
-    console.log(userType)
-  }, []);
-
   return (
     <ThemeProvider theme={theme}>
       <AuthStateProvider>

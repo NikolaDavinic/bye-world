@@ -74,6 +74,9 @@ namespace ByeWorld_backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult> GetListingById(int id)
         {
+            var db = _redis.GetDatabase();
+
+
             var listing = await _neo4j.Cypher.Match("(l:Listing)")
                                              .Where((Listing l) => l.Id == id)
                                              .Return(l => l.As<Listing>()).ResultsAsync;

@@ -1,11 +1,4 @@
-import {
-  Box,
-  Button,
-  Rating,
-  TextareaAutosize,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Rating, TextField, Typography } from "@mui/material";
 import React from "react";
 import { Review } from "../../model/Review";
 
@@ -46,7 +39,7 @@ const ReviewForm = ({
         <Typography component="legend">
           Rate your experience with this company
         </Typography>
-        <Box className="flex justify-center">
+        <Box className="flex">
           <Rating
             name="rating"
             value={rating}

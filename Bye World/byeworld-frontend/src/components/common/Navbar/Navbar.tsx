@@ -18,11 +18,9 @@ import { useAuthContext } from "../../../contexts/auth.context";
 const pages = ["Listings", "Companies"];
 
 export const Navbar = () => {
-  const { user, isAuthenticated, signout } = useAuthContext();
+  const { isAuthenticated, signout } = useAuthContext();
 
   const navigate = useNavigate();
-
-  const [loggedIn, setLoggedIn] = React.useState<Boolean>(false);
 
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
     null
@@ -55,17 +53,6 @@ export const Navbar = () => {
     handleCloseNavMenu();
     navigate("/signin");
   };
-
-  React.useEffect(() => {
-    setLoggedIn(isAuthenticated());
-    console.log(loggedIn);
-  }, [])
-
-  const promeniStanje = () => {
-    console.log(loggedIn);
-    setLoggedIn(!loggedIn);
-    console.log(loggedIn);
-  }
 
   return (
     <>
@@ -177,16 +164,9 @@ export const Navbar = () => {
                 </NavLink>
               ))}
             </Box>
-            
+
             {!isAuthenticated() ? (
               <Box sx={{ display: "block" }}>
-                <Button
-                  color="secondary"
-                  variant="contained"
-                  onClick={promeniStanje}
-                >
-                  Promeni stanje
-                </Button>
                 <Button
                   color="secondary"
                   variant="contained"
@@ -194,11 +174,9 @@ export const Navbar = () => {
                 >
                   Sign In
                 </Button>
-                
               </Box>
             ) : (
               <Box sx={{ flexGrow: 0 }}>
-                
                 <Tooltip title="Open settings">
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                     <Avatar
