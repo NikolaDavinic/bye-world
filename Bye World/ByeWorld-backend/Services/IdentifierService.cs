@@ -57,5 +57,13 @@ namespace ByeWorld_backend.Services
         {
             return await IdNext("Review");
         }
+        public async Task<long> CityNext()
+        {
+            return await IdNext("City");
+        }
+        public async Task<long> SkillNext()
+        {
+            return await IdNext("Skill");
+        }
     }
 }

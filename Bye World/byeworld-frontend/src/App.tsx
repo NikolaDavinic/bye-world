@@ -1,6 +1,6 @@
 import "./App.css";
 import { ThemeProvider, createTheme } from "@mui/material";
-import { Route, Routes } from "react-router";
+import { Navigate, Route, Routes } from "react-router";
 import { SignUp } from "./components/SignUp/Signup";
 import { SignIn } from "./components/SignIn/Signin";
 import { Listings } from "./components/listings/ListingsPage";
@@ -107,6 +107,10 @@ function App() {
               <Route path="/companies" element={<Companies />}></Route>
               <Route path="/addcompany" element={<AddCompanyPage />}></Route>
               <Route path="/company/:companyId" element={<CompanyPage />}>
+                <Route
+                  path=""
+                  element={<Navigate to="about"></Navigate>}
+                ></Route>
                 <Route path="about" element={<AboutCompany />}></Route>
                 <Route path="listings" element={<CompanyListings />}></Route>
                 <Route path="reviews" element={<CompanyReviews />}></Route>

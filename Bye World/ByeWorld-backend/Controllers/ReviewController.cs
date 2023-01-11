@@ -52,10 +52,10 @@ namespace ByeWorld_backend.Controllers
                     Name = r.UserName,
                     ImageUrl = r.UserImageUrl
                 },
-                Id = r.Review.Id,
-                Date = r.Review.Date,
-                Value = r.Review.Value,
-                Description = r.Review.Description
+                r.Review.Id,
+                r.Review.Date,
+                r.Review.Value,
+                r.Review.Description
             });
 
             return Ok(returnVal);
@@ -105,10 +105,10 @@ namespace ByeWorld_backend.Controllers
                     Name = r.UserName,
                     ImageUrl = r.UserImageUrl
                 },
-                Id = r.Review.Id,
-                Date = r.Review.Date,
-                Value = r.Review.Value,
-                Description = r.Review.Description
+                r.Review.Id,
+                r.Review.Date,
+                r.Review.Value,
+                r.Review.Description
             }).First();
 
             return Ok(returnVal);

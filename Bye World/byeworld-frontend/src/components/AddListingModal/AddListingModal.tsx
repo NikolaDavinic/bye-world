@@ -7,11 +7,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect, useState } from 'react';
-import { Divider, Icon, IconButton, MenuItem, Select, Typography } from '@mui/material';
-import { useForm } from 'react-hook-form';
+import { Icon, IconButton, MenuItem, Select, Typography } from '@mui/material';
 import { api } from '../../constants';
-import { Listing } from '../../model/Listing';
-import { AxiosResponse } from 'axios';
 import { useNavigate } from 'react-router-dom';
 interface AddListingModalProps {
     isOpen: boolean,
@@ -39,9 +36,6 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
     }, [isOpen])
     const [open, setOpen] = React.useState(false);
 
-    // const handleClickOpen = () => {
-    //     setOpen(true);
-    // };
     const navigate = useNavigate();
     const handleClose = () => {
         handleModalClose();
@@ -50,9 +44,9 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
     const [title, setTitle] = useState<string>('');
     const [description, setDescription] = useState<string>('');
     const [cityName, setCityName] = useState<string>('');
-    const [companyId, setCompanyId] = useState<number>(0);
+    const [companyId, setCompanyId] = useState<number>(13);//TODO: Set to user's company ID
     const [closingDate, setClosingDate] = useState<Date>(new Date());
-    const [postingDate, setPostingDate] = useState<Date>(new Date());
+    const [postingDate, _] = useState<Date>(new Date());
     const [requirements, setRequirements] = useState<SkillDTO[]>([
         { name: "", proficiency: "" }
     ]);
@@ -68,10 +62,11 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
             description: description,
             requirements: requirements
         }
+        console.log(data)
         api
             .post("/listing/add", data)
-            .then((response: AxiosResponse<Listing>) => {
-                return navigate("/listing/" + response.data.id);
+            .then((response) => {
+                return navigate("/listing/" + response.data[0].id);
             })
             .catch((error) => {
                 console.error(error);
@@ -118,11 +113,10 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
                         variant="standard"
                         onChange={(e) => setCompanyId(Number(e.target.value))}
                     >
-                        <MenuItem value={10}>Company 1</MenuItem>
-                        <MenuItem value={20}>Company 2</MenuItem>
-                        <MenuItem value={30}>Company 3</MenuItem>
+                        <MenuItem value={13}>Nignite</MenuItem>
+                        <MenuItem value={12}>Microsoft opet</MenuItem>
+                        <MenuItem value={12}>Microsoft</MenuItem>
                     </Select>
-                    {/* TODO: Sredi date  */}
                     <TextField
                         margin="dense"
                         label="Closing Date"
@@ -130,7 +124,7 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
                         type="date"
                         variant="standard"
                         onChange={(e) => setClosingDate(new Date(e.target.value))}
-                        value={closingDate}
+                        value={closingDate.toISOString().split('T')[0]}
                     />
                     <TextField
                         margin="dense"
@@ -153,7 +147,12 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
                                     margin="dense"
                                     label="Skill"
                                     variant="outlined"
-                                    onChange={(e) => setCityName(e.target.value)}
+                                    onChange={(e) => setRequirements(prevReqs => prevReqs.map(req => {
+                                        if (prevReqs.indexOf(req) == ind)
+                                            return { ...req, name: e.target.value };
+                                        else
+                                            return req;
+                                    }))}
                                     value={requirements[ind].name}
                                 />
                                 <Select
@@ -164,8 +163,12 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
                                     className='w-1/4'
                                     value={requirements[ind].proficiency}
                                     variant="outlined"
-                                    onChange={(e) => setCompanyId(Number(e.target.value))}
-                                >
+                                    onChange={(e) => setRequirements(prevReqs => prevReqs.map(req => {
+                                        if (prevReqs.indexOf(req) == ind)
+                                            return { ...req, proficiency: e.target.value };
+                                        else
+                                            return req;
+                                    }))}                                >
                                     <MenuItem value="junior">Junior</MenuItem>
                                     <MenuItem value="medior">Medior</MenuItem>
                                     <MenuItem value="senior">Senior</MenuItem>
@@ -183,25 +186,6 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
                             </div>
                         ))
                     }
-                    {/* <div>
-                        <TextField
-
-                            className='w-1/2'
-                            margin="dense"
-                            label="Skill"
-                            variant="outlined"
-                            onChange={(e) => setCityName(e.target.value)}
-                            value={cityName}
-                        />
-                        <TextField
-                            className='w-1/4'
-                            margin="dense"
-                            label="Seniority"
-                            variant="outlined"
-                            onChange={(e) => setCityName(e.target.value)}
-                            value={cityName}
-                        />
-                    </div> */}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => handleClose()}>Cancel</Button>
