@@ -60,8 +60,6 @@ const CompanyPage = () => {
     }
   }
 
-  console.log(company);
-
   return (
     <>
       <Box className="bg-gray-100">

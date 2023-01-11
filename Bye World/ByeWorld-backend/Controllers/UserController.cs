@@ -122,8 +122,16 @@ namespace ByeWorld_backend.Controllers
 
             var authenticatedUsers = (await db.SetMembersAsync("users:authenticated")).ToList();
             foreach(var userId in authenticatedUsers) {
-                var timeActive = Convert.ToDateTime(await db.StringGetAsync($"users:last_active:{userId}"));
-                if (DateTime.Now - timeActive <= TimeSpan.FromMinutes(5))
+                var timeActive = (await db.StringGetAsync($"users:last_active:{userId}")).ToString();
+
+                if (timeActive == null)
+                {
+                    await db.SetRemoveAsync("users:authenticated", userId);
+                    continue;
+                }
+
+                var timeActiveDt = DateTime.Parse(timeActive);
+                if (DateTime.Now - timeActiveDt <= TimeSpan.FromMinutes(5))
                 {
                     count++;
                 }

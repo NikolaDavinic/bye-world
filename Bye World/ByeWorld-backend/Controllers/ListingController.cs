@@ -78,10 +78,66 @@ namespace ByeWorld_backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult> GetListingById(int id)
         {
-            var listing = await _neo4j.Cypher.Match("(l:Listing)")
+            var db = _redis.GetDatabase();
+
+            var query = _neo4j.Cypher.Match("(l:Listing)")
                                              .Where((Listing l) => l.Id == id)
-                                             .Return(l => l.As<Listing>()).ResultsAsync;
-            return Ok(listing.LastOrDefault());
+                                             .Return(l => l.As<Listing>());
+
+            var result = (await query.ResultsAsync).FirstOrDefault();
+
+            if (result != null)
+            {
+                string keyDate = DateTime.Now.Date.ToShortDateString();
+                db.SortedSetIncrement($"listings:leaderboard:{keyDate}", result.Id, 1);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpGet("toplistings")]
+        public async Task<ActionResult> GetTopListings()
+        {
+            var db = _redis.GetDatabase();
+
+            string keyDate = DateTime.Now.Date.ToShortDateString();
+            var ids = (await db.SortedSetRangeByRankAsync($"listings:leaderboard:{keyDate}", start: 0, stop: 5, Order.Descending))
+                .Select(id => int.Parse(id.ToString()))
+                .ToList();
+
+            var query = _neo4j.Cypher
+                .Match("(l:Listing)")
+                .Where("l.Id IN $ids")
+                .WithParam("ids", ids)
+                .Return(l => l.As<Listing>());
+
+            return Ok(await query.ResultsAsync);
+        }
+
+        [HttpGet("company/{id}")]
+        public async Task<ActionResult> GetCompanyListings(int id)
+        {
+            //MATCH(l: Listing) -[listedby: HAS_LISTING] - (c: Company)
+            //MATCH(l) -[req: REQUIRES]->(s: Skill)
+            //MATCH(l) -[loc: LOCATED_IN]->(city: City)
+            //WHERE c.Id <> 13 RETURN l, loc, c, [req.Proficiency, s] as requirement,city, listedby
+
+            var query = _neo4j.Cypher
+                .Match("(s:Skill)-[reqs:REQUIRES]-(l:Listing)-[r]-(c:City)")
+                .Match("(l)-[:HAS_LISTING]-(co:Company)")
+                .Where((Company co) => co.Id == id)
+                .Return((l, c, s, co) => new /*Listing*/{
+                    Title = l.As<Listing>().Title,
+                    City = c.As<City>(),
+                    Description = l.As<Listing>().Description,
+                    ClosingDate = l.As<Listing>().ClosingDate,
+                    PostingDate = l.As<Listing>().PostingDate,
+                    Id = l.As<Listing>().Id,
+                    Requirements = s.CollectAs<Skill>(),
+                    Company = co.As<Company>()
+                });
+
+            return Ok(await query.ResultsAsync);
         }
 
         [HttpPut("{id}")]
@@ -196,56 +252,17 @@ namespace ByeWorld_backend.Controllers
             return Ok(retVal);
         }
 
-        [HttpGet("getfirstthreesimilarlistings")]
-        public async Task<ActionResult> GetFirstThreeSimilarListings([FromBody] SimilarListingDTO l)
+        [HttpGet("similarlistings/{id}")]
+        public async Task<ActionResult> getfirstthreesimilarlistings(int id)
         {
+            var query =  _neo4j.Cypher
+                .Match("(l:Listing)-->(s:Skill)<--(lr:Listing)")
+                .Where((Listing l) => l.Id == id)
+                .With("distinct(lr) as reccs")
+                .Return(reccs => reccs.As<Listing>());
 
-            //var SimilarByCompany = _neo4j.Cypher
-            //    .Match("(l:Listing)")
-            //    .Where("l.Company = $query")
-            //    .WithParam("query",l.Company)
-            //    .Return(l => l.As<Listing>()).Limit(2);
-
-            //var SimilarByCity = _neo4j.Cypher
-            //    .Match("(l:Listing)")
-            //    .Where("l.City = $query")
-            //    .WithParam("query", l.City)
-            //    .Return(l => l.As<Listing>()).Limit(1);
-
-            ////var SimilarByRequirements = _neo4j.Cypher
-            ////    .Match("(l:Listing)")
-            ////    .Return(l => l.As<Listing>());
-
-            //var rez = new ArrayList();
-            //rez.Add(SimilarByCity);
-            //rez.Add(SimilarByCompany);
-
-            //return Ok(rez);
-
-            var AllListings = await _neo4j.Cypher
-                .Match("(l:Listing)-[]->(r:RequirementSkill)")
-                .Return(l => l.As<Listing>())
-                .ResultsAsync;
-            List<Listing> result = new List<Listing>();
-            foreach(var el in AllListings)
-            {
-                if(el.Requirements.Count()==l.Requirements.Count())
-                {
-                    int brojac = 0;
-                    foreach(var r in el.Requirements)
-                    {
-                        //if(String.Compare(r?.Skill?.Name, l?.Requirements[brojac]?.Skill?.Name))
-                        //{
-
-                        //}
-                    }
-                    if (brojac == l.Requirements.Count())
-                    {
-                        result.Add(el);
-                    }
-                }
-            }
-            return Ok();
+            
+            return Ok(await query.ResultsAsync);
         }
     }
 }
