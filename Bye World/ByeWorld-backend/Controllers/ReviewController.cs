@@ -62,6 +62,54 @@ namespace ByeWorld_backend.Controllers
         }
 
         [Authorize]
+        [HttpPut]
+        public async Task<IActionResult> UpdateReview([FromBody] UpdateReviewDTO rw)
+        {
+            var userId = int.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "0");
+
+            var result = (await _neo4j.Cypher
+                .Match("(r:Review)-[]-(u:User)")
+                .Where((Review r, User u) => r.Id == rw.Id && u.Id == userId)
+                .Set("r.Value = $value")
+                .Set("r.Description = $desc")
+                .WithParam("value", rw.Value)
+                .WithParam("desc", rw.Description)
+                .Return(r => r.As<Review>())
+                .ResultsAsync)
+                .FirstOrDefault();
+
+            if (result == null)
+            {
+                return BadRequest("Update failed");
+            } else
+            {
+                return Ok(result);
+            }
+        }
+
+        [Authorize]
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteReview(int id)
+        {
+            var userId = int.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "0");
+
+            var result = (await _neo4j.Cypher
+                .Match("(r:Review)-[]-(u:User)")
+                .Where((Review r, User u) => r.Id == id && u.Id == userId)
+                .DetachDelete("r")
+                .Return(r => r.As<Review>())
+                .ResultsAsync).FirstOrDefault();
+
+            if (result != null)
+            {
+                return Ok("Review deleted");
+            } else
+            {
+                return BadRequest("Unsuccessful deletion");
+            }
+        }
+
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> AddReview([FromBody] AddReviewDTO rw)
         {

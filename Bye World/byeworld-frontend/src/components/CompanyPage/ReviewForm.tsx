@@ -12,22 +12,29 @@ import { Review } from "../../model/Review";
 interface ReviewFormProps {
   buttonText?: string;
   onSubmit: (review: Review) => void;
+  review?: Review;
 }
 
 const ReviewForm = ({
+  review,
   buttonText = "Add Review",
   onSubmit,
 }: ReviewFormProps) => {
-  const [rating, setRating] = React.useState<number>(3);
-  const [description, setDescription] = React.useState<string>("");
+  const [rating, setRating] = React.useState<number>(review?.value ?? 3);
+  const [description, setDescription] = React.useState<string>(
+    review?.description ?? ""
+  );
 
   const handleSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault();
     onSubmit({
+      id: review?.id,
       value: rating,
       description: description,
     });
   };
+
+  console.log(rating);
 
   return (
     <Box
@@ -35,16 +42,19 @@ const ReviewForm = ({
       className="flex items-center justify-center flex-col gap-1"
       onSubmit={handleSubmit}
     >
-      <Box>
+      <Box className="flex-column items-center justify-center">
         <Typography component="legend">
           Rate your experience with this company
         </Typography>
-        <Rating
-          name="rating"
-          onChange={(event, newValue) => {
-            setRating(newValue ?? 0);
-          }}
-        />
+        <Box className="flex justify-center">
+          <Rating
+            name="rating"
+            value={rating}
+            onChange={(event, newValue) => {
+              setRating(newValue ?? 0);
+            }}
+          />
+        </Box>
       </Box>
       <Box className="flex items-center justify-center flex-col gap-1 w-full">
         <TextField

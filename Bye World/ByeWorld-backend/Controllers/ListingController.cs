@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Neo4jClient;
+using Neo4jClient.Cypher;
 using Neo4jClient.Extensions;
 using StackExchange.Redis;
 using System.Collections;
@@ -82,23 +83,25 @@ namespace ByeWorld_backend.Controllers
         [HttpGet("company/{id}")]
         public async Task<ActionResult> GetCompanyListings(int id)
         {
+            //MATCH(l: Listing) -[listedby: HAS_LISTING] - (c: Company)
+            //MATCH(l) -[req: REQUIRES]->(s: Skill)
+            //MATCH(l) -[loc: LOCATED_IN]->(city: City)
+            //WHERE c.Id <> 13 RETURN l, loc, c, [req.Proficiency, s] as requirement,city, listedby
+
             var query = _neo4j.Cypher
-                .Match("(c:Company)-[:HAS_LISTING]->(l:Listing)-[:LOCATED_IN]->(ci:City)")
-                .Where((Company c) => c.Id == id)
-                .Return((l, ci, s, r) => new
-                {
-                    City = ci.As<City>(),
-                    Listing = l.As<Listing>(),
-                    Skills = s.CollectAs<Skill>()
-                })
-                .Match("(l)-[r:REQUIRES]->(s:Skill)")
-                .With((r, s) => new
-                {
-                   s,
-                   r.As<RequiresSkill>().Proficiency
-                })
-                .Return<dynamic>((c) => c.As<dynamic>())
-                .Limit(1);
+                .Match("(s:Skill)-[reqs:REQUIRES]-(l:Listing)-[r]-(c:City)")
+                .Match("(l)-[:HAS_LISTING]-(co:Company)")
+                .Where((Company co) => co.Id == id)
+                .Return((l, c, s, co) => new /*Listing*/{
+                    Title = l.As<Listing>().Title,
+                    City = c.As<City>(),
+                    Description = l.As<Listing>().Description,
+                    ClosingDate = l.As<Listing>().ClosingDate,
+                    PostingDate = l.As<Listing>().PostingDate,
+                    Id = l.As<Listing>().Id,
+                    Requirements = s.CollectAs<Skill>(),
+                    Company = co.As<Company>()
+                });
 
             return Ok(await query.ResultsAsync);
         }

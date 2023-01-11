@@ -40,7 +40,7 @@ namespace ByeWorld_backend.Controllers
             var newCompany = await _neo4j.Cypher
                 .Match("(u:User)")
                 .Where((User u) => u.Id == userId)
-                .Create("(u)-[:CREATED]->(c:Company $newcompany)")
+                .Create("(u)-[:HAS_COMPANY]->(c:Company $newcompany)")
                 .WithParam("newcompany", new Company
                 {
                     Id = cid,

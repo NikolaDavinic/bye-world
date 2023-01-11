@@ -30,5 +30,5 @@ export function useApi<T>(path: string, initialValue?: T) {
     };
   }, [path]);
 
-  return { result, loading, error, setResult };
+  return { result, loading, error, setResult, setError };
 }
