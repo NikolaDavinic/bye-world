@@ -1,4 +1,10 @@
-import { createContext, ReactNode, useContext, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { api } from "../constants";
 import { User } from "../model/User";
 import {
@@ -42,6 +48,10 @@ export function useAuthContext() {
 export function AuthStateProvider({ children }: AuthStateProviderProps) {
   const [authState, setAuthState] = useState<AuthState | null>(null);
 
+  useEffect(() => {
+    autoLogin();
+  }, []);
+
   const signin = (authState: AuthState) => {
     if (!authState.user || !authState.sessionId) return;
 
@@ -63,23 +73,18 @@ export function AuthStateProvider({ children }: AuthStateProviderProps) {
   const autoLogin = () => {
     const user = lsGetUser();
     const sessionId = lsGetSessionId();
-    console.log(user, sessionId)
+
     if (!user || !sessionId) {
       return;
     }
-    const token = {sessionId: sessionId, user:user};
-    console.log(token)
+
+    const token = { sessionId: sessionId, user: user };
     setAuthState(token);
-    console.log(authState)
-    console.log("autologin se pozvao")
   };
 
   const isAuthenticated = () => {
-    console.log("isAuth");
     return authState?.sessionId ? true : false;
   };
-
-  
 
   return (
     <AuthStateContext.Provider
