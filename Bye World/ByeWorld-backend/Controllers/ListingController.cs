@@ -76,11 +76,38 @@ namespace ByeWorld_backend.Controllers
         {
             var db = _redis.GetDatabase();
 
-
-            var listing = await _neo4j.Cypher.Match("(l:Listing)")
+            var query = _neo4j.Cypher.Match("(l:Listing)")
                                              .Where((Listing l) => l.Id == id)
-                                             .Return(l => l.As<Listing>()).ResultsAsync;
-            return Ok(listing.LastOrDefault());
+                                             .Return(l => l.As<Listing>());
+
+            var result = (await query.ResultsAsync).FirstOrDefault();
+
+            if (result != null)
+            {
+                string keyDate = DateTime.Now.Date.ToShortDateString();
+                db.SortedSetIncrement($"listings:leaderboard:{keyDate}", result.Id, 1);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpGet("toplistings")]
+        public async Task<ActionResult> GetTopListings()
+        {
+            var db = _redis.GetDatabase();
+
+            string keyDate = DateTime.Now.Date.ToShortDateString();
+            var ids = (await db.SortedSetRangeByRankAsync($"listings:leaderboard:{keyDate}", start: 0, stop: 5, Order.Descending))
+                .Select(id => int.Parse(id.ToString()))
+                .ToList();
+
+            var query = _neo4j.Cypher
+                .Match("(l:Listing)")
+                .Where("l.Id IN $ids")
+                .WithParam("ids", ids)
+                .Return(l => l.As<Listing>());
+
+            return Ok(await query.ResultsAsync);
         }
 
         [HttpGet("company/{id}")]
