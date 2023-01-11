@@ -203,7 +203,7 @@ namespace ByeWorld_backend.Controllers
             return Ok(retVal);
         }
 
-        [HttpGet("getfirstthreesimilarlistings")]
+        [HttpGet("similarlistings")]
         public async Task<ActionResult> GetFirstThreeSimilarListings([FromBody] SimilarListingDTO l)
         {
 
@@ -230,29 +230,37 @@ namespace ByeWorld_backend.Controllers
             //return Ok(rez);
 
             var AllListings = await _neo4j.Cypher
-                .Match("(l:Listing)-[]->(r:RequirementSkill)")
+                //.Match("(l:Listing)-[:REQUIRES]->(s:Skill)")
+                .Match("(l:Listing)")
                 .Return(l => l.As<Listing>())
                 .ResultsAsync;
             List<Listing> result = new List<Listing>();
-            foreach(var el in AllListings)
+            //for (var el in AllListings)
+            if (AllListings.Count() != 0 && AllListings!=null)
             {
-                if(el.Requirements.Count()==l.Requirements.Count())
-                {
-                    int brojac = 0;
-                    foreach(var r in el.Requirements)
-                    {
-                        //if(String.Compare(r?.Skill?.Name, l?.Requirements[brojac]?.Skill?.Name))
-                        //{
 
-                        //}
-                    }
-                    if (brojac == l.Requirements.Count())
-                    {
-                        result.Add(el);
-                    }
-                }
+
+                //for (int i = 0; i < AllListings.Count(); i++)
+                //{
+                //    if (AllListings[i].Requirements.Count() == l.Requirements.Count())
+                //    {
+                //        int brojac = 0;
+                //        //foreach (var r in el.Requirements)
+                //        for(int j = 0; j < AllListings[i].Requirements.Count();j++)
+                //        {
+                //            //if(String.Compare(r?.Skill?.Name, l?.Requirements[brojac]?.Skill?.Name))
+                //            //{
+
+                //            //}
+                //        }
+                //        if (brojac == l.Requirements.Count())
+                //        {
+                //            result.Add(el);
+                //        }
+                //    }
+                //}
             }
-            return Ok();
+            return Ok(AllListings);
         }
     }
 }
