@@ -221,64 +221,17 @@ namespace ByeWorld_backend.Controllers
             return Ok(retVal);
         }
 
-        [HttpGet("similarlistings")]
-        public async Task<ActionResult> GetFirstThreeSimilarListings([FromBody] SimilarListingDTO l)
+        [HttpGet("similarlistings/{id}")]
+        public async Task<ActionResult> getfirstthreesimilarlistings(int id)
         {
+            var query =  _neo4j.Cypher
+                .Match("(l:Listing)-->(s:Skill)<--(lr:Listing)")
+                .Where((Listing l) => l.Id == id)
+                .With("distinct(lr) as reccs")
+                .Return(reccs => reccs.As<Listing>());
 
-            //var SimilarByCompany = _neo4j.Cypher
-            //    .Match("(l:Listing)")
-            //    .Where("l.Company = $query")
-            //    .WithParam("query",l.Company)
-            //    .Return(l => l.As<Listing>()).Limit(2);
-
-            //var SimilarByCity = _neo4j.Cypher
-            //    .Match("(l:Listing)")
-            //    .Where("l.City = $query")
-            //    .WithParam("query", l.City)
-            //    .Return(l => l.As<Listing>()).Limit(1);
-
-            ////var SimilarByRequirements = _neo4j.Cypher
-            ////    .Match("(l:Listing)")
-            ////    .Return(l => l.As<Listing>());
-
-            //var rez = new ArrayList();
-            //rez.Add(SimilarByCity);
-            //rez.Add(SimilarByCompany);
-
-            //return Ok(rez);
-
-            var AllListings = await _neo4j.Cypher
-                //.Match("(l:Listing)-[:REQUIRES]->(s:Skill)")
-                .Match("(l:Listing)")
-                .Return(l => l.As<Listing>())
-                .ResultsAsync;
-            List<Listing> result = new List<Listing>();
-            //for (var el in AllListings)
-            if (AllListings.Count() != 0 && AllListings!=null)
-            {
-
-
-                //for (int i = 0; i < AllListings.Count(); i++)
-                //{
-                //    if (AllListings[i].Requirements.Count() == l.Requirements.Count())
-                //    {
-                //        int brojac = 0;
-                //        //foreach (var r in el.Requirements)
-                //        for(int j = 0; j < AllListings[i].Requirements.Count();j++)
-                //        {
-                //            //if(String.Compare(r?.Skill?.Name, l?.Requirements[brojac]?.Skill?.Name))
-                //            //{
-
-                //            //}
-                //        }
-                //        if (brojac == l.Requirements.Count())
-                //        {
-                //            result.Add(el);
-                //        }
-                //    }
-                //}
-            }
-            return Ok(AllListings);
+            
+            return Ok(await query.ResultsAsync);
         }
     }
 }
