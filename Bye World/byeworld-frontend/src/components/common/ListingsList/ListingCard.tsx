@@ -4,11 +4,10 @@ import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import { Box, CardActionArea, Chip, Icon } from "@mui/material";
-import { Company } from "../../../model/Company";
-import { Listing } from "../../../model/Listing";
 import { useNavigate } from "react-router-dom";
+import { ListingDTO } from "../../listings/ListingsPage";
 interface ListingCardProps {
-  listing: Listing;
+  listing: ListingDTO;
 }
 export const ListingCard: React.FC<ListingCardProps> = ({
   listing,
@@ -34,9 +33,8 @@ export const ListingCard: React.FC<ListingCardProps> = ({
               <div className="grid gap-1">
                 <div className="flex items-center gap-1 w-1/2 overflow-hidden">
                   <p className="font-semibold opacity-75">
-                    <a href="/">
-                      {/* Naziv komapnije */}
-                      Company
+                    <a href={`/company/${listing.companyId}/about`}>
+                      {listing.companyName}
                     </a>
                   </p>
                 </div>
@@ -53,7 +51,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
                     <Icon className="material-symbols-outlined">
                       location_city
                     </Icon>
-                    <p className="text-sm font-semibold">{listing.city?.name}</p>
+                    <p className="text-sm font-semibold">{listing.cityName}</p>
                   </div>
                 </div>
 
@@ -64,17 +62,10 @@ export const ListingCard: React.FC<ListingCardProps> = ({
                   </p>
                 </div>
               </div>
-              {/* TODO: Replace with Material UI chip */}
-              {/*TODO: Map required skills below and fix tag navigation */}
+              {/*TODO: ?? Map required skills below and fix tag navigation */}
               <Box className="flex items-center gap-2 flex-wrap">
-                {/* <a href="/oglasi-za-posao/crm" className="bg-main text-white rounded-md btn btn-xs btn-primary w-auto">
-                                    Java
-                                </a>
-                                <button type="button" className="w-auto bg-main text-white rounded-md cursor-pointer" >
-                                    <span className='text-white'>Senior </span>
-                                </button> */}
-                {["Java", "Senior"].map((r, i) => {
-                  return <Chip key={i} label={r} color="primary" />;
+                {listing.requirements.map((r, i) => {
+                  return <Chip key={i} label={r.name} color="primary"/>;
                 })}
               </Box>
             </div>
@@ -83,10 +74,10 @@ export const ListingCard: React.FC<ListingCardProps> = ({
                 alt=""
                 className="w-40 h-40"
                 src={
-                  listing.company?.logoUrl ??
+                  (listing.companyLogoUrl && listing.companyLogoUrl?.length>=0) ? listing.companyLogoUrl :
                   "https://www.adaptivewfs.com/wp-content/uploads/2020/07/logo-placeholder-image.png"
                 }
-                onClick={() => navigate("/company/" + listing.company?.id)}
+                onClick={() => navigate(`/company/${listing.companyId}/about`)}
               />
             </div>
           </div>

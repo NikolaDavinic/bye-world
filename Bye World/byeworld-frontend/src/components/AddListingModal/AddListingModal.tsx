@@ -10,6 +10,8 @@ import { useEffect, useState } from 'react';
 import { Icon, IconButton, MenuItem, Select, Typography } from '@mui/material';
 import { api } from '../../constants';
 import { useNavigate } from 'react-router-dom';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 interface AddListingModalProps {
     isOpen: boolean,
     handleModalClose: () => void
@@ -62,7 +64,6 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
             description: description,
             requirements: requirements
         }
-        console.log(data)
         api
             .post("/listing/add", data)
             .then((response) => {
@@ -140,7 +141,7 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
                     {/* <Divider variant="fullWidth" /> */}
                     {
                         requirements.map((r, ind) => (
-                            <div className='flex flex-row items-center'>
+                            <div key={ind} className='flex flex-row items-center'>
                                 <TextField
                                     id={String(ind)}
                                     className='w-1/2'
@@ -192,6 +193,12 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
                     <Button variant='contained' onClick={() => onSubmit()}>Add</Button>
                 </DialogActions>
             </Dialog>
+            {/* <Snackbar open={open} autoHideDuration={6000} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                onClose={handleClose}>
+                <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+                    This is a success message!
+                </Alert>
+            </Snackbar> */}
         </div>
     );
 }

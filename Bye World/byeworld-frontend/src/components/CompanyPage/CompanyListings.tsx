@@ -5,6 +5,7 @@ import { useContext } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import { Listing } from "../../model/Listing";
 import { useParams } from "react-router";
+import { ListingDTO } from "../listings/ListingsPage";
 
 const CompanyListings = () => {
   const { companyId } = useParams();
@@ -13,7 +14,8 @@ const CompanyListings = () => {
     result: listings,
     loading,
     error,
-  } = useApi<Listing[]>(`/company/listings/${companyId}`);
+    //TODO:Koristi ListingDTO kao kod liste listinga
+  } = useApi<ListingDTO[]>(`/company/listings/${companyId}`);
 
   if (loading) {
     return (
