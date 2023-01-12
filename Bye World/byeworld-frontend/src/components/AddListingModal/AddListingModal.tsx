@@ -12,6 +12,9 @@ import { api } from '../../constants';
 import { useNavigate } from 'react-router-dom';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import { Company } from '../../model/Company';
+import { useApi } from '../../hooks/api.hook';
+import { useAuthContext } from '../../contexts/auth.context';
 interface AddListingModalProps {
     isOpen: boolean,
     handleModalClose: () => void
@@ -42,11 +45,17 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
     const handleClose = () => {
         handleModalClose();
     };
+    const { isAuthenticated, user } = useAuthContext();
+    const {
+        result,
+        loading,
+        error,
+    } = useApi<any>(`company/getUserCompanies/${user?.id}`);
 
     const [title, setTitle] = useState<string>('');
     const [description, setDescription] = useState<string>('');
     const [cityName, setCityName] = useState<string>('');
-    const [companyId, setCompanyId] = useState<number>(13);//TODO: Set to user's company ID
+    const [companyId, setCompanyId] = useState<number>(0);
     const [closingDate, setClosingDate] = useState<Date>(new Date());
     const [postingDate, _] = useState<Date>(new Date());
     const [requirements, setRequirements] = useState<SkillDTO[]>([
@@ -105,19 +114,23 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
                         value={description}
                     />
                     {/* TODO:Sredi da se select napuni na nazivima kompanija korisnika a value item-a je id izabrane kompanije */}
-                    <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        label="Company"
-                        fullWidth
-                        value={companyId}
-                        variant="standard"
-                        onChange={(e) => setCompanyId(Number(e.target.value))}
-                    >
-                        <MenuItem value={13}>Nignite</MenuItem>
+                    {result &&
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            label="Company"
+                            fullWidth
+                            value={companyId}
+                            variant="standard"
+                            onChange={(e) => setCompanyId(Number(e.target.value))}
+                        >
+                            {result.companies.map((c: Company) => (
+                                <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
+                            ))}
+                            {/* <MenuItem value={13}>Nignite</MenuItem>
                         <MenuItem value={12}>Microsoft opet</MenuItem>
-                        <MenuItem value={12}>Microsoft</MenuItem>
-                    </Select>
+                        <MenuItem value={12}>Microsoft</MenuItem> */}
+                        </Select>}
                     <TextField
                         margin="dense"
                         label="Closing Date"
