@@ -28,7 +28,8 @@ namespace ByeWorld_backend.Controllers
 
 
         [HttpGet("filter")]
-        public async Task<ActionResult> GetAllListings([FromQuery] string? keyword, [FromQuery]string? city, [FromQuery]string? position, [FromQuery] string? seniority, [FromQuery] bool sortNewest=true)
+        public async Task<ActionResult> GetAllListings([FromQuery] string? keyword, [FromQuery]string? city, 
+                [FromQuery]string? position, [FromQuery] string? seniority, [FromQuery] int? take, [FromQuery] bool sortNewest = true)
         {
 
             //var listings = await _neo4j.Cypher.Match("(n:Listing)")
@@ -51,16 +52,19 @@ namespace ByeWorld_backend.Controllers
             if (!String.IsNullOrEmpty(seniority))
                 query = query.AndWhere($"toLower(reqs.Proficiency) CONTAINS toLower('{seniority}')");
 
-            //TODO: Pravi DTO isti za back i front za formiranje liste listinga
-            var retVal = query.Return((l,c,s,co) => new /*Listing*/{ 
-                Title=l.As<Listing>().Title,
-                City=c.As<City>(),
+            //TODO: Napravi DTO?
+            var retVal = query.Return((l, c, s, co) => new
+            {
+                Id = l.As<Listing>().Id,
+                Title = l.As<Listing>().Title,
                 Description = l.As<Listing>().Description,
-                ClosingDate= l.As<Listing>().ClosingDate,
+                CityName = c.As<City>().Name,
+                ClosingDate = l.As<Listing>().ClosingDate,
                 PostingDate = l.As<Listing>().PostingDate,
-                Id=l.As<Listing>().Id,
-                Requirements=s.CollectAs<Skill>(),
-                Company =co.As<Company>()
+                Requirements = s.CollectAs<Skill>(),
+                CompanyName = co.As<Company>().Name,
+                CompanyLogoUrl = co.As<Company>().LogoUrl,
+                CompanyId= co.As<Company>().Id,
             });
             if (sortNewest)
             {
@@ -68,7 +72,7 @@ namespace ByeWorld_backend.Controllers
             }
             else
                 retVal = retVal.OrderBy("l.ClosingDate ASC");
-            return Ok(await retVal.ResultsAsync);
+            return Ok(await retVal.Limit(take).ResultsAsync);
         }
 
         [HttpGet("{id}")]

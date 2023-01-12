@@ -1,9 +1,10 @@
 import { Button, CircularProgress, Icon, TextField } from '@mui/material'
 import React, { useState } from 'react'
 import { Listing } from '../../../model/Listing';
+import { ListingDTO } from '../../listings/ListingsPage';
 import { ListingCard } from './ListingCard';
 interface ListingsListProps {
-    listings: Listing[]
+    listings: ListingDTO[]
 }
 
 export const ListingsList: React.FC<ListingsListProps> = ({
@@ -27,8 +28,8 @@ export const ListingsList: React.FC<ListingsListProps> = ({
                     <Button variant="outlined">Expiring soon</Button>
                 </div> */}
                 {listings.length === 0 && <CircularProgress className='' color="primary" />}
-                {listings.map(l => (
-                    <ListingCard listing={l} />
+                {listings.map((l,i) => (
+                    <ListingCard key={i} listing={l} />
                 ))}
                 {/* <ListingCard listing={testListing} />
                 <ListingCard listing={testListing} />
