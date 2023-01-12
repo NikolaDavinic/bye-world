@@ -27,6 +27,7 @@ interface AuthStateContextI {
   signout: () => void;
   autoLogin: () => void;
   isAuthenticated: () => boolean;
+  userIsCompany: () => boolean;
 }
 
 interface AuthStateProviderProps {
@@ -86,6 +87,10 @@ export function AuthStateProvider({ children }: AuthStateProviderProps) {
     return authState?.sessionId ? true : false;
   };
 
+  const userIsCompany = () => {
+    return authState?.user?.role == "Company";
+  };
+
   return (
     <AuthStateContext.Provider
       value={{
@@ -94,6 +99,7 @@ export function AuthStateProvider({ children }: AuthStateProviderProps) {
         signout,
         isAuthenticated,
         user: authState?.user!,
+        userIsCompany,
       }}
     >
       {children}
