@@ -10,22 +10,6 @@ import { useEffect, useState } from "react";
 export const SignIn: React.FC = () => {
   const { signin } = useAuthContext();
   const navigate = useNavigate();
-  // const [isLoggedIn, setIsLoggedIn] = useState(false);
-  
-  // const checkUserToken = () => {
-  //   const userToken = localStorage.getItem('user')
-  //   if(!userToken || userToken === "undefined"){
-  //     setIsLoggedIn(false);
-  //     return navigate('/signin')
-  //   }
-  //   setIsLoggedIn(true)
-  //   return navigate('/notfound')
-  // }
-
-  // useEffect(() => {
-  //   checkUserToken()
-  //   console.log(isLoggedIn)
-  // },[isLoggedIn])  
 
   const {
     register,
