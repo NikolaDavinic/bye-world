@@ -126,7 +126,7 @@ namespace ByeWorld_backend.Controllers
                 .Match("(s:Skill)-[reqs:REQUIRES]-(l:Listing)-[r]-(c:City)")
                 .Match("(l)-[:HAS_LISTING]-(co:Company)")
                 .Where((Company co) => co.Id == id)
-                .Return((l, c, s, co) => new /*Listing*/{
+                .Return((l, c, s, co) => new {
                     Title = l.As<Listing>().Title,
                     City = c.As<City>(),
                     Description = l.As<Listing>().Description,
