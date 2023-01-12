@@ -255,7 +255,8 @@ namespace ByeWorld_backend.Controllers
                 .Match("(l:Listing)-->(s:Skill)<--(lr:Listing), (l:Listing)-[:LOCATED_IN]->(c:City), (ic:Company)-[:HAS_LISTING]->(l:Listing)")
                 .Where((Listing l, City c, Company ic) => l.Id == id && (c.Name == city || ic.Name == companyName))
                 .With("distinct(lr) as reccs")
-                .Return(reccs => reccs.As<Listing>());
+                .Return(reccs => reccs.As<Listing>())
+                .Limit(3);
 
             
             return Ok(await query.ResultsAsync);
