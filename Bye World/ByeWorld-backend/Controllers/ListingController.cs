@@ -80,16 +80,21 @@ namespace ByeWorld_backend.Controllers
         {
             var db = _redis.GetDatabase();
 
-            var query = _neo4j.Cypher.Match("(l:Listing)")
-                                             .Where((Listing l) => l.Id == id)
-                                             .Return(l => l.As<Listing>());
+            var query = _neo4j.Cypher.Match("(l:Listing)-[lc:LOCATED_IN]->(c:City), (cm:Company)-[cl:HAS_LISTING]->(l:Listing)")
+                                             .Where((Listing l, Company cm, City c) => l.Id == id)
+                                             .Return((l, cm, c) => new
+                                             {
+                                                 Listing=l.As<Listing>(),
+                                                 Company=cm.As<Company>(),
+                                                 City=c.As<City>()
+                                             });
 
             var result = (await query.ResultsAsync).FirstOrDefault();
 
             if (result != null)
             {
                 string keyDate = DateTime.Now.Date.ToShortDateString();
-                db.SortedSetIncrement($"listings:leaderboard:{keyDate}", result.Id, 1);
+                db.SortedSetIncrement($"listings:leaderboard:{keyDate}", result.Listing.Id, 1);
             }
 
             return Ok(result);
