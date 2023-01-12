@@ -248,12 +248,12 @@ namespace ByeWorld_backend.Controllers
             return Ok(retVal);
         }
 
-        [HttpGet("similarlistings/{id}")]
-        public async Task<ActionResult> getfirstthreesimilarlistings(int id)
+        [HttpGet("similarlistings/{id}/{city}/{companyName}")]
+        public async Task<ActionResult> getfirstthreesimilarlistings(int id, string? city, string? companyName)
         {
-            var query =  _neo4j.Cypher
-                .Match("(l:Listing)-->(s:Skill)<--(lr:Listing)")
-                .Where((Listing l) => l.Id == id)
+            var query = _neo4j.Cypher
+                .Match("(l:Listing)-->(s:Skill)<--(lr:Listing), (l:Listing)-[:LOCATED_IN]->(c:City), (ic:Company)-[:HAS_LISTING]->(l:Listing)")
+                .Where((Listing l, City c, Company ic) => l.Id == id && (c.Name == city || ic.Name == companyName))
                 .With("distinct(lr) as reccs")
                 .Return(reccs => reccs.As<Listing>());
 

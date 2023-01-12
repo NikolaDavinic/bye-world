@@ -63,8 +63,8 @@ export const Home: React.FC = () => {
   ];
 
   return (
-    <main className="bg-gradient-to-tr from-gray-400 to-white">
-      <div className="bg-gradient-to-tr from-gray-900 to-blue-400 py-5 md:py-8 relative flex items-center">
+    <main className="">
+      <div className="bg-gradient-to-tr from-blue-900 to-blue-700 py-5 md:py-8 relative flex items-center">
         <div className="flex flex-col mx-auto w-full">
           <div className="px-4 max-w-7xl mx-auto w-full relative">
             <div>

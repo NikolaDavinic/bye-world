@@ -4,10 +4,12 @@ import { Listing } from '../../model/Listing'
 import { ListingCard } from '../common/ListingsList/ListingCard'
 import { SimilarListingCard } from './SimilarListingCard'
 import { useNavigate } from 'react-router-dom'
+import { useApi } from '../../hooks/api.hook'
 
 const ListingPage: React.FC = () => {
     const navigate = useNavigate()
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [similarListings, setSimilarListings] = useState<Array<Listing> | null>([])
 
     const checkUserToken = () => {
         const userToken = localStorage.getItem('user')
@@ -16,6 +18,22 @@ const ListingPage: React.FC = () => {
         }
         setIsLoggedIn(true)
     }
+
+    // const getSimilarListings(){
+    //     const proba = {
+    //         id:63,
+    //         city: "Nis",
+    //         companyName: "Nignite"
+    //     }
+
+    //     api.get.
+    // }
+
+    const {
+        result: listings,
+        loading,
+        error,
+      } = useApi<Listing[]>(`/listing/similarlistings/63/Nis/Nignite`);
 
     useEffect(() => {
         checkUserToken()
@@ -158,7 +176,7 @@ const ListingPage: React.FC = () => {
                 <div className='grid gap-4 max-w-7xl mx-auto px-4 py-8'>
                     <p className='font-nold text-xl'>Similar listings</p>
                     <div className='grid md:grid-cols-3 gap-4'>
-                        {testListings.map(listing => {
+                        {listings?.map(listing => {
                             console.log(listing);
                             return (
                                 <SimilarListingCard listing={listing} divHeight={300} divMaxWidth={400} divMinWidth={350} />
