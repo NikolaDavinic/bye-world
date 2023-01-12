@@ -3,14 +3,16 @@ import React, { useEffect, useState } from 'react'
 import { Listing } from '../../model/Listing'
 import { ListingCard } from '../common/ListingsList/ListingCard'
 import { SimilarListingCard } from './SimilarListingCard'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useApi } from '../../hooks/api.hook'
+import axios from 'axios'
 
 const ListingPage: React.FC = () => {
     const navigate = useNavigate()
+    const params = useParams()
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [similarListings, setSimilarListings] = useState<Array<Listing> | null>([])
-
+    // const [similarListings, setSimilarListings] = useState<Array<Listing> | null>([])
+    const [listing, setListing] = useState<Listing | null>()
     const checkUserToken = () => {
         const userToken = localStorage.getItem('user')
         if (!userToken || userToken === "undefined") {
@@ -29,6 +31,23 @@ const ListingPage: React.FC = () => {
     //     api.get.
     // }
 
+    // const {
+    //     result: listing,
+    //     loading,
+    //     error,
+    //   } = useApi<Listing>(`/listing/`);
+
+    // const getListingForPage = async () => {
+    //     const response = await axios.get(`/listing/${params.id}`)
+    //     .then(r => {
+    //         setListing(r.data);
+    //     })
+    //     .catch(err => {
+    //         console.log(err);
+    //     })
+
+    // }
+
     const {
         result: listings,
         loading,
@@ -37,6 +56,8 @@ const ListingPage: React.FC = () => {
 
     useEffect(() => {
         checkUserToken()
+        // getListingForPage()
+        console.log(listing)
         console.log(isLoggedIn)
     }, [isLoggedIn])
 

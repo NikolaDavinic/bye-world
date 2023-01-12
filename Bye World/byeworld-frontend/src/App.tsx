@@ -31,7 +31,7 @@ const theme = createTheme({
     },
     secondary: {
       light: "#ffd54f",
-      main: "#ffd54f",
+      main: "#7C921B",
       dark: "#c29fob",
     },
   },
@@ -64,10 +64,10 @@ function App() {
               </Route>
               <Route path="/listing/:id" element={<ListingPage />}></Route>
               <Route path="*" element={<NotFound />}></Route>
+              <Route path="/signin" element={<SignIn />}></Route>
+              <Route path="/signup" element={<SignUp />}></Route>
               <Route path="/footer" element={<Footer />}></Route>
             </Route>
-            <Route path="/signin" element={<SignIn />}></Route>
-            <Route path="/signup" element={<SignUp />}></Route>
           </Routes>
           {/* </GuardProvider> */}
           {/* </BrowserRouter> */}

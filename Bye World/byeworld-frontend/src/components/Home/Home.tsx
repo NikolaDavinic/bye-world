@@ -64,12 +64,12 @@ export const Home: React.FC = () => {
 
   return (
     <main className="">
-      <div className="bg-gradient-to-tr from-blue-900 to-blue-700 py-5 md:py-8 relative flex items-center">
+      <div className="bg-gray-300 py-5 md:py-8 relative flex items-center">
         <div className="flex flex-col mx-auto w-full">
           <div className="px-4 max-w-7xl mx-auto w-full relative">
             <div>
               <div className="max-w-xl mx-auto">
-                <h1 className="max-w-md md:max-w-xl mx-auto text-xl md:text-3xl font-bold text-white mb-6 md:mb-12 text-center">
+                <h1 className="max-w-md md:max-w-xl mx-auto text-xl md:text-3xl font-bold main:seconadry mb-6 md:mb-12 text-center">
                   Largest website of jobs
                 </h1>
               </div>
