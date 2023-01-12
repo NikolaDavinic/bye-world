@@ -6,6 +6,7 @@ import { SimilarListingCard } from './SimilarListingCard'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useApi } from '../../hooks/api.hook'
 import axios from 'axios'
+import { ListingDTO } from '../listings/ListingsPage'
 
 const ListingPage: React.FC = () => {
     const navigate = useNavigate()
@@ -31,11 +32,9 @@ const ListingPage: React.FC = () => {
     //     api.get.
     // }
 
-    // const {
-    //     result: listing,
-    //     loading,
-    //     error,
-    //   } = useApi<Listing>(`/listing/`);
+    const {
+        result: listing1,
+    } = useApi<Listing>(`/listing/${params.id}`);
 
     // const getListingForPage = async () => {
     //     const response = await axios.get(`/listing/${params.id}`)
@@ -52,12 +51,12 @@ const ListingPage: React.FC = () => {
         result: listings,
         loading,
         error,
-      } = useApi<Listing[]>(`/listing/similarlistings/63/Nis/Nignite`);
+    } = useApi<Listing[]>(`/listing/similarlistings/63/Nis/Nignite`);
 
     useEffect(() => {
         checkUserToken()
         // getListingForPage()
-        console.log(listing)
+        console.log(listing1)
         console.log(isLoggedIn)
     }, [isLoggedIn])
 
@@ -71,38 +70,6 @@ const ListingPage: React.FC = () => {
         city: undefined,
         company: undefined
     }
-    const testListings: Array<Listing> = [
-        {
-            id: 1,
-            closingDate: new Date(Date.now()),
-            description: "Ovo je primer opisa posla1",
-            postingDate: new Date(Date.now()),
-            requirements: [],
-            title: "C# Senior Developer",
-            city: undefined,
-            company: undefined
-        },
-        {
-            id: 2,
-            closingDate: new Date(Date.now()),
-            description: "Ovo je primer opisa posla2",
-            postingDate: new Date(Date.now()),
-            requirements: [],
-            title: "Java Senior Developer",
-            city: undefined,
-            company: undefined
-        },
-        {
-            id: 3,
-            closingDate: new Date(Date.now()),
-            description: "Ovo je primer opisa posla3",
-            postingDate: new Date(Date.now()),
-            requirements: [],
-            title: "Python Senior Developer",
-            city: undefined,
-            company: undefined
-        }
-    ]
 
     return (
         <main className="flex-1">
@@ -117,7 +84,7 @@ const ListingPage: React.FC = () => {
                                 <div className='grid gap-4 flex-1 pt-4 md:pt-8 md:pl-8 pl-4 md:mb-8 mb-4'>
                                     <div>
                                         <h1>
-                                            <span className='font-bold text-xl'>.NET Winter Workshop</span>
+                                            <span className='font-bold text-xl'>{listing1?.title}</span>
                                         </h1>
                                         <h4>
                                             <Link href='/company/1' className='print:text-black print:no-underline link font-semibold'>Levi9 Technology Services</Link>
@@ -154,7 +121,15 @@ const ListingPage: React.FC = () => {
                                     </div>
                                     <div className='print:justify-start print:mx-0 flex items-center justify-center md:mr-24 mt-4 md:mt-8 mb-4 mx-auto md:m-auto order-first md:order-last'>
                                         <a className='hover:opacity-75 bg-white p-2 rounded-md' href='#'>
-                                            <img className='object-contain h-[120px] w-[120px]' src='../../../public/logo512.png' alt='Levi9 Technology Services'></img>
+                                            <img
+                                                alt=""
+                                                className="w-40 h-40"
+                                                src={
+                                                    (listing1?.company?.logoUrl && listing1?.company?.logoUrl.length >= 0) ? listing1?.company?.logoUrl :
+                                                        "https://www.adaptivewfs.com/wp-content/uploads/2020/07/logo-placeholder-image.png"
+                                                }
+                                                onClick={() => navigate(`/company/${listing1?.company?.id}/about`)}
+                                            />
                                         </a>
                                     </div>
                                 </div>
