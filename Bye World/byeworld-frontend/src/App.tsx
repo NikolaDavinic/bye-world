@@ -19,8 +19,7 @@ import AboutCompany from "./components/CompanyPage/AboutCompany";
 import CompanyListings from "./components/CompanyPage/CompanyListings";
 import CompanyReviews from "./components/CompanyPage/CompanyReviews";
 import AddReviewPage from "./components/CompanyPage/AddReviewPage";
-import { BrowserRouter, useNavigate } from "react-router-dom";
-import { GuardProvider, GuardedRoute } from "react-router-guards";
+import AuthenticatedGuard from "./components/common/RouteGuards/AuthenticatedGuard";
 
 const theme = createTheme({
   palette: {
@@ -31,7 +30,7 @@ const theme = createTheme({
     },
     secondary: {
       light: "#ffd54f",
-      main: "#7C921B",
+      main: "#fdd835",
       dark: "#c29fob",
     },
   },
@@ -51,7 +50,6 @@ function App() {
               <Route path="/listings" element={<Listings />}></Route>
               <Route path="/user/:id" element={<User />}></Route>
               <Route path="/companies" element={<Companies />}></Route>
-              <Route path="/addcompany" element={<AddCompanyPage />}></Route>
               <Route path="/company/:companyId" element={<CompanyPage />}>
                 <Route
                   path=""
@@ -64,9 +62,15 @@ function App() {
               </Route>
               <Route path="/listing/:id" element={<ListingPage />}></Route>
               <Route path="*" element={<NotFound />}></Route>
-              <Route path="/signin" element={<SignIn />}></Route>
-              <Route path="/signup" element={<SignUp />}></Route>
-              <Route path="/footer" element={<Footer />}></Route>
+              <Route path="/addcompany" element={<AddCompanyPage />}></Route>
+              <Route
+                path="/signin"
+                element={<AuthenticatedGuard>{<SignIn />}</AuthenticatedGuard>}
+              ></Route>
+              <Route
+                path="/signup"
+                element={<AuthenticatedGuard>{<SignUp />}</AuthenticatedGuard>}
+              ></Route>
             </Route>
           </Routes>
           {/* </GuardProvider> */}

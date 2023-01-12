@@ -64,12 +64,15 @@ export const Home: React.FC = () => {
 
   return (
     <main className="">
-      <div className="bg-gray-300 py-5 md:py-8 relative flex items-center" style={{backgroundColor:"#C4DE4E"}}>
+      <div
+        className="bg-gray-300 py-5 md:py-8 relative flex items-center"
+        style={{ backgroundColor: "#fdd835" }}
+      >
         <div className="flex flex-col mx-auto w-full">
           <div className="px-4 max-w-7xl mx-auto w-full relative">
             <div>
               <div className="max-w-xl mx-auto">
-                <h1 className="max-w-md md:max-w-xl mx-auto text-xl md:text-4xl text-blue-800 font-bold mb-6 md:mb-12 text-center" >
+                <h1 className="max-w-md md:max-w-xl mx-auto text-xl md:text-4xl text-blue-800 font-bold mb-6 md:mb-12 text-center">
                   Largest website of jobs
                 </h1>
               </div>
@@ -78,7 +81,10 @@ export const Home: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto py-6 md:my-12 relative px-4" style={{backgroundColor:"#C4DE4E"}}>
+      <div
+        className="max-w-5xl mx-auto py-6 md:my-12 relative px-4"
+        style={{ backgroundColor: "var(--secondary-main)" }}
+      >
         <div className="flex items-center justify-center">
           <div
             className="mx-auto md:w-auto md:flex md:items-center md:justify-center md:flex-wrap grid grid-cols-2
@@ -105,7 +111,10 @@ export const Home: React.FC = () => {
                 )
               })}
             </div> */}
-            <div className="flex items-center justify-center" style={{backgroundColor:"#C4DE4E"}}>
+            <div
+              className="flex items-center justify-center"
+              style={{ backgroundColor: "#fdd835" }}
+            >
               <div className="grid gap-4 max-w-7xl mx-auto px-4 py-8">
                 <div className="grid md:grid-cols-3 gap-4">
                   {testListings.map((listing) => {

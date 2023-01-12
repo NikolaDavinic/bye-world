@@ -3,7 +3,13 @@
 @tailwind utilities;
 
 :root {
-  --primary: "#311b92";
+  --primary-main: #311b92;
+  --primary-light: #fbc02d;
+  --primary-dark: #000063;
+
+  --secondary-main: #fdd835;
+  --secondary-light: #ffd54f;
+  --secondary-dark: #c29fob;
 }
 
 .material-symbols-outlined {

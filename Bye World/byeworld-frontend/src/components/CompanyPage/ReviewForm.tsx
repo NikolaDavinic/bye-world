@@ -27,8 +27,6 @@ const ReviewForm = ({
     });
   };
 
-  console.log(rating);
-
   return (
     <Box
       component="form"
