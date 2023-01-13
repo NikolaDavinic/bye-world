@@ -6,6 +6,8 @@ import Typography from "@mui/material/Typography";
 import { Box, CardActionArea, Chip, Icon } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { ListingDTO } from "../../listings/ListingsPage";
+import parse from 'html-react-parser';
+
 interface ListingCardProps {
   listing: ListingDTO;
 }
@@ -42,7 +44,10 @@ export const ListingCard: React.FC<ListingCardProps> = ({
 
               <div className="grid gap-1">
                 <div className="flex items-center gap-1 w-1/2 overflow-hidden">
-                  <p className="text-sm opacity-90">{listing!.description}</p>
+                  {/* <p className="text-sm opacity-90">{listing!.description}</p> */}
+                  <div>
+                    {parse(listing!.description)}
+                  </div>
                 </div>
               </div>
               <div className="grid gap-1">
@@ -65,7 +70,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
               {/*TODO: ?? Map required skills below and fix tag navigation */}
               <Box className="flex items-center gap-2 flex-wrap">
                 {listing.requirements.map((r, i) => {
-                  return <Chip key={i} label={r.name} color="primary"/>;
+                  return <Chip key={i} label={r.name} color="primary" />;
                 })}
               </Box>
             </div>
@@ -74,8 +79,8 @@ export const ListingCard: React.FC<ListingCardProps> = ({
                 alt=""
                 className="w-40 h-40"
                 src={
-                  (listing.companyLogoUrl && listing.companyLogoUrl?.length>=0) ? listing.companyLogoUrl :
-                  "https://www.adaptivewfs.com/wp-content/uploads/2020/07/logo-placeholder-image.png"
+                  (listing.companyLogoUrl && listing.companyLogoUrl?.length >= 0) ? listing.companyLogoUrl :
+                    "https://www.adaptivewfs.com/wp-content/uploads/2020/07/logo-placeholder-image.png"
                 }
                 onClick={() => navigate(`/company/${listing.companyId}/about`)}
               />
