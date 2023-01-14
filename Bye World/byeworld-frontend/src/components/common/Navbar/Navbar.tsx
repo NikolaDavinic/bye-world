@@ -56,7 +56,6 @@ export const Navbar = () => {
 
   return (
     <>
-      {console.log(isAuthenticated())}
       <AppBar position="static" sx={{ maxHeight: "20vh" }} variant="elevation">
         <Container maxWidth="xl">
           <Toolbar disableGutters variant="dense" style={{ height: "36px" }}>

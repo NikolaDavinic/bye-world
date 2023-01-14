@@ -108,5 +108,21 @@ namespace ByeWorld_backend.Controllers
 
             return Ok(await query.ResultsAsync);
         }
+
+        [HttpGet("getUserCompanies/{id}")]
+        public async Task<ActionResult> GetUserCompanies(int id)
+        {
+            var query = _neo4j.Cypher
+                .Match("(u:User)-[:HAS_COMPANY]-(c:Company)")
+                .Where((User u) => u.Id == id)
+                .Return((c) => new
+                {
+                    Companies=c.CollectAs<Company>()
+                });
+
+            var result = (await query.ResultsAsync).FirstOrDefault();
+
+            return Ok(result);
+        }
     }
 }
