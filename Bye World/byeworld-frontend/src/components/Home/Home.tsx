@@ -4,8 +4,18 @@ import HomeCard from "./HomeCard";
 import { ListingCard } from "../common/ListingsList/ListingCard";
 import { SimilarListingCard } from "../ListingPage/SimilarListingCard";
 import PeopleIcon from "@mui/icons-material/People";
+import { useApi } from "../../hooks/api.hook";
+import { Listing } from "../../model/Listing";
 
 export const Home: React.FC = () => {
+
+  const {
+    result: topListings,
+    loading,
+    error,
+  } = useApi<Listing[]>(`/listing/toplistings`);
+
+
   const testArray = [
     {
       name: "Users",
@@ -64,7 +74,7 @@ export const Home: React.FC = () => {
 
   return (
     <main className="">
-      <div className="bg-gray-300 py-5 md:py-8 relative flex items-center" style={{backgroundColor:"#fdd835"}}>
+      <div className="bg-gray-300 py-5 md:py-8 relative flex items-center" style={{ backgroundColor: "#fdd835" }}>
         <div className="flex flex-col mx-auto w-full">
           <div className="px-4 max-w-7xl mx-auto w-full relative">
             <div>
@@ -78,7 +88,7 @@ export const Home: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto py-6 md:my-12 relative px-4" style={{backgroundColor:"#fdd835"}}>
+      <div className="max-w-5xl mx-auto py-6 md:my-12 relative px-4" style={{ backgroundColor: "#fdd835" }}>
         <div className="flex items-center justify-center">
           <div
             className="mx-auto md:w-auto md:flex md:items-center md:justify-center md:flex-wrap grid grid-cols-2
@@ -105,10 +115,10 @@ export const Home: React.FC = () => {
                 )
               })}
             </div> */}
-            <div className="flex items-center justify-center" style={{backgroundColor:"#fdd835"}}>
+            <div className="flex items-center justify-center" style={{ backgroundColor: "#fdd835" }}>
               <div className="grid gap-4 max-w-7xl mx-auto px-4 py-8">
                 <div className="grid md:grid-cols-3 gap-4">
-                  {testListings.map((listing) => {
+                  {topListings!=null && topListings.map((listing) => {
                     // console.log(listing);
                     return (
                       <SimilarListingCard

@@ -51,13 +51,13 @@ const ListingPage: React.FC = () => {
         result: listings,
         loading,
         error,
-    } = useApi<Listing[]>(`/listing/similarlistings/63/Nis/Nignite`);
+    } = useApi<Listing[]>(`/listing/similarlistings/${params.id}/${listing1?.company?.name}/${listing1?.city?.name}`);
 
     useEffect(() => {
         checkUserToken()
         // getListingForPage()
-        console.log(listing1)
-        console.log(isLoggedIn)
+        // console.log(listing1)
+        // console.log(isLoggedIn)
     }, [isLoggedIn])
 
     const testListing: Listing = {
@@ -72,7 +72,9 @@ const ListingPage: React.FC = () => {
     }
 
     return (
+        
         <main className="flex-1">
+            
             <div className="relative max-w-7xl mx-auto md:flex md:gap-6 px-4 py-8">
 
                 <div className="grid gap-4 w-full">
@@ -87,19 +89,22 @@ const ListingPage: React.FC = () => {
                                             <span className='font-bold text-xl'>{listing1?.title}</span>
                                         </h1>
                                         <h4>
-                                            <Link href='/company/1' className='print:text-black print:no-underline link font-semibold'>Levi9 Technology Services</Link>
+                                            <Link href='/company/1' className='print:text-black print:no-underline link font-semibold'>{listing1?.company?.name}</Link>
                                         </h4>
                                     </div>
                                     <div className='grid gap-1 pr-4 md:pr-0'>
                                         <div className='flex items-center gap-1'>
                                             <div className='flex items-center gap-1'>
                                                 <i className='print:hidden las la-map-marker text-lg leading-none'></i>
-                                                <p className='text-sm font-semibold'>Zrenjanin</p>
+                                                <p className='text-sm font-semibold'>{listing1?.city?.name}</p>
                                             </div>
                                         </div>
                                         <div className='flex items-center gap-1'>
                                             <i className='print:hidden las la-clock text-lg leading-none'></i>
-                                            <p className='text-sm font-semibold'>25.01.2023</p>
+                                            <p className='text-sm font-semibold'>
+                                                {/* {console.log(listing1?.closingDate)} */}
+                                                {/* {new Date(listing1?.closingDate).toLocaleDateString("de-DE")} */}
+                                            </p>
                                         </div>
                                     </div>
                                     <div className='flex items-center gap-2 flex-wrap'>
@@ -175,7 +180,11 @@ const ListingPage: React.FC = () => {
                         {listings?.map(listing => {
                             console.log(listing);
                             return (
-                                <SimilarListingCard listing={listing} divHeight={300} divMaxWidth={400} divMinWidth={350} />
+                                <>
+                                    <Link href={`/listing/${listing.id}`}>
+                                        <SimilarListingCard listing={listing} divHeight={300} divMaxWidth={400} divMinWidth={350} />
+                                    </Link>
+                                </>
                             )
                         })}
 
