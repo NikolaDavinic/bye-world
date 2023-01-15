@@ -7,13 +7,16 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useApi } from '../../hooks/api.hook'
 import axios from 'axios'
 import { ListingDTO } from '../listings/ListingsPage'
+import { api } from '../../constants'
+import { Company } from '../../model/Company'
+import parse from 'html-react-parser';
 
 const ListingPage: React.FC = () => {
     const navigate = useNavigate()
     const params = useParams()
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     // const [similarListings, setSimilarListings] = useState<Array<Listing> | null>([])
-    const [listing, setListing] = useState<Listing | null>()
+    const [listing, setListing] = useState()
     const checkUserToken = () => {
         const userToken = localStorage.getItem('user')
         if (!userToken || userToken === "undefined") {
@@ -34,7 +37,13 @@ const ListingPage: React.FC = () => {
 
     const {
         result: listing1,
-    } = useApi<Listing>(`/listing/${params.id}`);
+    } = useApi<any>(`/listing/${params.id}`);
+
+    // const getListing = async () =>{
+    //     const response = await api.get("/listing/" + params.id);
+    //     setListing(await response.data)
+    //     console.log(listing)
+    // }
 
     // const getListingForPage = async () => {
     //     const response = await axios.get(`/listing/${params.id}`)
@@ -51,25 +60,15 @@ const ListingPage: React.FC = () => {
         result: listings,
         loading,
         error,
-    } = useApi<Listing[]>(`/listing/similarlistings/${params.id}/${listing1?.company?.name}/${listing1?.city?.name}`);
+    } = useApi<Listing[]>(`/listing/similarlistings/${params.id}`);
 
     useEffect(() => {
-        checkUserToken()
+        // checkUserToken()
         // getListingForPage()
-        // console.log(listing1)
+        // getListing()
+        // console.log(listing)
         // console.log(isLoggedIn)
-    }, [isLoggedIn])
-
-    const testListing: Listing = {
-        id: 1,
-        closingDate: new Date(Date.now()),
-        description: "Ovo je primer opisa posla",
-        postingDate: new Date(Date.now()),
-        requirements: [],
-        title: "Java Senior Developer",
-        city: undefined,
-        company: undefined
-    }
+    }, [])
 
     return (
         
@@ -89,7 +88,7 @@ const ListingPage: React.FC = () => {
                                             <span className='font-bold text-xl'>{listing1?.title}</span>
                                         </h1>
                                         <h4>
-                                            <Link href='/company/1' className='print:text-black print:no-underline link font-semibold'>{listing1?.company?.name}</Link>
+                                            <Link href={`/company/${listing1?.company.id}`} className='print:text-black print:no-underline link font-semibold'>{listing1?.company.name}</Link>
                                         </h4>
                                     </div>
                                     <div className='grid gap-1 pr-4 md:pr-0'>
@@ -103,7 +102,7 @@ const ListingPage: React.FC = () => {
                                             <i className='print:hidden las la-clock text-lg leading-none'></i>
                                             <p className='text-sm font-semibold'>
                                                 {/* {console.log(listing1?.closingDate)} */}
-                                                {/* {new Date(listing1?.closingDate).toLocaleDateString("de-DE")} */}
+                                                {new Date(listing1?.closingDate).toLocaleDateString("de-DE")}
                                             </p>
                                         </div>
                                     </div>
@@ -141,7 +140,7 @@ const ListingPage: React.FC = () => {
                             </div>
                             <div className='bg-white border-t-2 '>
                                 <div className='flex flex-col justify-start '>
-                                    <div className='print:bg-transparent print:text-black print:brorder-none prose p-4 md:p-8 inline-block'>
+                                    {/* <div className='print:bg-transparent print:text-black print:brorder-none prose p-4 md:p-8 inline-block'>
                                         <h3><strong>Do you want to spend cold days with a great team from Zrenjanin and gain new knowledge and skills?</strong></h3>
                                     </div><p>Our .NET Winter Workshops are giving you the blended learning approach - theory, video materials, and solving tasks with the mentors.</p>
                                     <p>Start: <strong>1st March 2023.<br /></strong>Duration: <strong>6 weeks<br /></strong>Location: <strong>Hybrid (Zrenjanin office + online)</strong></p>
@@ -155,7 +154,9 @@ const ListingPage: React.FC = () => {
                                     <ul className='self-start ml-10 break-all inline-block list-disc'>
                                         <li>Basic knowledge of one of the programming languages (C#, Java, Python...)</li>
                                         <li>Basic knowledge of web technologies (HTML, CSS, optional JS)</li>
-                                    </ul>
+                                    </ul> */}
+                                    {listing1?.description && <div>{parse(listing1?.description)}</div>}
+                                    
                                 </div>
                             </div>
                         </div>
@@ -178,13 +179,13 @@ const ListingPage: React.FC = () => {
                     <p className='font-nold text-xl'>Similar listings</p>
                     <div className='grid md:grid-cols-3 gap-4'>
                         {listings?.map(listing => {
-                            console.log(listing);
+                            // console.log(listing);
                             return (
-                                <>
+                                <div key={listing.id}>
                                     <Link href={`/listing/${listing.id}`}>
                                         <SimilarListingCard listing={listing} divHeight={300} divMaxWidth={400} divMinWidth={350} />
                                     </Link>
-                                </>
+                                </div>
                             )
                         })}
 
