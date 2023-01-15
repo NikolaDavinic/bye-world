@@ -19,11 +19,17 @@ namespace ByeWorld_backend.Controllers
         private readonly IConnectionMultiplexer _redis;
         private readonly IBoltGraphClient _neo4j;
         private readonly IIdentifierService _ids;
-        public CompanyController(IConnectionMultiplexer redis, IBoltGraphClient neo4j, IIdentifierService ids)
+        private readonly ICachingService _cache;
+        public CompanyController(
+            IConnectionMultiplexer redis, 
+            IBoltGraphClient neo4j, 
+            IIdentifierService ids, 
+            ICachingService cache)
         {
             _redis = redis;
             _neo4j = neo4j;
             _ids = ids;
+            _cache = cache;
         }
 
         [Authorize(Roles = "Company")]
@@ -69,7 +75,14 @@ namespace ByeWorld_backend.Controllers
                 })
                 .Limit(1);
 
-            var result = (await query.ResultsAsync).Select((r) => new 
+            var result = await _cache.QueryCacheInParallel(query, $"companies:{id}");
+
+            if (result == null)
+            {
+                return Ok(null);
+            }
+
+            var company = result.Select((r) => new 
             {
                 r.Company.Address,
                 r.Company.Email,
@@ -82,31 +95,43 @@ namespace ByeWorld_backend.Controllers
                 r.AvgReview
             }).FirstOrDefault();
 
-            return Ok(result);
+            return Ok(company);
         }
 
         [HttpGet("filter")]
-        public async Task<ActionResult> FilterCompnay([FromQuery] string filter)
+        public async Task<ActionResult> FilterCompany([FromQuery] string? filter)
         {
-            if(string.IsNullOrEmpty(filter))
-            {
-                var companies2 = await _neo4j.Cypher.Match("(c:Company)")
-                                                   .Return(c => c.As<Company>()).ResultsAsync;
-                return Ok(companies2);
-            }
-
-            //var query = _neo4j.Cypher.Match("(c:Company)")
-            //                                    .Where((Company c) => c.Name.ToLower().Contains(filter.ToLower()) || c.Address.ToLower().Contains(filter.ToLower()))
-            //                                    .Return(c => c.As<Company>());
-
             var query = _neo4j.Cypher
                 .Match("(c:Company)")
                 .Where("c.Name =~ $query")
                 .OrWhere("c.Address =~ $query")
-                .WithParam("query", $"(?i).*{filter}.*")
-                .Return(c => c.As<Company>());
+                .WithParam("query", $"(?i).*{filter ?? ""}.*")
+                .OptionalMatch("(c)-[]-(r:Review)")
+                .OptionalMatch("(c)-[]-(l:Listing)")
+                .With("DISTINCT r as r, l, c")
+                .Return((c, r, l) => new {
+                    Company = c.As<Company>(),
+                    ReviewsCount = r.Count(),
+                    AvgReview = Return.As<double>("avg(r.Value)"),
+                    ListingsCount = l.CountDistinct()
+                })
+                .Limit(10);
 
-            return Ok(await query.ResultsAsync);
+            var result = (await query.ResultsAsync).Select((r) => new
+            {
+                r.Company.Address,
+                r.Company.Email,
+                r.Company.Id,
+                r.Company.LogoUrl,
+                r.Company.Name,
+                r.Company.VAT,
+                r.Company.Description,
+                r.ReviewsCount,
+                r.AvgReview,
+                r.ListingsCount
+            });
+
+            return Ok(result);
         }
 
         [HttpGet("getUserCompanies/{id}")]

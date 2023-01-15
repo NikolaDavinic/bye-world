@@ -25,9 +25,13 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
     <Card sx={{ maxWidth: 345 }}>
       <CardActionArea>
         <CardMedia
+          sx={{ maxHeight: 100, objectFit: "contain" }}
+          className="flex justify-center"
           component="img"
           height="80"
-          image={company.logoUrl}
+          image={
+            company.logoUrl ? company.logoUrl : "/company-logo-placeholder.jpg"
+          }
           alt="company logo"
         />
         <CardContent>

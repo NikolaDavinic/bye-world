@@ -28,6 +28,7 @@ builder.Services.AddSingleton<IBoltGraphClient>(options =>
     return neo4jClient;
 });
 builder.Services.AddSingleton<IIdentifierService, IdentifierService>();
+builder.Services.AddSingleton<ICachingService, CachingService>();
 
 builder.Services.AddAuthentication("session-scheme")
    .AddScheme<AuthenticationSchemeOptions, SessionAuthenticationSchemeHandler>("session-scheme", options => { });
