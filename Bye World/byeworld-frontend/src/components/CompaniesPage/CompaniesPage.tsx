@@ -14,7 +14,7 @@ const Companies: React.FC = () => {
 
   const debouncedSearchField = useDebounce(searchField, 500);
 
-  async function getFilteredCompanies(filter: string) {
+  async function getFilteredCompanies(filter: string | null) {
     const response = await api.get("/company/filter", {
       params: {
         filter,
@@ -27,6 +27,10 @@ const Companies: React.FC = () => {
     if (debouncedSearchField.length >= 3)
       getFilteredCompanies(debouncedSearchField);
   }, [debouncedSearchField]);
+
+  useEffect(() => {
+    getFilteredCompanies(null);
+  }, []);
 
   return (
     <Stack justifyContent="center" alignItems="center">

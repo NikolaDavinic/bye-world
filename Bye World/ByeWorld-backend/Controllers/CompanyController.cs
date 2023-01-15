@@ -86,20 +86,20 @@ namespace ByeWorld_backend.Controllers
         }
 
         [HttpGet("filter")]
-        public async Task<ActionResult> FilterCompany([FromQuery] string filter)
+        public async Task<ActionResult> FilterCompany([FromQuery] string? filter)
         {
-            if(string.IsNullOrEmpty(filter) )
-            {
-                var companies2 = await _neo4j.Cypher.Match("(c:Company)")
-                                                   .Return(c => c.As<Company>()).ResultsAsync;
-                return Ok(companies2);
-            }
+            //if(string.IsNullOrEmpty(filter) )
+            //{
+            //    var companies2 = await _neo4j.Cypher.Match("(c:Company)")
+            //                                       .Return(c => c.As<Company>()).ResultsAsync;
+            //    return Ok(companies2);
+            //}
 
             var query = _neo4j.Cypher
                 .Match("(c:Company)")
                 .Where("c.Name =~ $query")
                 .OrWhere("c.Address =~ $query")
-                .WithParam("query", $"(?i).*{filter}.*")
+                .WithParam("query", $"(?i).*{filter ?? ""}.*")
                 .OptionalMatch("(c)-[]-(r:Review)")
                 .OptionalMatch("(c)-[]-(l:Listing)")
                 .With("DISTINCT r as r, l, c")
