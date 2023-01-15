@@ -240,9 +240,10 @@ namespace ByeWorld_backend.Controllers
             //TODO: Sredi ID samo
             for (int i = 0; i < listing.Requirements.Count; i++)
             {
+                long skillID = await _ids.SkillNext();
                 query = query.Create($"(l)-[:REQUIRES {{Proficiency: $prof{i}}}]->(c{i}: Skill $newSkill{i})")
                         .WithParam($"prof{i}", listing.Requirements[i].Proficiency)
-                        .WithParam($"newSkill{i}", new Skill { Name = listing.Requirements[i].Name, Id = 0 });
+                        .WithParam($"newSkill{i}", new Skill { Name = listing.Requirements[i].Name, Id = skillID });
             }
             var retVal=await query.Return((c, ci, l) => new
              {
