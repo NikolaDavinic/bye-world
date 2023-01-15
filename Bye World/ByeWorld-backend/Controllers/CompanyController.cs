@@ -19,11 +19,17 @@ namespace ByeWorld_backend.Controllers
         private readonly IConnectionMultiplexer _redis;
         private readonly IBoltGraphClient _neo4j;
         private readonly IIdentifierService _ids;
-        public CompanyController(IConnectionMultiplexer redis, IBoltGraphClient neo4j, IIdentifierService ids)
+        private readonly ICachingService _cache;
+        public CompanyController(
+            IConnectionMultiplexer redis, 
+            IBoltGraphClient neo4j, 
+            IIdentifierService ids, 
+            ICachingService cache)
         {
             _redis = redis;
             _neo4j = neo4j;
             _ids = ids;
+            _cache = cache;
         }
 
         [Authorize(Roles = "Company")]
@@ -69,7 +75,14 @@ namespace ByeWorld_backend.Controllers
                 })
                 .Limit(1);
 
-            var result = (await query.ResultsAsync).Select((r) => new 
+            var result = await _cache.QueryCacheInParallel(query, $"companies:{id}");
+
+            if (result == null)
+            {
+                return Ok(null);
+            }
+
+            var company = result.Select((r) => new 
             {
                 r.Company.Address,
                 r.Company.Email,
@@ -82,19 +95,12 @@ namespace ByeWorld_backend.Controllers
                 r.AvgReview
             }).FirstOrDefault();
 
-            return Ok(result);
+            return Ok(company);
         }
 
         [HttpGet("filter")]
         public async Task<ActionResult> FilterCompany([FromQuery] string? filter)
         {
-            //if(string.IsNullOrEmpty(filter) )
-            //{
-            //    var companies2 = await _neo4j.Cypher.Match("(c:Company)")
-            //                                       .Return(c => c.As<Company>()).ResultsAsync;
-            //    return Ok(companies2);
-            //}
-
             var query = _neo4j.Cypher
                 .Match("(c:Company)")
                 .Where("c.Name =~ $query")
@@ -109,7 +115,7 @@ namespace ByeWorld_backend.Controllers
                     AvgReview = Return.As<double>("avg(r.Value)"),
                     ListingsCount = l.CountDistinct()
                 })
-                .Limit(20);
+                .Limit(10);
 
             var result = (await query.ResultsAsync).Select((r) => new
             {
