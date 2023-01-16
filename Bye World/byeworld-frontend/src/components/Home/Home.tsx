@@ -6,6 +6,8 @@ import { SimilarListingCard } from "../ListingPage/SimilarListingCard";
 import PeopleIcon from "@mui/icons-material/People";
 import { useApi } from "../../hooks/api.hook";
 import { Listing } from "../../model/Listing";
+import { User } from "../../model/User";
+import { ListingDTO } from "../listings/ListingsPage";
 
 export const Home: React.FC = () => {
 
@@ -13,20 +15,36 @@ export const Home: React.FC = () => {
     result: topListings,
     loading,
     error,
-  } = useApi<Listing[]>(`/listing/toplistings`);
+  } = useApi<ListingDTO[]>(`/listing/toplistings`);
 
+  const {
+    result: active,
+  } = useApi<any>(`/user/authcount`);
+
+  const {
+    result: numberOfListings,
+  } = useApi<any>(`/listing/listingscount`);
+
+  const {
+    result: numberOfCompanies,
+  } = useApi<any>(`/company/companiescount`);
 
   const testArray = [
     {
       name: "Users",
-      count: 5,
+      count: active,
       icon: 1,
     },
     {
-      name: "Oglasi",
-      count: 1500,
+      name: "Listings",
+      count: numberOfListings,
       icon: 2,
     },
+    {
+      name: "Companies",
+      count: numberOfCompanies,
+      icon: 3
+    }
   ];
 
   const testListings = [
@@ -127,7 +145,7 @@ export const Home: React.FC = () => {
             >
               <div className="grid gap-4 max-w-7xl mx-auto px-4 py-8">
                 <div className="grid md:grid-cols-3 gap-4">
-                  {topListings!=null && topListings.map((listing) => {
+                  {topListings!=null ? topListings.map((listing) => {
                     // console.log(listing);
                     return (
                       <SimilarListingCard
@@ -137,7 +155,12 @@ export const Home: React.FC = () => {
                         divMinWidth={350}
                       />
                     );
-                  })}
+                  }):
+                  <>
+                  <h2>
+                    In database we don't have any listing
+                  </h2>
+                  </>}
                 </div>
               </div>
             </div>

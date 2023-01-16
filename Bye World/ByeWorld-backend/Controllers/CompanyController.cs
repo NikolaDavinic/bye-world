@@ -149,5 +149,16 @@ namespace ByeWorld_backend.Controllers
 
             return Ok(result);
         }
+
+        [HttpGet("companiescount")]
+        public async Task<ActionResult> CompaniesCount()
+        {
+            var query = await _neo4j.Cypher
+                .Match("(c:Company)")
+                .Return(c => c.Count())
+                .ResultsAsync;
+
+            return Ok(query.Single());
+        }
     }
 }

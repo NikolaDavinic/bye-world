@@ -3,10 +3,11 @@ import React, { Component } from 'react'
 import PeopleIcon from '@mui/icons-material/People';
 import { useNavigate } from 'react-router-dom'
 import BookmarksIcon from '@mui/icons-material/Bookmarks';
+import HomeWorkIcon from '@mui/icons-material/HomeWork';
 
 interface HomeCardProps {
     name: string
-    count: number
+    count: number | null
     icon: number
 }
 
@@ -25,9 +26,11 @@ const HomeCard: React.FC<HomeCardProps> = ({
                         }
                         {icon==2 && <i className="las la-laptop-code text-blue-600 text-3xl"><BookmarksIcon /></i>
                         }
+                        {icon==3 && <i className="las la-laptop-code text-blue-600 text-3xl"><HomeWorkIcon /></i>
+                        }
                         <div className='space-y-1'>
                             <p className='font-semibold text-center text-lg'>{name}</p> 
-                            <p className='font-medium opacity-50 text-center'>{count}</p>
+                            <p className='font-medium opacity-50 text-center'>{count!=null ? count : 0}</p>
                         </div>
                     {/* </CardContent> */}
                 {/* </CardActionArea> */}
