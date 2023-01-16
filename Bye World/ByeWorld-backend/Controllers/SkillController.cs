@@ -46,11 +46,9 @@ namespace ByeWorld_backend.Controllers
             return Ok(result);
         }
 
-        //Prosledjujemo samo izmenjene i nove skillove korisnika
         //[Authorize] TODO:Ukljuci autorizaciju
-        //TODO: Dodaj izmenu postojecih senioriteta skillova i promeni na PUT
-        [HttpPost("add")]
-        public async Task<ActionResult> AddUserSkills([FromBody] List<SkillDTO> skills)
+        [HttpPut("edit")]
+        public async Task<ActionResult> EditUserSkills([FromBody] List<SkillDTO> skills)
         {
             var claims = HttpContext.User.Claims;
 
@@ -63,60 +61,46 @@ namespace ByeWorld_backend.Controllers
             skills.ForEach(req => skillsName += "'" + req.Name + "', ");
             skillsName = skillsName.Substring(0, skillsName.Length - 2);
             var skillNodes = await _neo4j.Cypher
-                    .Match("(s:Skill)")
+                    .Match("(u:User)-[h:HAS_SKILL]-(s:Skill)")
                     .Where($"s.Name IN [{skillsName}]")
                     .Return(s => s.As<Skill>())
                     .ResultsAsync;
 
-            //Ukoliko postoje skill-ovi koje trazimo a ne postoje bazi, dodajemo ih
+            //removing users existing skills
+            await _neo4j.Cypher
+                .Match("(u:User)-[h:HAS_SKILL]-(s:Skill)")
+                .Where((User u) => u.Id == userId)
+                .DetachDelete("h")
+                .ExecuteWithoutResultsAsync();
+
+            //Ukoliko ima skill-ova koje trazimo a ne postoje bazi, dodajemo ih
             //TODO:id za novi skill?? problem sa kasnijom pretragom, isto i u ListingController
-            if (skillNodes.Count() != skills.Count())
+            if (skillNodes.Count() < skills.Count())
             {
                 foreach (var skill in skills)
                 {
-                    if (!skillNodes.Any(skillNode => skillNode.Name == skill.Name))
-                    {
-                        //long skillId = await _ids.SkillNext();
-                        skillNodes = skillNodes.Concat(await _neo4j.Cypher
+                    long skillId = await _ids.SkillNext();
+                    skillNodes = skillNodes.Concat(await _neo4j.Cypher
                             .Create("(s:Skill $newSkill)")
-                            .WithParam("newSkill", new Skill { Id = 0, Name = skill.Name })
+                            .WithParam("newSkill", new Skill { Id = skillId, Name = skill.Name })
                             .Return(s => s.As<Skill>())
                             .ResultsAsync);
-                    }
                 }
             }
-
-
-            //var query = _neo4j.Cypher
-            //   .Match("(c:Company)")
-            //   .Where((Company c) => c.Id == listing.CompanyId)
-            //   .Match("(ci:City)")
-            //   .Where((City ci) => ci.Name == listing.CityName)
-            //   .Create("(l:Listing $newListing)<-[:HAS_LISTING]-(c)")
-            //   .Create("(l)-[:LOCATED_IN]->(ci)")
-            //   .WithParam("newListing", newListing);
 
             var query = _neo4j.Cypher
                 .Match("(u:User)")
                 .Where((User u) => u.Id == userId);
 
-            //TODO: Sredi ID samo
             for (int i = 0; i < skills.Count; i++)
             {
-                //long skillID = await _ids.SkillNext();
-                query = query.Create($"(u)-[h{i}:HAS_SKILL {{Proficiency: $prof{i}}}]->(c{i}: Skill $newSkill{i})")
-                        .WithParam($"prof{i}", skills[i].Proficiency)
-                        //TODO: Zameni withParam sa Where da bi koristio validan ID
-                        .WithParam($"newSkill{i}", new Skill { Name = skills[i].Name, Id = 0 });
+                query = query
+                        .Match($"(c{i}: Skill)")
+                        .Where($"c{i}.Name='{skills[i].Name}'")
+                        .Create($"(u)-[h{i}:HAS_SKILL {{Proficiency: $prof{i}}}]->(c{i})")
+                        .WithParam($"prof{i}", skills[i].Proficiency);
             }
             await query.ExecuteWithoutResultsAsync();
-            //var retVal = await query.Return((s, h) => new SkillDTO
-            //{
-            //    Name = s.As<Skill>().Name,
-            //    Proficiency = h.As<HasSkill>().Proficiency,
-            //}).ResultsAsync;
-            //if (retVal.Count() == 0)
-            //return BadRequest("Dodavanje listinga neuspesno");
 
             return Ok();
         }
