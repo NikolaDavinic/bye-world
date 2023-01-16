@@ -56,12 +56,9 @@ namespace ByeWorld_backend.Controllers
             if (!String.IsNullOrEmpty(seniority))
                 query = query.AndWhere($"toLower(reqs.Proficiency) CONTAINS toLower('{seniority}')");
 
-            if (userId != -1)
-            {
-                query = query
-                    .OptionalMatch("(u:User)-[hf:HAS_FAVORITE]-(l)")
-                    .Where((User u) => u.Id == userId);
-            }
+            query = query
+                .OptionalMatch("(u:User)-[hf:HAS_FAVORITE]-(l)")
+                .Where((User u) => u.Id == userId);
 
             //TODO: Napravi DTO?
             var retVal = query.Return((l, c, s, co, hf) => new
@@ -76,7 +73,7 @@ namespace ByeWorld_backend.Controllers
                 CompanyName = co.As<Company>().Name,
                 CompanyLogoUrl = co.As<Company>().LogoUrl,
                 CompanyId= co.As<Company>().Id,
-                IsFavorite = hf.As<dynamic>()
+                IsFavorite = Return.As<bool>("CASE hf WHEN hf THEN TRUE ELSE FALSE END")
             });
             if (sortNewest)
             {
@@ -88,6 +85,40 @@ namespace ByeWorld_backend.Controllers
             var result = await retVal.Limit(take).ResultsAsync;
 
             return Ok(result);
+        }
+
+        [HttpGet("/favorites/{userId}")]
+        public async Task<ActionResult> GetFavoriteListingsForUser(int userId)
+        {
+            var uid = long.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");
+
+            var query = _neo4j.Cypher
+                .Match("(u:User)-[:HAS_FAVORITE]->(l:Listing)")
+                .Where((User u) => u.Id == userId)
+                .Match("(l)-[]-(s:Skill)")
+                .Match("(l)-[]-(c:City)")
+                .Match("(l)-[]-(co:Company)");
+
+            query = query
+                .OptionalMatch("(u)-[hf:HAS_FAVORITE]-(l)")
+                .Where((User u) => u.Id == uid);
+
+            var result = query.Return((l, c, s, co, hf) => new
+            {
+                l.As<Listing>().Id,
+                l.As<Listing>().Title,
+                l.As<Listing>().Description,
+                c.As<City>().Name,
+                l.As<Listing>().ClosingDate,
+                l.As<Listing>().PostingDate,
+                Requirements = s.CollectAs<Skill>(),
+                CompanyName = co.As<Company>().Name,
+                CompanyLogoUrl = co.As<Company>().LogoUrl,
+                CompanyId = co.As<Company>().Id,
+                IsFavorite = Return.As<bool>("CASE hf WHEN hf THEN TRUE ELSE FALSE END")
+            });
+
+            return Ok(await result.ResultsAsync);
         }
 
         [HttpGet("{id}")]

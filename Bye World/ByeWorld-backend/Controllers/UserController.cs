@@ -155,29 +155,29 @@ namespace ByeWorld_backend.Controllers
                 .OptionalMatch("(c:Company)<-[:HAS_COMPANY]-(u)")
                 .OptionalMatch("(r:Review)-[]-(u)");
 
-            if (userId != id)
-            {
-                var qresult = await baseQuery
-                    .Return((u, c, r) => new
-                    {
-                        u.As<User>().Id,
-                        u.As<User>().Role,
-                        u.As<User>().Name,
-                        u.As<User>().Email,
-                        u.As<User>().ImageUrl,
-                        CompaniesCount = c.CountDistinct(),
-                        ReviewsCount = r.CountDistinct()
-                    })
-                    .Limit(1)
-                    .ResultsAsync;
+            //if (userId != id)
+            //{
+            //    var qresult = await baseQuery
+            //        .Return((u, c, r) => new
+            //        {
+            //            u.As<User>().Id,
+            //            u.As<User>().Role,
+            //            u.As<User>().Name,
+            //            u.As<User>().Email,
+            //            u.As<User>().ImageUrl,
+            //            CompaniesCount = c.CountDistinct(),
+            //            ReviewsCount = r.CountDistinct()
+            //        })
+            //        .Limit(1)
+            //        .ResultsAsync;
 
-                if (!qresult.Any())
-                {
-                    return NotFound("404 User doesn't exist or error occured");
-                }
+            //    if (!qresult.Any())
+            //    {
+            //        return NotFound("404 User doesn't exist or error occured");
+            //    }
 
-                return Ok(qresult.First());
-            } else
+            //    return Ok(qresult.First());
+            //} else
             {
                 var qresult = await baseQuery
                     .OptionalMatch("(u)-[:HAS_FAVORITE]-(l:Listing)")
@@ -202,7 +202,6 @@ namespace ByeWorld_backend.Controllers
 
                 return Ok(qresult.First());
             }
-
         }
 
 

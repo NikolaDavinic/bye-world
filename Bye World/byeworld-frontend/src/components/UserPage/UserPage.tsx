@@ -1,10 +1,10 @@
 import React from "react";
 import { Box, Button, CircularProgress } from "@mui/material";
-import Link from "@mui/material/Link";
+// import Link from "@mui/material/Link";
 import { UserSkillsModal } from "../UserSkillsModal/UserSkillsModal";
 import { useApi } from "../../hooks/api.hook";
 import { User } from "../../model/User";
-import { useParams } from "react-router-dom";
+import { Link, Outlet, useParams } from "react-router-dom";
 import { useAuthContext } from "../../contexts/auth.context";
 import Typography from "@mui/material/Typography";
 
@@ -197,8 +197,8 @@ export default function UserPage() {
             className="grid grid-cols-3 md:divide-x 
         md:divide-gray-200 md:divide-solid border-t md:border-gray-200"
           >
-            <a
-              href="/moj-nalog/sacuvani-oglasi"
+            <Link
+              to="fav-listings"
               className="flex flex-wrap items-center justify-center gap-2 p-4 font-medium bg-gray-100  
         hover:opacity-75"
             >
@@ -212,7 +212,7 @@ export default function UserPage() {
               >
                 {userp?.favListingsCount}
               </span>
-            </a>
+            </Link>
             <a
               href="/moj-nalog/kompanije"
               className="flex flex-wrap items-center justify-center gap-2 p-4 font-medium bg-gray-100  
@@ -243,327 +243,10 @@ export default function UserPage() {
             </a>
           </div>
         </div>
-
-        <div>
-          <div className="grid md:grid-cols-3 bg-white  rounded-lg md:shadow-sm overflow-hidden">
-            <a
-              href="/moj-nalog/prijave"
-              className="relative flex flex-col gap-2 hover:opacity-75 p-8 border border-gray-100"
-            >
-              <i className="las la-hand-pointer text-2xl opacity-50"></i>
-              <div className="flex flex-col gap-1">
-                <p className="font-semibold">Moje prijave</p>
-                <p className="text-sm opacity-50">
-                  Sve prijave na oglase, aktivni i istekli konkursi
-                </p>
-              </div>
-              <div
-                className="absolute top-4 right-4  rotate-45 flex items-center 
-            justify-center 
-            w-10 
-            h-10 rounded-full opacity-25"
-              >
-                <i className="las la-arrow-up text-3xl"></i>
-              </div>
-            </a>
-            <a
-              href="/moj-nalog/sacuvani-oglasi"
-              className="relative flex flex-col gap-2 hover:opacity-75 p-8 border border-gray-100"
-            >
-              <i className="las la-heart text-2xl opacity-50"></i>
-              <div className="flex flex-col gap-1">
-                <p className="font-semibold">Sačuvani oglasi</p>
-                <p className="text-sm opacity-50">
-                  Sačuvaj oglase koje su ti zanimljivi, apliciraj kasnije
-                </p>
-              </div>
-              <div
-                className="absolute top-4 right-4  rotate-45 flex items-center 
-            justify-center 
-            w-10 
-            h-10 rounded-full opacity-25"
-              >
-                <i className="las la-arrow-up text-3xl"></i>
-              </div>
-            </a>
-            <a
-              href="/moj-nalog/kompanije"
-              className="relative flex flex-col gap-2 hover:opacity-75 p-8 border border-gray-100"
-            >
-              <i className="las la-building text-2xl opacity-50"></i>
-              <div className="flex flex-col gap-1">
-                <p className="font-semibold">Kompanije</p>
-                <p className="text-sm opacity-50">
-                  Prateći kompanije neće ti promaći nijedna informacija o
-                  poslodavcu
-                </p>
-              </div>
-              <div
-                className="absolute top-4 right-4  rotate-45 flex items-center 
-            justify-center 
-            w-10 
-            h-10 rounded-full opacity-25"
-              >
-                <i className="las la-arrow-up text-3xl"></i>
-              </div>
-            </a>
-            <a
-              href="/moj-nalog/moja-iskustva"
-              className="relative flex flex-col gap-2 hover:opacity-75 p-8 border border-gray-100"
-            >
-              <i className="las la-pen-nib text-2xl opacity-50"></i>
-              <div className="flex flex-col gap-1">
-                <p className="font-semibold">Moja iskustva</p>
-                <p className="text-sm opacity-50">
-                  Tvoje objavljene i nedovršene recenzije i plate
-                </p>
-              </div>
-              <div
-                className="absolute top-4 right-4  rotate-45 flex items-center 
-            justify-center 
-            w-10 
-            h-10 rounded-full opacity-25"
-              >
-                <i className="las la-arrow-up text-3xl"></i>
-              </div>
-            </a>
-            <a
-              href="/moj-nalog/dokumenti"
-              className="relative flex flex-col gap-2 hover:opacity-75 p-8 border border-gray-100"
-            >
-              <i className="las la-cloud text-2xl opacity-50"></i>
-              <div className="flex flex-col gap-1">
-                <p className="font-semibold">Moji dokumenti</p>
-                <p className="text-sm opacity-50">
-                  Sačuvaj dokumenta pomoću kojih ćeš lako konkurisati
-                </p>
-              </div>
-              <div
-                className="absolute top-4 right-4  rotate-45 flex items-center 
-            justify-center 
-            w-10 
-            h-10 rounded-full opacity-25"
-              >
-                <i className="las la-arrow-up text-3xl"></i>
-              </div>
-            </a>
-            <a
-              href="/moj-nalog/mejling-liste"
-              className="relative flex flex-col gap-2 hover:opacity-75 p-8 border border-gray-100"
-            >
-              <i className="las la-mail-bulk text-2xl opacity-50"></i>
-              <div className="flex flex-col gap-1">
-                <p className="font-semibold">Mejling liste</p>
-                <p className="text-sm opacity-50">
-                  Izaberi kriterijume mejling liste po tvojoj meri
-                </p>
-              </div>
-              <div
-                className="absolute top-4 right-4  rotate-45 flex items-center 
-            justify-center 
-            w-10 
-            h-10 rounded-full opacity-25"
-              >
-                <i className="las la-arrow-up text-3xl"></i>
-              </div>
-            </a>
-          </div>
-        </div>
-
-        <div
-          id="preview-pdf-modal"
-          className="hidden fixed inset-0 z-80 overflow-y-auto __modal "
-          data-modal="preview-pdf-modal"
-        >
-          <div className="fixed inset-0 bg-black/80 __modal-backdrop"></div>
-          <div className="flex items-end justify-center min-h-screen px-4">
-            <div className="w-full max-w-3xl relative mx-auto my-auto rounded-xl shadow-lg bg-white ">
-              <div className="flex items-center justify-between bg-gradient-to-r from-blue-800 to-blue-600 p-4 rounded-t-lg">
-                <p className="font-bold md:text-lg mr-8 md:mr-0 text-white">
-                  Pregled dokumenta
-                </p>
-
-                <button
-                  className="btn-icon btn-icon-primary btn-icon-sm absolute top-3 right-4"
-                  data-dismiss-modal="preview-pdf-modal"
-                >
-                  <i className="las la-times text-xl "></i>
-                </button>
-              </div>
-
-              <div className="mt-3 mb-3">
-                <button
-                  id="prev"
-                  type="button"
-                  className="btn btn-primary btn-sm inline-block ml-3 mr-3 w-auto  "
-                >
-                  <span>&lt;&lt; </span>
-                </button>
-
-                <span className="inline-block mr-3">
-                  Strana: <span id="page_num"></span> /{" "}
-                  <span id="page_count"></span>
-                </span>
-
-                <button
-                  id="next"
-                  type="button"
-                  className="btn btn-primary btn-sm inline-block mr-3 w-auto  "
-                >
-                  <span>&gt;&gt; </span>
-                </button>
-
-                <button
-                  id="preview_downloader"
-                  type="button"
-                  className="btn btn-primary btn-sm inline-block w-auto mr-3 ml-3 md:ml-0 mt-3  "
-                >
-                  <span>Preuzmi </span>
-                </button>
-              </div>
-              {/* ovde sam skinuo style style="max-width: calc(90vw)" */}
-              <div className="__preview-pdf-body h-72 overflow-y-scroll md:h-auto md:overflow-auto">
-                <div id="the-container">
-                  <canvas id="the-canvas"></canvas>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-center bg-gray-200 p-4">
-                <button
-                  type="button"
-                  className="btn btn-primary btn-md  "
-                  data-dismiss-modal="preview-pdf-modal"
-                >
-                  <span>Zatvori </span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div
-          id="remove-review-modal"
-          className="hidden fixed inset-0 z-80 overflow-y-auto __modal __remove-review-modal"
-          data-modal="remove-review-modal"
-        >
-          <div className="fixed inset-0 bg-black/80 __modal-backdrop"></div>
-          <div className="flex items-end justify-center min-h-screen px-4">
-            <div className="w-full max-w-lg relative mx-auto my-auto rounded-xl shadow-lg bg-white ">
-              <div className="flex items-center justify-between bg-gradient-to-r from-blue-800 to-blue-600 p-4 rounded-t-lg">
-                <p className="font-bold md:text-lg mr-8 md:mr-0 text-white">
-                  Potvrdi brisanje
-                </p>
-
-                <button
-                  className="btn-icon btn-icon-primary btn-icon-sm absolute top-3 right-4"
-                  data-dismiss-modal="remove-review-modal"
-                >
-                  <i className="las la-times text-xl "></i>
-                </button>
-              </div>
-
-              <div className="text-center p-4 flex-auto justify-center">
-                <p className="text-sm opacity-50 px-8 __modal-desc">
-                  Da li si siguran?
-                </p>
-              </div>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 px-4 mb-4">
-                <button
-                  type="button"
-                  className="btn btn-primary btn-md __remove-review-confirm  "
-                >
-                  <span>Obriši </span>
-                </button>
-
-                <button
-                  type="button"
-                  className="btn btn-outline btn-md  "
-                  data-dismiss-modal="remove-review-modal"
-                >
-                  <span>Odustani </span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
-
-      <div
-        id="deactivate-account-modal"
-        className="hidden fixed inset-0 z-80 overflow-y-auto __modal __selector-className"
-        data-modal="deactivate-account-modal"
-      >
-        <div className="fixed inset-0 bg-black/80 __modal-backdrop"></div>
-        <div className="flex items-end justify-center min-h-screen px-4">
-          <div className="w-full max-w-lg relative mx-auto my-auto rounded-xl shadow-lg bg-white">
-            <div className="flex items-center justify-between bg-gradient-to-r from-blue-800 to-blue-600 p-4 rounded-t-lg">
-              <p className="font-bold md:text-lg mr-8 md:mr-0 text-white">
-                Deaktivacija naloga
-              </p>
-
-              <button
-                className="btn-icon btn-icon-primary btn-icon-sm absolute top-3 right-4"
-                data-dismiss-modal="deactivate-account-modal"
-              >
-                <i className="las la-times text-xl "></i>
-              </button>
-            </div>
-
-            <div className="text-center p-4 flex-auto justify-center">
-              <p className="text-sm opacity-50 px-8 __modal-desc">
-                Siguran si da želiš da deaktiviraš nalog?
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 px-4 mb-4">
-              <button
-                type="button"
-                className="btn btn-primary btn-md __deactivate-account  "
-              >
-                <span>Deaktiviraj </span>
-              </button>
-
-              <button
-                type="button"
-                className="btn btn-outline btn-md  "
-                data-dismiss-modal="deactivate-account-modal"
-              >
-                <span>Odustani </span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div
-        id="deactivate-done-modal"
-        className="hidden fixed inset-0 z-80 overflow-y-auto __modal __selector-className"
-        data-modal="deactivate-done-modal"
-      >
-        <div className="fixed inset-0 bg-black/80 __modal-backdrop"></div>
-        <div className="flex items-end justify-center min-h-screen px-4">
-          <div className="w-full max-w-lg relative mx-auto my-auto rounded-xl shadow-lg bg-white">
-            <div className="flex items-center justify-between bg-gradient-to-r from-blue-800 to-blue-600 p-4 rounded-t-lg">
-              <p className="font-bold md:text-lg mr-8 md:mr-0 text-white">
-                Deaktivacija
-              </p>
-
-              <button
-                className="btn-icon btn-icon-primary btn-icon-sm absolute top-3 right-4"
-                data-dismiss-modal="deactivate-done-modal"
-              >
-                <i className="las la-times text-xl "></i>
-              </button>
-            </div>
-
-            <div className="text-center p-4 flex-auto justify-center">
-              <p className="text-sm opacity-50 px-8 __modal-desc">
-                Tvoj nalog je uspešno deaktiviran
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 px-4 mb-4"></div>
-          </div>
-        </div>
-      </div>
+      <Box>
+        <Outlet />
+      </Box>
     </main>
   );
 }
