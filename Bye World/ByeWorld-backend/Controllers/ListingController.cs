@@ -87,7 +87,7 @@ namespace ByeWorld_backend.Controllers
             return Ok(result);
         }
 
-        [HttpGet("/favorites/{userId}")]
+        [HttpGet("favorites/{userId}")]
         public async Task<ActionResult> GetFavoriteListingsForUser(int userId)
         {
             var uid = long.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");

@@ -20,6 +20,7 @@ import CompanyListings from "./components/CompanyPage/CompanyListings";
 import CompanyReviews from "./components/CompanyPage/CompanyReviews";
 import AddReviewPage from "./components/CompanyPage/AddReviewPage";
 import AuthenticatedGuard from "./components/common/RouteGuards/AuthenticatedGuard";
+import FavListings from "./components/UserPage/FavListings";
 
 const theme = createTheme({
   palette: {
@@ -48,7 +49,13 @@ function App() {
               <Route path="" element={<Home />}></Route>
               <Route path="/home" element={<Home />}></Route>
               <Route path="/listings" element={<Listings />}></Route>
-              <Route path="/user/:id" element={<UserPage />}></Route>
+              <Route path="/user/:userId" element={<UserPage />}>
+                <Route
+                  path=""
+                  element={<Navigate to="fav-listings"></Navigate>}
+                ></Route>
+                <Route path="fav-listings" element={<FavListings />}></Route>
+              </Route>
               <Route path="/companies" element={<Companies />}></Route>
               <Route path="/company/:companyId" element={<CompanyPage />}>
                 <Route
