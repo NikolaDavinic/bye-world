@@ -6,6 +6,9 @@ export interface User {
   email?: string;
   phone?: string;
   imageUrl?: string;
-  role?: "User" | "Company";
   skills?: HasSkill[];
+  companiesCount?: number;
+  favListingsCount?: number;
+  reviewsCount?: number;
+  role?: "User" | "Company";
 }

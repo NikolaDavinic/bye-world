@@ -1,15 +1,24 @@
 import { User } from "../model/User";
 
+interface Session {
+  id: string;
+  expires: string;
+}
+
 export const shortenText = (text: string, length: number) => {
   return text.length > length ? text.substring(length) + "..." : text;
 };
 
-export const lsGetSessionId = () => localStorage.getItem("session-id");
+export const lsGetSession: () => Session | null = () => {
+  const lssession = localStorage.getItem("session");
+  if (!lssession) return null;
+  return JSON.parse(lssession);
+};
 
-export const lsSetSessionId = (token: string) =>
-  localStorage.setItem("session-id", token);
+export const lsSetSession = (session: Session) =>
+  localStorage.setItem("session", JSON.stringify(session));
 
-export const lsRemoveSessionId = () => localStorage.removeItem("session-id");
+export const lsRemoveSession = () => localStorage.removeItem("session");
 
 export const lsGetUser = () => JSON.parse(localStorage.getItem("user") || "{}");
 

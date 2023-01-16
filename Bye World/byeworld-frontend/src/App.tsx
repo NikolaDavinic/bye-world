@@ -6,7 +6,7 @@ import { SignIn } from "./components/SignIn/Signin";
 import { Listings } from "./components/listings/ListingsPage";
 import { Navbar } from "./components/common/Navbar/Navbar";
 import { Home } from "./components/Home/Home";
-import User from "./components/user/User";
+import UserPage from "./components/UserPage/UserPage";
 import Companies from "./components/CompaniesPage/CompaniesPage";
 import NotFound from "./components/NotFound/NotFound";
 import AddCompanyPage from "./components/AddCompanyPage/AddCompanyPage";
@@ -48,7 +48,7 @@ function App() {
               <Route path="" element={<Home />}></Route>
               <Route path="/home" element={<Home />}></Route>
               <Route path="/listings" element={<Listings />}></Route>
-              <Route path="/user/:id" element={<User />}></Route>
+              <Route path="/user/:id" element={<UserPage />}></Route>
               <Route path="/companies" element={<Companies />}></Route>
               <Route path="/company/:companyId" element={<CompanyPage />}>
                 <Route
