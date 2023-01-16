@@ -18,7 +18,7 @@ import { useAuthContext } from "../../../contexts/auth.context";
 const pages = ["Listings", "Companies"];
 
 export const Navbar = () => {
-  const { isAuthenticated, signout } = useAuthContext();
+  const { isAuthenticated, signout, user } = useAuthContext();
 
   const navigate = useNavigate();
 
@@ -201,7 +201,7 @@ export const Navbar = () => {
                   onClose={handleCloseUserMenu}
                 >
                   <MenuItem onClick={handleCloseUserMenu}>
-                    <Link to={`/user/2`}>
+                    <Link to={`/user/${user?.id}`}>
                       <Typography textAlign="center">Profile</Typography>
                     </Link>
                   </MenuItem>

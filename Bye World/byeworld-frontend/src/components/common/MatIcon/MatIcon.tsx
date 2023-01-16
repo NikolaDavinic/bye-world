@@ -1,5 +1,6 @@
 import { Icon } from "@mui/material";
 import React from "react";
+import vars from "./mat.module.css";
 
 interface MatIconsProps {
   children: string;
@@ -16,6 +17,7 @@ interface MatIconsProps {
     | "success"
     | "warning"
     | undefined;
+  variant?: "contained" | "outlined";
 }
 
 const MatIcon = ({
@@ -23,10 +25,13 @@ const MatIcon = ({
   style,
   className,
   color = "inherit",
+  variant = "outlined",
 }: MatIconsProps) => {
   return (
     <Icon
-      className={`material-symbols-outlined ${className}`}
+      className={`material-symbols-outlined ${className} ${
+        variant === "contained" ? vars.contained : vars.outlined
+      }`}
       style={style}
       color={color}
     >

@@ -11,4 +11,5 @@ export interface Listing {
   closingDate: Date;
   company?: Company;
   city?: City;
+  isFavorite?: boolean;
 }

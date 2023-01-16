@@ -1,6 +1,7 @@
 ﻿using ByeWorld_backend.DTO;
 using ByeWorld_backend.Models;
 using ByeWorld_backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
@@ -34,10 +35,13 @@ namespace ByeWorld_backend.Controllers
         public async Task<ActionResult> GetAllListings([FromQuery] string? keyword, [FromQuery]string? city, 
                 [FromQuery]string? position, [FromQuery] string? seniority, [FromQuery] int? take, [FromQuery] bool sortNewest = true)
         {
-
+            var userId = long.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");
             //var listings = await _neo4j.Cypher.Match("(n:Listing)")
             //                                  .Return(n => n.As<Listing>()).ResultsAsync;
-            var query = _neo4j.Cypher.Match("(s:Skill)-[reqs:REQUIRES]-(l:Listing)-[r]-(c:City)").Match("(l)-[:HAS_LISTING]-(co:Company)").Where((Listing l) => true);
+            var query = _neo4j.Cypher
+                .Match("(s:Skill)-[reqs:REQUIRES]-(l:Listing)-[r]-(c:City)")
+                .Match("(l)-[:HAS_LISTING]-(co:Company)")
+                .Where((Listing l) => true);
 
             if (!String.IsNullOrEmpty(keyword))
             {
@@ -55,8 +59,12 @@ namespace ByeWorld_backend.Controllers
             if (!String.IsNullOrEmpty(seniority))
                 query = query.AndWhere($"toLower(reqs.Proficiency) CONTAINS toLower('{seniority}')");
 
+            query = query
+                .OptionalMatch("(u:User)-[hf:HAS_FAVORITE]-(l)")
+                .Where((User u) => u.Id == userId);
+
             //TODO: Napravi DTO?
-            var retVal = query.Return((l, c, s, co) => new
+            var retVal = query.Return((l, c, s, co, hf) => new
             {
                 Id = l.As<Listing>().Id,
                 Title = l.As<Listing>().Title,
@@ -68,6 +76,7 @@ namespace ByeWorld_backend.Controllers
                 CompanyName = co.As<Company>().Name,
                 CompanyLogoUrl = co.As<Company>().LogoUrl,
                 CompanyId= co.As<Company>().Id,
+                IsFavorite = Return.As<bool>("CASE hf WHEN hf THEN TRUE ELSE FALSE END")
             });
             if (sortNewest)
             {
@@ -75,7 +84,44 @@ namespace ByeWorld_backend.Controllers
             }
             else
                 retVal = retVal.OrderBy("l.ClosingDate ASC");
-            return Ok(await retVal.Limit(take).ResultsAsync);
+
+            var result = await retVal.Limit(take).ResultsAsync;
+
+            return Ok(result);
+        }
+
+        [HttpGet("favorites/{userId}")]
+        public async Task<ActionResult> GetFavoriteListingsForUser(int userId)
+        {
+            var uid = long.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");
+
+            var query = _neo4j.Cypher
+                .Match("(u:User)-[:HAS_FAVORITE]->(l:Listing)")
+                .Where((User u) => u.Id == userId)
+                .Match("(l)-[]-(s:Skill)")
+                .Match("(l)-[]-(c:City)")
+                .Match("(l)-[]-(co:Company)");
+
+            query = query
+                .OptionalMatch("(u)-[hf:HAS_FAVORITE]-(l)")
+                .Where((User u) => u.Id == uid);
+
+            var result = query.Return((l, c, s, co, hf) => new
+            {
+                l.As<Listing>().Id,
+                l.As<Listing>().Title,
+                l.As<Listing>().Description,
+                c.As<City>().Name,
+                l.As<Listing>().ClosingDate,
+                l.As<Listing>().PostingDate,
+                Requirements = s.CollectAs<Skill>(),
+                CompanyName = co.As<Company>().Name,
+                CompanyLogoUrl = co.As<Company>().LogoUrl,
+                CompanyId = co.As<Company>().Id,
+                IsFavorite = Return.As<bool>("CASE hf WHEN hf THEN TRUE ELSE FALSE END")
+            });
+
+            return Ok(await result.ResultsAsync);
         }
 
         [HttpGet("{id}")]
@@ -184,6 +230,37 @@ namespace ByeWorld_backend.Controllers
             return Ok();
         }
 
+        [Authorize]
+        [HttpPut("favorite/{id}")]
+        public async Task<ActionResult> ToggleFavorite(int id)
+        {
+            var userId = int.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "0");
+
+            var iquery = _neo4j.Cypher
+                .Match("(u:User)-[rel:HAS_FAVORITE]-(l:Listing)")
+                .Where((User u, Listing l) => u.Id == userId && l.Id == id);
+
+            var res = await iquery
+                .Return(rel => new { count = rel.Count() })
+                .ResultsAsync;
+
+            if (res.First().count != 0)
+            {
+                await iquery
+                    .Delete("rel")
+                    .ExecuteWithoutResultsAsync();
+            } else
+            {
+                await _neo4j.Cypher
+                    .Match("(u:User)", "(l:Listing)")
+                    .Where((User u, Listing l) => u.Id == userId && l.Id == id)
+                    .Merge("(u)-[rel:HAS_FAVORITE]-(l)")
+                    .ExecuteWithoutResultsAsync();
+            }
+
+            return Ok();
+        }
+
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteListingById(int id)
         {
@@ -269,9 +346,10 @@ namespace ByeWorld_backend.Controllers
             //TODO: Sredi ID samo
             for (int i = 0; i < listing.Requirements.Count; i++)
             {
+                //long skillID = await _ids.SkillNext();
                 query = query.Create($"(l)-[:REQUIRES {{Proficiency: $prof{i}}}]->(c{i}: Skill $newSkill{i})")
                         .WithParam($"prof{i}", listing.Requirements[i].Proficiency)
-                        .WithParam($"newSkill{i}", new Skill { Name = listing.Requirements[i].Name, Id = 0 });
+                        .WithParam($"newSkill{i}", new Skill { Name = listing.Requirements[i].Name, Id = 0/*Id = skillID*/ });
             }
             var retVal=await query.Return((c, ci, l) => new
              {

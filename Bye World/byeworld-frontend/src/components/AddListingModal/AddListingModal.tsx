@@ -19,6 +19,7 @@ import { Editor, EditorState } from "react-draft-wysiwyg";
 import { convertToRaw } from 'draft-js';
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import draftToHtml from 'draftjs-to-html';
+import Paper from '@mui/material/Paper';
 
 interface AddListingModalProps {
     isOpen: boolean,
@@ -120,16 +121,18 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
                         onChange={(e) => setDescription(e.target.value)}
                         value={description}
                     /> */}
-                    <div className='h-1/2'>
-                        <Editor
-                            placeholder='Job description'
-                            editorState={descriptionEditor}
-                            toolbarClassName="toolbarClassName"
-                            wrapperClassName="wrapperClassName"
-                            editorClassName="editorClassName"
-                            onEditorStateChange={(e) => setDescriptionEditor(e)}
-                        />
-                    </div>
+                    <Paper>
+                        <div className='h-1/2'>
+                            <Editor
+                                placeholder='Job description'
+                                editorState={descriptionEditor}
+                                toolbarClassName="toolbarClassName"
+                                wrapperClassName="wrapperClassName"
+                                editorClassName="editorClassName"
+                                onEditorStateChange={(e) => setDescriptionEditor(e)}
+                            />
+                        </div>
+                    </Paper>
                     {/* TODO:Sredi da se select napuni na nazivima kompanija korisnika a value item-a je id izabrane kompanije */}
                     {result &&
                         <Select
