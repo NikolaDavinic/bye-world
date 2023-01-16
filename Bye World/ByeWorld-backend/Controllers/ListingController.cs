@@ -95,21 +95,42 @@ namespace ByeWorld_backend.Controllers
         {
             var db = _redis.GetDatabase();
 
-            var query = _neo4j.Cypher.Match("(l:Listing)-[lc:LOCATED_IN]->(c:City), (cm:Company)-[cl:HAS_LISTING]->(l:Listing)")
-                                             .Where((Listing l, Company cm, City c) => l.Id == id)
-                                             .Return((l, cm, c) => new
+            var query = _neo4j.Cypher.Match("(l:Listing), (l:Listing)-[lc:LOCATED_IN]->(c:City), (cm:Company)-[cl:HAS_LISTING]->(l:Listing), (l:Listing)-[:REQUIRES]->(s:Skill)")
+                                             .Where((Listing l, Company cm, City c, Skill s) => l.Id == id)
+                                             .Return((l, cm, c, s) => new
                                              {
                                                  Listing=l.As<Listing>(),
                                                  Company=cm.As<Company>(),
-                                                 City=c.As<City>()
+                                                 City=c.As<City>(),
+                                                 Skill=s.CollectAs<Skill>()
+
                                              });
 
-            var result = (await query.ResultsAsync).FirstOrDefault();
+            var result = (await query.ResultsAsync).Select(r => new
+            {
+                Company = new
+                {
+                    Id = r.Company.Id,
+                    Name = r.Company.Name,
+                    LogoUrl=r.Company.LogoUrl
+                },
+                City = new
+                {
+                    Id = r.City.Id,
+                    Name = r.City.Name
+                },
+                r.Skill,
+                r.Listing.Id,
+                r.Listing.ClosingDate,
+                r.Listing.Title,
+                r.Listing.Description,
+                r.Listing.PostingDate
+            }).FirstOrDefault();
 
             if (result != null)
             {
                 string keyDate = DateTime.Now.Date.ToShortDateString();
-                db.SortedSetIncrement($"listings:leaderboard:{keyDate}", result.Listing.Id, 1);
+                db.SortedSetIncrement($"listings:leaderboard:{keyDate}", result.Id, 1);
             }
 
             return Ok(result);
@@ -216,6 +237,8 @@ namespace ByeWorld_backend.Controllers
         [HttpPost("add")]
         public async Task<ActionResult> CreateListing([FromBody] AddListingDTO listing)
         {
+            var db = _redis.GetDatabase();
+
             long lid = await _ids.ListingNext();
             var newListing = new Listing
             {
@@ -286,9 +309,10 @@ namespace ByeWorld_backend.Controllers
             //TODO: Sredi ID samo
             for (int i = 0; i < listing.Requirements.Count; i++)
             {
+                //long skillID = await _ids.SkillNext();
                 query = query.Create($"(l)-[:REQUIRES {{Proficiency: $prof{i}}}]->(c{i}: Skill $newSkill{i})")
                         .WithParam($"prof{i}", listing.Requirements[i].Proficiency)
-                        .WithParam($"newSkill{i}", new Skill { Name = listing.Requirements[i].Name, Id = 0 });
+                        .WithParam($"newSkill{i}", new Skill { Name = listing.Requirements[i].Name, Id = 0/*Id = skillID*/ });
             }
             var retVal=await query.Return((c, ci, l) => new
              {
@@ -300,20 +324,50 @@ namespace ByeWorld_backend.Controllers
             if (retVal.Count() == 0)
                 return BadRequest("Dodavanje listinga neuspesno");
 
+            string keyDate = DateTime.Now.Date.ToShortDateString();
+            db.SortedSetIncrement($"listings:newest:{keyDate}", retVal?.FirstOrDefault()?.Id, 1);
+
             return Ok(retVal);
         }
 
-        [HttpGet("similarlistings/{id}/{city}/{companyName}")]
-        public async Task<ActionResult> getfirstthreesimilarlistings(int id, string? city, string? companyName)
+        [HttpGet("similarlistings/{id}")]
+        public async Task<ActionResult> getfirstthreesimilarlistings(int id)
         {
             var query = _neo4j.Cypher
-                .Match("(l:Listing)-->(s:Skill)<--(lr:Listing), (l:Listing)-[:LOCATED_IN]->(c:City), (ic:Company)-[:HAS_LISTING]->(l:Listing)")
-                .Where((Listing l, City c, Company ic) => l.Id == id && (c.Name == city || ic.Name == companyName))
+                .OptionalMatch("(l:Listing)-[:REQUIRES]->(s:Skill)<-[:REQUIRES]-(lr:Listing)")
+                .Where((Listing lr) => lr.Id != id)
+                .OptionalMatch("(l:Listing)-[:LOCATED_IN]-(c:City)-[:LOCATED_IN]-(lr:Listing)")
+                .Where((Listing lr) => lr.Id != id)
+                .OptionalMatch("(l:Listing)-[:HAS_LISTING]-(ic:Company)-[:HAS_LISTING]-(lr:Listing)")
+                .Where((Listing lr) => lr.Id != id)
                 .With("distinct(lr) as reccs")
                 .Return(reccs => reccs.As<Listing>())
                 .Limit(3);
 
-            
+
+            return Ok(await query.ResultsAsync);
+        }
+
+        [HttpGet("newestlistings")]
+        public async Task<ActionResult> newestlistings()
+        {
+            var db = _redis.GetDatabase();
+
+            //db.StringSet($"sessions:{sessionId}", JsonSerializer.Serialize(user), expiry: TimeSpan.FromHours(2));
+            //db.SetAdd("users:authenticated", user.Id);
+            //db.StringSet($"users:last_active:{user.Id}", DateTime.Now.ToString(), expiry: TimeSpan.FromMinutes(2));
+
+            string keyDate = DateTime.Now.Date.ToShortDateString();
+            var ids = (await db.SortedSetRangeByRankAsync($"listings:newest:{keyDate}", start: 0, stop: 5, Order.Descending))
+                .Select(id => int.Parse(id.ToString()))
+                .ToList();
+
+            var query = _neo4j.Cypher
+                .Match("(l:Listing)")
+                .Where("l.Id IN $ids")
+                .WithParam("ids", ids)
+                .Return(l => l.As<Listing>());
+
             return Ok(await query.ResultsAsync);
         }
     }
