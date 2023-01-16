@@ -1,18 +1,23 @@
 import React from "react";
 import { Button } from "@mui/material";
 import Link from "@mui/material/Link";
+import { UserSkillsModal } from "../UserSkillsModal/UserSkillsModal";
 
 export default function User() {
   const onButtonSettings = () => {
     console.log("Clicked on button settings!");
   };
+  const [open, setOpen] = React.useState(false);
+  const handleModalClose = () => {
+    setOpen(false);
+  }
+  const handleModalOpen = () => {
+    setOpen(true);
+  }
 
   return (
     <main className="flex-1">
-      {/* <script>
-                var siteHost = 'www.helloworld.rs';
-                var initSection = 'profil'
-            </script> */}
+      <UserSkillsModal isOpen={open} handleModalClose={handleModalClose} />
 
       <div className="bg-gradient-to-r from-blue-900 to-green-500 relative">
         <div className="hidden md:flex justify-end absolute right-0 inset-y-0 opacity-10">
@@ -67,6 +72,7 @@ export default function User() {
                 Moj nalog
               </a>
             </Link>
+            <Button variant="outlined" onClick={() => handleModalOpen()} >Edit Skills</Button>
             <a
               href="/moj-nalog/prijave"
               className="text-sm font-medium shrink-0 flex px-2 py-2 rounded leading-none __user-nav-item         text-white hover:bg-white hover:text-blue-800"
