@@ -8,6 +8,7 @@ import {
   Rating,
   Stack,
 } from "@mui/material";
+import Typography from "@mui/material/Typography";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../../constants";
@@ -18,12 +19,16 @@ import MatIcon from "../MatIcon/MatIcon";
 
 interface ReviewCardProps {
   review: Review;
+  displayCompany?: boolean;
+  showOptions?: boolean;
   onDelete?: (id: number) => void;
   onUpdate?: (review: Review) => void;
 }
 
 export const ReviewCard: React.FC<ReviewCardProps> = ({
   review,
+  displayCompany = false,
+  showOptions = true,
   onDelete = () => {},
   onUpdate = () => {},
 }: ReviewCardProps) => {
@@ -43,6 +48,15 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({
 
   return (
     <Paper sx={{ textAlign: "left" }} className="p-3">
+      {displayCompany && (
+        <Box>
+          <Link to={`/company/${review.company?.id}/reviews`}>
+            <Typography fontWeight="500" color="gray">
+              {review.company?.name}
+            </Typography>
+          </Link>
+        </Box>
+      )}
       <Stack className="flex flex-col gap-3">
         <Box className="flex justify-between">
           <Box className="flex items-center gap-2">
@@ -61,26 +75,29 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({
               {review.user?.name ?? ""}
             </Link>
           </Box>
-          <Box>
-            {new Date(review.date ?? "").toLocaleDateString("en-GB")}
-            <IconButton onClick={handleClick}>
-              <MatIcon style={{ color: "black" }}>more_vert</MatIcon>
-            </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleClose}
-              transformOrigin={{ horizontal: "right", vertical: "top" }}
-            >
-              <MenuItem onClick={() => onDelete(review.id!)}>
-                <MatIcon color="warning">delete</MatIcon>
-                &nbsp;Delete
-              </MenuItem>
-              <MenuItem onClick={() => setIsEditing((prev) => !prev)}>
-                <MatIcon color="primary">edit</MatIcon>&nbsp;Edit
-              </MenuItem>
-            </Menu>
-          </Box>
+          {new Date(review.date ?? "").toLocaleDateString("en-GB")}
+          {showOptions && (
+            <Box>
+              <IconButton onClick={handleClick}>
+                <MatIcon style={{ color: "black" }}>more_vert</MatIcon>
+              </IconButton>
+
+              <Menu
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                transformOrigin={{ horizontal: "right", vertical: "top" }}
+              >
+                <MenuItem onClick={() => onDelete(review.id!)}>
+                  <MatIcon color="warning">delete</MatIcon>
+                  &nbsp;Delete
+                </MenuItem>
+                <MenuItem onClick={() => setIsEditing((prev) => !prev)}>
+                  <MatIcon color="primary">edit</MatIcon>&nbsp;Edit
+                </MenuItem>
+              </Menu>
+            </Box>
+          )}
         </Box>
         {!isEditing && (
           <Box>

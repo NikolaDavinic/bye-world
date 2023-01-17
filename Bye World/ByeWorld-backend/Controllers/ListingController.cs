@@ -87,6 +87,48 @@ namespace ByeWorld_backend.Controllers
             return Ok(result);
         }
 
+        [Authorize]
+        [HttpGet("related")]
+        public async Task<ActionResult> GetRelatedListingsForUser()
+        {
+            var uid = long.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");
+
+            //MATCH(u: User { Id: 4})-[*2] - (lr: Listing)
+            //WHERE NOT EXISTS((u) -[:HAS_FAVORITE] - (lr))
+            //WITH DISTINCT lr as reccs
+            //OPTIONAL MATCH(reccs)-[] - (s: Skill)
+            //OPTIONAL MATCH(reccs)-[] - (c: City)
+            //OPTIONAL MATCH(reccs)-[] - (co: Company)
+            //RETURN reccs, c, co, collect(s)
+            //ORDER BY rand()
+            //LIMIT 3
+
+            var query = _neo4j.Cypher
+                .Match("(u:User)-[*2]-(l:Listing)")
+                .Where((User u) => u.Id == uid)
+                .AndWhere("NOT EXISTS ((u)-[:HAS_FAVORITE]-(l))")
+                .With("DISTINCT l as rc")
+                .OptionalMatch("(lc)-[]-(s:Skill)")
+                .OptionalMatch("(lc)-[]-(c:City)")
+                .OptionalMatch("(lc)-[]-(co:Company)");
+
+            var result = await query.Return((lc, c, s, co) => new
+            {
+                lc.As<Listing>().Id,
+                lc.As<Listing>().Title,
+                lc.As<Listing>().Description,
+                lc.As<Listing>().PostingDate,
+                lc.As<Listing>().ClosingDate,
+                c.As<City>().Name,
+                Requirements = s.CollectAs<Skill>(),
+                CompanyName = co.As<Company>().Name,
+                CompanyLogoUrl = co.As<Company>().LogoUrl,
+                CompanyId = co.As<Company>().Id,
+            }).OrderBy("rand()").Limit(3).ResultsAsync;
+
+            return Ok(result);
+        }
+
         [HttpGet("favorites/{userId}")]
         public async Task<ActionResult> GetFavoriteListingsForUser(int userId)
         {
@@ -103,7 +145,7 @@ namespace ByeWorld_backend.Controllers
                 .OptionalMatch("(u)-[hf:HAS_FAVORITE]-(l)")
                 .Where((User u) => u.Id == uid);
 
-            var result = query.Return((l, c, s, co, hf) => new
+            var result = await query.Return((l, c, s, co, hf) => new
             {
                 l.As<Listing>().Id,
                 l.As<Listing>().Title,
@@ -116,9 +158,9 @@ namespace ByeWorld_backend.Controllers
                 CompanyLogoUrl = co.As<Company>().LogoUrl,
                 CompanyId = co.As<Company>().Id,
                 IsFavorite = Return.As<bool>("CASE hf WHEN hf THEN TRUE ELSE FALSE END")
-            });
+            }).ResultsAsync;
 
-            return Ok(await result.ResultsAsync);
+            return Ok(result);
         }
 
         [HttpGet("{id}")]

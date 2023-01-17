@@ -108,6 +108,44 @@ namespace ByeWorld_backend.Controllers
                 return BadRequest("Unsuccessful deletion");
             }
         }
+        
+        [HttpGet("user/{id}")]
+        public async Task<IActionResult> GetUserReviews(int id)
+        {
+            var query = _neo4j.Cypher
+                .Match("(u:User)-[]-(r:Review)")
+                .Where((User u) => u.Id == id)
+                .OptionalMatch("(r)-[]-(c:Company)")
+                .Return((r, c, u) => new
+                {
+                    User = u.As<User>(),
+                    Review = r.As<Review>(),
+                    CompanyName = c.As<Company>().Name,
+                    CompanyId = c.As<Company>().Id
+                })
+                .OrderByDescending("r.Date");
+
+            var result = (await query.ResultsAsync).Select(r => new 
+            {
+                User = new 
+                {
+                    r.User.Id,
+                    r.User.Name,
+                    r.User.ImageUrl
+                },
+                r.Review.Id,
+                r.Review.Date,
+                r.Review.Description,
+                r.Review.Value,
+                Company = new 
+                {
+                    Id = r.CompanyId,
+                    Name = r.CompanyName
+                }
+            });
+
+            return Ok(result);
+        }
 
         [Authorize]
         [HttpPost]

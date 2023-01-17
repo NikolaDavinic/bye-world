@@ -55,7 +55,6 @@ const CompanyPage = () => {
         </Box>
       );
     } else {
-      console.log(error);
       return <></>;
     }
   }
