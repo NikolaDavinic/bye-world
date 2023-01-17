@@ -141,7 +141,7 @@ namespace ByeWorld_backend.Controllers
                 }
             }
 
-            return Ok(new { ActiveUsers = count });
+            return Ok(count);
         }
 
         [HttpGet("{id}")]
