@@ -47,7 +47,7 @@ export const SimilarListingCard: React.FC<SimilarListingCardProps> = ({
                 <div className="flex items-center gap-1 w-1/2 overflow-hidden">
                   <p className="font-semibold opacity-75">
                       {/* Naziv komapnije */}
-                      {/* {listing.company?.name!=null && listing?.company?.name} */}
+                      {listing.companyName!=null && listing?.companyName}
                   </p>
                 </div>
               </div>
@@ -83,7 +83,7 @@ export const SimilarListingCard: React.FC<SimilarListingCardProps> = ({
                                 <button type="button" className="w-auto bg-main text-white rounded-md cursor-pointer" >
                                     <span className='text-white'>Senior </span>
                                 </button> */}
-                {listing1?.skill!=null && listing1?.skill?.map((r:any) => {
+                {listing?.requirements!=null && listing?.requirements?.map((r:any) => {
                   return <Chip key={r.id} label={r.name} color="primary" />;
                 })}
               </Box>
@@ -93,10 +93,10 @@ export const SimilarListingCard: React.FC<SimilarListingCardProps> = ({
                 alt=""
                 className="w-40 h-40"
                 src={
-                  listing.company?.logoUrl ??
+                  listing.companyLogoUrl ??
                   "https://www.adaptivewfs.com/wp-content/uploads/2020/07/logo-placeholder-image.png"
                 }
-                onClick={() => navigate("/company/" + listing.company?.id)}
+                onClick={() => navigate("/company/" + listing.company)}
               />
             </div> */}
           </div>

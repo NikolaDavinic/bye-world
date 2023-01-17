@@ -184,7 +184,7 @@ const ListingPage: React.FC = () => {
                             return (
                                 <div key={listing?.id}>
                                     <Link href={`/listing/${listing?.id}`}>
-                                        {/* <SimilarListingCard listing={listing} divHeight={300} divMaxWidth={400} divMinWidth={350} /> */}
+                                        <SimilarListingCard listing={listing} divHeight={300} divMaxWidth={400} divMinWidth={350} />
                                     </Link>
                                 </div>
                             )
