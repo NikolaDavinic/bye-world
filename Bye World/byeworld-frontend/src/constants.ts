@@ -1,5 +1,5 @@
 import axios from "axios";
-import { lsGetSessionId } from "./utils/helpers";
+import { lsGetSession, lsRemoveSession } from "./utils/helpers";
 
 export const constants = {
   apiName: "https://localhost:7294",
@@ -11,11 +11,16 @@ const axiosInstace = axios.create({
 
 axiosInstace.interceptors.request.use(
   (config) => {
-    let sessionId = lsGetSessionId();
-    if (sessionId) {
+    let session = lsGetSession();
+    if (session) {
+      // if (new Date(session.expires) > new Date()) {
+      //   lsRemoveSession();
+      //   return config;
+      // }
+
       config["headers"] = config.headers ?? {};
       // @ts-ignore
-      config.headers["Authorization"] = `SessionId ${sessionId}`;
+      config.headers["Authorization"] = `SessionId ${session.id}`;
       console.log("interceptor");
     }
 

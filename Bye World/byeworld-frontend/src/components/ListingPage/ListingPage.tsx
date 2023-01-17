@@ -10,6 +10,7 @@ import { ListingDTO } from '../listings/ListingsPage'
 import { api } from '../../constants'
 import { Company } from '../../model/Company'
 import parse from 'html-react-parser';
+import { Skill } from '../../model/Skill'
 
 const ListingPage: React.FC = () => {
     const navigate = useNavigate()
@@ -60,7 +61,7 @@ const ListingPage: React.FC = () => {
         result: listings,
         loading,
         error,
-    } = useApi<Listing[]>(`/listing/similarlistings/${params.id}`);
+    } = useApi<ListingDTO[]>(`/listing/similarlistings/${params.id}`);
 
     useEffect(() => {
         // checkUserToken()
@@ -119,8 +120,8 @@ const ListingPage: React.FC = () => {
                                         <span className='tag lowercase w-auto print:bg-transparent print:text-black print:p-0 tag-xs tag-primary'>
                                             <span>Java</span>
                                         </span> */}
-                                        {["Java", "Senior"].map((r: String, i) => {
-                                            return <Chip key={i} label={r} color="primary" />;
+                                        {listing1?.skill!=null && listing1?.skill?.map((r:any) => {
+                                            return <Chip key={r.id} label={r.name} color="primary" />;
                                         })}
                                     </div>
                                     <div className='print:justify-start print:mx-0 flex items-center justify-center md:mr-24 mt-4 md:mt-8 mb-4 mx-auto md:m-auto order-first md:order-last'>
@@ -178,11 +179,11 @@ const ListingPage: React.FC = () => {
                 <div className='grid gap-4 max-w-7xl mx-auto px-4 py-8'>
                     <p className='font-nold text-xl'>Similar listings</p>
                     <div className='grid md:grid-cols-3 gap-4'>
-                        {listings?.map(listing => {
+                        {listings!=null && listings?.map(listing => {
                             // console.log(listing);
                             return (
-                                <div key={listing.id}>
-                                    <Link href={`/listing/${listing.id}`}>
+                                <div key={listing?.id}>
+                                    <Link href={`/listing/${listing?.id}`}>
                                         <SimilarListingCard listing={listing} divHeight={300} divMaxWidth={400} divMinWidth={350} />
                                     </Link>
                                 </div>

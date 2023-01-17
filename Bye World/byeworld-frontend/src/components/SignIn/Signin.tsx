@@ -21,7 +21,10 @@ export const SignIn: React.FC = () => {
 
   const onSubmit = handleSubmit((creds) => {
     api
-      .post<{ user: User; sessionId: string }>(`/user/signin`, creds)
+      .post<{ user: User; session: { id: string; expires: string } }>(
+        `/user/signin`,
+        creds
+      )
       .then(({ data }) => {
         signin(data);
         navigate("/home");

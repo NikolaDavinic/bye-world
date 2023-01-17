@@ -7,8 +7,12 @@ import { Box, CardActionArea, Chip, Icon } from "@mui/material";
 import { Company } from "../../model/Company";
 import { Listing } from "../../model/Listing";
 import { useNavigate } from "react-router-dom";
+import { useApi } from "../../hooks/api.hook";
+import parse from 'html-react-parser';
+import { ListingDTO } from "../listings/ListingsPage";
+
 interface SimilarListingCardProps {
-  listing: Listing;
+  listing: ListingDTO;
   // divWidth: number;
   divHeight: number;
   divMaxWidth: number;
@@ -18,6 +22,10 @@ export const SimilarListingCard: React.FC<SimilarListingCardProps> = ({
   listing, divHeight, divMaxWidth, divMinWidth
 }: SimilarListingCardProps) => {
   const navigate = useNavigate();
+
+  const {
+    result: listing1,
+  } = useApi<any>(`/listing/${listing?.id}`);
 
   return (
     <Card sx={{ maxWidth: divMaxWidth, width: "auto", minWidth: divMinWidth, height: divHeight }}>
@@ -31,24 +39,22 @@ export const SimilarListingCard: React.FC<SimilarListingCardProps> = ({
               <div className="grid gap-1 box-content">
                 <div className="flex items-center gap-1 w-1/2 overflow-hidden ">
                   <p className="hover:opacity-50 font-bold text-lg ">
-                    {listing!.title}
+                    {listing?.title != null && listing!.title}
                   </p>
                 </div>
               </div>
               <div className="grid gap-1">
                 <div className="flex items-center gap-1 w-1/2 overflow-hidden">
                   <p className="font-semibold opacity-75">
-                    <a href="/">
                       {/* Naziv komapnije */}
-                      Company
-                    </a>
+                      {listing.companyName!=null && listing?.companyName}
                   </p>
                 </div>
               </div>
 
               <div className="grid gap-1">
                 <div className="flex items-center gap-1 w-1/2 overflow-hidden">
-                  <p className="text-sm opacity-90">{listing!.description}</p>
+                  {/* <p className="text-sm opacity-90">{listing1?.description && <div>{parse(listing1?.description)}</div>}</p> */}
                 </div>
               </div>
               <div className="grid gap-1">
@@ -57,14 +63,14 @@ export const SimilarListingCard: React.FC<SimilarListingCardProps> = ({
                     <Icon className="material-symbols-outlined">
                       location_city
                     </Icon>
-                    <p className="text-sm font-semibold">{listing.city?.name}</p>
+                    {/* <p className="text-sm font-semibold">{listing?.city != null && listing.city?.name}</p> */}
                   </div>
                 </div>
 
                 <div className="flex items-center gap-1">
                   <Icon className="material-symbols-outlined">schedule</Icon>
                   <p className="text-sm font-semibold">
-                    {new Date(listing.closingDate).toLocaleDateString("de-DE")}
+                    {listing?.closingDate != null && new Date(listing.closingDate).toLocaleDateString("de-DE")}
                   </p>
                 </div>
               </div>
@@ -77,8 +83,8 @@ export const SimilarListingCard: React.FC<SimilarListingCardProps> = ({
                                 <button type="button" className="w-auto bg-main text-white rounded-md cursor-pointer" >
                                     <span className='text-white'>Senior </span>
                                 </button> */}
-                {["Java", "Senior"].map((r, i) => {
-                  return <Chip key={i} label={r} color="primary" />;
+                {listing?.requirements!=null && listing?.requirements?.map((r:any) => {
+                  return <Chip key={r.id} label={r.name} color="primary" />;
                 })}
               </Box>
             </div>
@@ -87,10 +93,10 @@ export const SimilarListingCard: React.FC<SimilarListingCardProps> = ({
                 alt=""
                 className="w-40 h-40"
                 src={
-                  listing.company?.logoUrl ??
+                  listing.companyLogoUrl ??
                   "https://www.adaptivewfs.com/wp-content/uploads/2020/07/logo-placeholder-image.png"
                 }
-                onClick={() => navigate("/company/" + listing.company?.id)}
+                onClick={() => navigate("/company/" + listing.company)}
               />
             </div> */}
           </div>

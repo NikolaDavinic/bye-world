@@ -8,17 +8,20 @@ import {
 import { api } from "../constants";
 import { User } from "../model/User";
 import {
-  lsGetSessionId,
+  lsGetSession,
   lsGetUser,
-  lsRemoveSessionId,
+  lsRemoveSession,
   lsRemoveUser,
-  lsSetSessionId,
+  lsSetSession,
   lsSetUser,
 } from "../utils/helpers";
 
 interface AuthState {
   user: User;
-  sessionId: string;
+  session: {
+    id: string;
+    expires: string;
+  };
 }
 
 interface AuthStateContextI {
@@ -54,10 +57,10 @@ export function AuthStateProvider({ children }: AuthStateProviderProps) {
   }, []);
 
   const signin = (authState: AuthState) => {
-    if (!authState.user || !authState.sessionId) return;
+    if (!authState.user || !authState.session) return;
 
     setAuthState(authState);
-    lsSetSessionId(authState.sessionId);
+    lsSetSession(authState.session);
     lsSetUser(authState.user);
   };
 
@@ -65,7 +68,7 @@ export function AuthStateProvider({ children }: AuthStateProviderProps) {
     setAuthState(null);
 
     api.put("/user/signout", {}).then(() => {
-      lsRemoveSessionId();
+      lsRemoveSession();
     });
 
     lsRemoveUser();
@@ -73,22 +76,28 @@ export function AuthStateProvider({ children }: AuthStateProviderProps) {
 
   const autoLogin = () => {
     const user = lsGetUser();
-    const sessionId = lsGetSessionId();
+    const session = lsGetSession();
 
-    if (!user || !sessionId) {
+    if (!user || !session) {
       return;
     }
 
-    const token = { sessionId: sessionId, user: user };
-    setAuthState(token);
+    setAuthState({ user, session });
   };
 
-  const isAuthenticated = () => {
-    return authState?.sessionId ? true : false;
+  const isAuthenticated: () => boolean = () => {
+    if (!authState?.session) return false;
+
+    if (new Date(authState.session.expires) < new Date()) {
+      signout();
+      return false;
+    }
+
+    return true;
   };
 
   const userIsCompany = () => {
-    return authState?.user?.role == "Company";
+    return authState?.user?.role === "Company";
   };
 
   return (

@@ -7,29 +7,56 @@ import { Box, CardActionArea, Chip, Icon } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { ListingDTO } from "../../listings/ListingsPage";
 import parse from "html-react-parser";
+import MatIcon from "../MatIcon/MatIcon";
+import IconButton from "@mui/material/IconButton";
+import { useAuthContext } from "../../../contexts/auth.context";
 
 interface ListingCardProps {
   listing: ListingDTO;
+  onFvToggle?: (Id: number) => void;
 }
+
 export const ListingCard: React.FC<ListingCardProps> = ({
   listing,
+  onFvToggle = () => null,
 }: ListingCardProps) => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuthContext();
+
+  const handleFvClick = () => {
+    if (!isAuthenticated()) {
+      navigate("/signin");
+    }
+    onFvToggle(listing.id);
+  };
 
   return (
     <Card className="w-full">
-      <CardActionArea
-        className="h-full hover:bg-blue-100"
-        onClick={() => navigate("/listing/" + listing.id)}
-      >
+      <CardActionArea className="h-full" disableRipple={true}>
         <CardContent className="h-full">
           <div className="flex flex-row justify-between h-full">
             <div className="flex flex-col gap-4 px-4 md:pl-4 mb-4 w-2/3">
               <div className="grid gap-1">
-                <div className="flex items-center gap-1 w-1/2 overflow-hidden">
-                  <p className="hover:opacity-50 font-bold text-lg">
+                <div className="flex items-center gap-1 w-full overflow-hidden ">
+                  <p
+                    className="hover:opacity-50 font-bold text-lg"
+                    onClick={() => navigate("/listing/" + listing.id)}
+                  >
                     {listing!.title}
                   </p>
+                  <IconButton
+                    className="flex justify-center"
+                    onClick={handleFvClick}
+                  >
+                    <MatIcon
+                      style={{ color: "red", fontSize: "1.6rem" }}
+                      variant={`${
+                        listing.isFavorite ? "contained" : "outlined"
+                      }`}
+                    >
+                      favorite
+                    </MatIcon>
+                  </IconButton>
                 </div>
               </div>
               <div className="grid gap-1">

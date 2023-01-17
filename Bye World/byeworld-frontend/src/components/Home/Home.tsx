@@ -6,6 +6,8 @@ import { SimilarListingCard } from "../ListingPage/SimilarListingCard";
 import PeopleIcon from "@mui/icons-material/People";
 import { useApi } from "../../hooks/api.hook";
 import { Listing } from "../../model/Listing";
+import { User } from "../../model/User";
+import { ListingDTO } from "../listings/ListingsPage";
 
 export const Home: React.FC = () => {
 
@@ -13,20 +15,40 @@ export const Home: React.FC = () => {
     result: topListings,
     loading,
     error,
-  } = useApi<Listing[]>(`/listing/toplistings`);
+  } = useApi<ListingDTO[]>(`/listing/toplistings`);
 
+  const {
+    result: active,
+  } = useApi<any>(`/user/authcount`);
+
+  const {
+    result: numberOfListings,
+  } = useApi<any>(`/listing/listingscount`);
+
+  const {
+    result: numberOfCompanies,
+  } = useApi<any>(`/company/companiescount`);
+
+  const {
+    result: newestListings,
+  } = useApi<ListingDTO[]>(`/listing/newestlistings`);
 
   const testArray = [
     {
       name: "Users",
-      count: 5,
+      count: active,
       icon: 1,
     },
     {
-      name: "Oglasi",
-      count: 1500,
+      name: "Listings",
+      count: numberOfListings,
       icon: 2,
     },
+    {
+      name: "Companies",
+      count: numberOfCompanies,
+      icon: 3
+    }
   ];
 
   const testListings = [
@@ -127,7 +149,7 @@ export const Home: React.FC = () => {
             >
               <div className="grid gap-4 max-w-7xl mx-auto px-4 py-8">
                 <div className="grid md:grid-cols-3 gap-4">
-                  {topListings!=null && topListings.map((listing) => {
+                  {topListings != null ? topListings.map((listing) => {
                     // console.log(listing);
                     return (
                       <SimilarListingCard
@@ -137,7 +159,12 @@ export const Home: React.FC = () => {
                         divMinWidth={350}
                       />
                     );
-                  })}
+                  }) :
+                    <>
+                      <h2>
+                        In database we don't have any listing
+                      </h2>
+                    </>}
                 </div>
               </div>
             </div>
@@ -162,7 +189,25 @@ export const Home: React.FC = () => {
             <p className="text-lg md:text-xl max-w-4xl opacity-50 self-start">
               Here we show listings that have been posted in the last 2 hours
             </p>
-            <div>OVDE TREBA DA IDU NAJNOVIJE OBJAVE ZA OGLASE</div>
+            <div className='grid md:grid-cols-3 gap-4'>
+              {
+                newestListings != null && newestListings.map((item) => {
+                  console.log(item)
+                  return (
+                    <>
+                      <Link href={`/listing/${item.id}`}>
+                        <SimilarListingCard
+                          listing={item}
+                          divHeight={300}
+                          divMaxWidth={400}
+                          divMinWidth={350}
+                        />
+                      </Link>
+                    </>
+                  )
+                })
+              }
+            </div>
           </div>
         </div>
       </section>
