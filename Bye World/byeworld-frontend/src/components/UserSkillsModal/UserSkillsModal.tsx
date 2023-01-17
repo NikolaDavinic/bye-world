@@ -4,66 +4,66 @@ import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect, useState } from 'react';
-import { Icon, IconButton, MenuItem, Select, Typography } from '@mui/material';
+import { Alert, Icon, IconButton, MenuItem, Select, Snackbar, Typography } from '@mui/material';
 import { api } from '../../constants';
-import { useNavigate } from 'react-router-dom';
-import { Company } from '../../model/Company';
-import { useApi } from '../../hooks/api.hook';
-import { useAuthContext } from '../../contexts/auth.context';
-import { Editor, EditorState } from "react-draft-wysiwyg";
-import { convertToRaw } from 'draft-js';
-import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
-import draftToHtml from 'draftjs-to-html';
-import Paper from '@mui/material/Paper';
 
 interface UserSkillsModalProps {
     isOpen: boolean,
     handleModalClose: () => void
 }
+
 interface SkillDTO {
     name: string,
     proficiency: string
 }
+
 export const UserSkillsModal: React.FC<UserSkillsModalProps> = ({
     isOpen,
     handleModalClose
 }) => {
+
     useEffect(() => {
         setOpen(isOpen);
     }, [isOpen])
-    const [open, setOpen] = React.useState(false);
 
-    const navigate = useNavigate();
+    const [open, setOpen] = React.useState(false);
+    const [showSnackbar, setShowSnackbar] = React.useState<boolean>(false);
+    const [snackbarMessage, setSnackbarMessage] = React.useState<string>("");
+
     const handleClose = () => {
         handleModalClose();
     };
+    useEffect(() => {
+        const response = api.get("/skill/myskills")
+            .then((result) => setSkills(result.data));
+    }, []);
 
     const [skills, setSkills] = useState<SkillDTO[]>([
         { name: "", proficiency: "" }
     ]);
 
-
     const onSubmit = () => {
         const data: SkillDTO[] = skills;
         api
-            .post("/skill/add", data)
+            .put("/skill/edit", data)
             .then((response) => {
-                // return navigate("/listing/" + response.data[0].id);
+                // handleClose();
+                setSnackbarMessage("Your skills are updated!");
+                setShowSnackbar(true);
             })
             .catch((error) => {
                 console.error(error);
+                setSnackbarMessage("There was error updating user skills. Try again later!");
             });
     };
 
     return (
         <div>
             <Dialog open={open} onClose={handleClose} fullWidth={true} maxWidth={"md"}>
-                <DialogTitle>Edit user skills</DialogTitle>
+                <DialogTitle>Your skills</DialogTitle>
                 <DialogContent>
-                    {/* <Divider variant="fullWidth" /> */}
                     {
                         skills.map((r, ind) => (
                             <div key={ind} className='flex flex-row items-center'>
@@ -115,15 +115,15 @@ export const UserSkillsModal: React.FC<UserSkillsModalProps> = ({
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => handleClose()}>Cancel</Button>
-                    <Button variant='contained' onClick={() => onSubmit()}>Add</Button>
+                    <Button variant='contained' onClick={() => onSubmit()}>SAVE</Button>
                 </DialogActions>
             </Dialog>
-            {/* <Snackbar open={open} autoHideDuration={6000} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-                onClose={handleClose}>
-                <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                    This is a success message!
+            <Snackbar open={showSnackbar} autoHideDuration={4000} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                onClose={() => setShowSnackbar(false)}>
+                <Alert onClose={() => setShowSnackbar(false)} severity="success" sx={{ width: '100%' }}>
+                    {snackbarMessage}
                 </Alert>
-            </Snackbar> */}
+            </Snackbar>
         </div>
     );
 }

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
 using Neo4jClient;
 using StackExchange.Redis;
+using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -33,14 +34,16 @@ namespace ByeWorld_backend.Controllers
         public async Task<ActionResult> SignUp([FromBody] UserRegisterDTO u)
         {
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(u.Password);
-
-            var newUser = new User { 
+            var nameStrings = u.Name.Split(" ");
+            string generatedImage= $"https://ui-avatars.com/api/?background=311b92&color=fff&name={nameStrings.First()}+{nameStrings.Last()}&rounded=true";
+            var newUser = new User {
                 Id = await _ids.UserNext(),
-                Name =u.Name,
+                Name = u.Name,
                 Email = u.Email,
                 PasswordHash = hashedPassword,
                 Phone = u.Phone,
-                Role = u.Role
+                Role = u.Role,
+                ImageUrl = generatedImage
             };
 
             var testEmail = await _neo4j.Cypher

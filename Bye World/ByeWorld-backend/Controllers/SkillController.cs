@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace ByeWorld_backend.Controllers
 {
-    [ApiController]
+    [ApiController()]
     [Route("skill")]
     public class SkillController : ControllerBase
     {
@@ -23,7 +23,7 @@ namespace ByeWorld_backend.Controllers
             _ids = ids;
         }
         //[Authorize] TODO:Ukljuci autorizaciju
-        [HttpGet("/myskills")]
+        [HttpGet("myskills")]
         public async Task<ActionResult> GetUserSkills()
         {
             var claims = HttpContext.User.Claims;
