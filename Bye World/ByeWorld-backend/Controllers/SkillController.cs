@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Neo4jClient;
 using StackExchange.Redis;
+using System.Linq;
 
 namespace ByeWorld_backend.Controllers
 {
@@ -60,8 +61,8 @@ namespace ByeWorld_backend.Controllers
 
             skills.ForEach(req => skillsName += "'" + req.Name + "', ");
             skillsName = skillsName.Substring(0, skillsName.Length - 2);
-            var skillNodes = await _neo4j.Cypher
-                    .Match("(u:User)-[h:HAS_SKILL]-(s:Skill)")
+            var skillsInDatabase = await _neo4j.Cypher
+                    .Match("(s:Skill)")
                     .Where($"s.Name IN [{skillsName}]")
                     .Return(s => s.As<Skill>())
                     .ResultsAsync;
@@ -75,33 +76,33 @@ namespace ByeWorld_backend.Controllers
 
             //Ukoliko ima skill-ova koje trazimo a ne postoje bazi, dodajemo ih
             //TODO:id za novi skill?? problem sa kasnijom pretragom, isto i u ListingController
-            if (skillNodes.Count() < skills.Count())
+            var addQuery = _neo4j.Cypher
+                        .Match("(u:User)")
+                        .Where((User u) => u.Id == userId);
+
+            foreach (var skill in skills)
             {
-                foreach (var skill in skills)
+                //Skill ne postoji u bazi
+                if (!skillsInDatabase.Any(s=>s.Name==skill.Name))
                 {
                     long skillId = await _ids.SkillNext();
-                    skillNodes = skillNodes.Concat(await _neo4j.Cypher
-                            .Create("(s:Skill $newSkill)")
-                            .WithParam("newSkill", new Skill { Id = skillId, Name = skill.Name })
-                            .Return(s => s.As<Skill>())
-                            .ResultsAsync);
+                addQuery = addQuery
+                        .Create($"(s{skill.Name}:Skill $newSkill{skill.Name})")
+                        .WithParam($"newSkill{skill.Name}", new Skill { Id = skillId, Name = skill.Name })
+                        .Create($"(u)-[h{skill.Name}:HAS_SKILL {{Proficiency: $prof{skill.Name}}}]->(s{skill.Name})")
+                        .WithParam($"prof{skill.Name}", skill.Proficiency);
+                }
+                else
+                //Skill postoji u bazi
+                {
+                    addQuery = addQuery.With("u as u")
+                            .Match($"(c{skill.Name}: Skill)")
+                            .Where($"c{skill.Name}.Name='{skill.Name}'")
+                            .Create($"(u)-[h{skill.Name}:HAS_SKILL {{Proficiency: $prof{skill.Name}}}]->(c{skill.Name})")
+                            .WithParam($"prof{skill.Name}", skill.Proficiency);
                 }
             }
-
-            var query = _neo4j.Cypher
-                .Match("(u:User)")
-                .Where((User u) => u.Id == userId);
-
-            for (int i = 0; i < skills.Count; i++)
-            {
-                query = query
-                        .Match($"(c{i}: Skill)")
-                        .Where($"c{i}.Name='{skills[i].Name}'")
-                        .Create($"(u)-[h{i}:HAS_SKILL {{Proficiency: $prof{i}}}]->(c{i})")
-                        .WithParam($"prof{i}", skills[i].Proficiency);
-            }
-            await query.ExecuteWithoutResultsAsync();
-
+            await addQuery.ExecuteWithoutResultsAsync();
             return Ok();
         }
 
