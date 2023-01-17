@@ -54,8 +54,6 @@ namespace ByeWorld_backend.Controllers
             var claims = HttpContext.User.Claims;
 
             var userId = Int32.Parse(claims.Where(c => c.Type == "Id").FirstOrDefault()?.Value ?? "0");
-            //TODO: testing with hardcoded userId
-            userId = 9;
 
             String skillsName = string.Empty;
 
