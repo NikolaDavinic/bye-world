@@ -21,16 +21,13 @@ const FavListings = () => {
     );
   }
 
-  const toggleFavoriteListing = (id: number) => {
-    setListings((listings) => null);
-  };
+  // const toggleFavoriteListing = (id: number) => {
+  //   setListings((listings) => );
+  // };
 
   return (
     <Box>
-      <ListingsList
-        listings={listings ?? []}
-        toggleFavorite={toggleFavoriteListing}
-      ></ListingsList>
+      <ListingsList listings={listings ?? []}></ListingsList>
     </Box>
   );
 };

@@ -55,83 +55,10 @@ export default function UserPage() {
       <main>
         <UserSkillsModal isOpen={open} handleModalClose={handleModalClose} />
 
-        <Box sx={{ bgcolor: "var(--secondary-main)" }}>
-          <div className="relative max-w-5xl mx-auto px-4 pt-8 pb-16 w-full">
-            <div
-              className="flex items-center gap-1 overflow-auto pb-4 scrollbar-thin 
-                scrollbar-thumb-white scrollbar-track-transparent scrollbar-thumb-rounded-full 
-                scrollbar-track-rounded-full"
-            >
-              <Button variant="outlined" onClick={() => handleModalOpen()}>
-                Edit Skills
-              </Button>
-              <a
-                href="/moj-nalog/prijave"
-                className="text-sm font-medium shrink-0 flex px-2 py-2 rounded leading-none __user-nav-item         text-white hover:bg-white hover:text-blue-800"
-                data-section="prijave"
-              >
-                Moje prijave
-              </a>
-              <a
-                href="/moj-nalog/sacuvani-oglasi"
-                className="text-sm font-medium shrink-0 flex px-2 py-2 rounded leading-none __user-nav-item         text-white hover:bg-white hover:text-blue-800"
-                data-section="sacuvani-oglasi"
-              >
-                Favorite Listings
-              </a>
-              <a
-                href="/moj-nalog/kompanije"
-                className="text-sm font-medium shrink-0 flex px-2 py-2 rounded leading-none __user-nav-item         text-white hover:bg-white hover:text-blue-800"
-                data-section="kompanije"
-              >
-                Kompanije
-              </a>
-              <a
-                href="/moj-nalog/moja-iskustva"
-                className="text-sm font-medium shrink-0 flex px-2 py-2 rounded leading-none __user-nav-item         text-white hover:bg-white hover:text-blue-800"
-                data-section="recenzije"
-              >
-                Moja iskustva
-              </a>
-              <a
-                href="/moj-nalog/dokumenti"
-                className="text-sm font-medium shrink-0 flex px-2 py-2 rounded leading-none __user-nav-item         text-white hover:bg-white hover:text-blue-800"
-                data-section="dokumenti"
-              >
-                Moji dokumenti
-              </a>
-              <a
-                href="/moj-nalog/mejling-liste"
-                className="text-sm font-medium shrink-0 flex px-2 py-2 rounded leading-none __user-nav-item         text-white hover:bg-white hover:text-blue-800"
-                data-section="mejling-liste"
-              >
-                Mejling liste
-              </a>
-              <a
-                href="/moj-nalog/alttab"
-                className="text-sm font-medium shrink-0 flex px-2 py-2 rounded leading-none __user-nav-item         text-white hover:bg-white hover:text-blue-800"
-                data-section="alttab"
-              >
-                altTab
-              </a>
-              <a
-                href="/moj-nalog/podesavanja"
-                className="text-sm font-medium shrink-0 flex px-2 py-2 rounded leading-none __user-nav-item         text-white hover:bg-white hover:text-blue-800"
-                data-section="podesavanja"
-              >
-                Podešavanja
-              </a>
-
-              <script type="text/javascript">
-                {/* var userNavigationActiveclassName = 'bg-white  text-blue-800 dark:text-white dark:hover:opacity-100'; */}
-                {/* var userNavigationInactiveclassName = 'text-white hover:bg-white hover:text-blue-800 dark:hover:text-white'; */}
-              </script>
-            </div>{" "}
-          </div>
-        </Box>
+        <Box sx={{ bgcolor: "var(--secondary-main)", height: "150px" }}></Box>
         <div
-          className="relative max-w-5xl mx-auto flex flex-col gap-8 px-4 -mt-12 mb-8
-    w-full __section bg-gradient-to-r from-green-500 to-blue-900 relative"
+          className="max-w-5xl mx-auto flex flex-col gap-8 px-4 -mt-12 mb-8
+    w-full __section bg-gradient-to-r relative"
         >
           {/* <script src="https://www.helloworld.rs/public/js/plugins/pdfjs/build/pdf.js" type="text/javascript"></script> */}
 
@@ -153,12 +80,9 @@ export default function UserPage() {
                 </div>
               </div>
 
-              <a
-                href="/moj-nalog/podesavanja"
-                className="btn btn-outline btn-md"
-              >
-                <Button className="text outlined">Podešavanja</Button>
-              </a>
+              <Button variant="outlined" onClick={() => handleModalOpen()}>
+                Edit Skills
+              </Button>
             </div>
 
             <div
@@ -197,8 +121,8 @@ export default function UserPage() {
                   {userp?.companiesCount}
                 </span>
               </a>
-              <a
-                href="/moj-nalog/chat"
+              <Link
+                to="reviews"
                 className="flex flex-wrap items-center justify-center gap-2 p-4 font-medium bg-gray-100  
         hover:opacity-75"
               >
@@ -210,7 +134,7 @@ export default function UserPage() {
                 >
                   {userp?.reviewsCount}
                 </span>
-              </a>
+              </Link>
             </div>
           </div>
         </div>

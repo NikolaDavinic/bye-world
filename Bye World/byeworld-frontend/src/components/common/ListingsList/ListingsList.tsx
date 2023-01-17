@@ -31,9 +31,9 @@ export const ListingsList: React.FC<ListingsListProps> = ({
                         <Button variant="contained">Newest</Button>
                         <Button variant="outlined">Expiring soon</Button>
                     </div> */}
-          {listings.length === 0 && (
+          {/* {listings.length === 0 && (
             <CircularProgress className="" color="primary" />
-          )}
+          )} */}
           {listings.map((l, i) => (
             <ListingCard
               key={i}
