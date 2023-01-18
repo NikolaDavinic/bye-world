@@ -229,6 +229,19 @@ namespace ByeWorld_backend.Controllers
                 .Match("(l:Listing)")
                 .Where("l.Id IN $ids")
                 .WithParam("ids", ids)
+                //.Return((lr, ic, c, s) => new
+                //{
+                //    Id = lr.As<Listing>().Id,
+                //    Title = lr.As<Listing>().Title,
+                //    Description = lr.As<Listing>().Description,
+                //    CityName = c.As<City>().Name,
+                //    ClosingDate = lr.As<Listing>().ClosingDate,
+                //    PostingDate = lr.As<Listing>().PostingDate,
+                //    Requirements = s.CollectAs<Skill>(),
+                //    CompanyName = ic.As<Company>().Name,
+                //    CompanyLogoUrl = ic.As<Company>().LogoUrl,
+                //    CompanyId = ic.As<Company>().Id,
+                //});
                 .Return(l => l.As<Listing>());
 
             return Ok(await query.ResultsAsync);

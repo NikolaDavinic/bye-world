@@ -1,4 +1,4 @@
-import { Button, Chip, Link } from '@mui/material'
+import { Button, Chip, Icon, Link } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { Listing } from '../../model/Listing'
 import { ListingCard } from '../common/ListingsList/ListingCard'
@@ -72,9 +72,9 @@ const ListingPage: React.FC = () => {
     }, [])
 
     return (
-        
+
         <main className="flex-1">
-            
+
             <div className="relative max-w-7xl mx-auto md:flex md:gap-6 px-4 py-8">
 
                 <div className="grid gap-4 w-full">
@@ -95,14 +95,17 @@ const ListingPage: React.FC = () => {
                                     <div className='grid gap-1 pr-4 md:pr-0'>
                                         <div className='flex items-center gap-1'>
                                             <div className='flex items-center gap-1'>
-                                                <i className='print:hidden las la-map-marker text-lg leading-none'></i>
+                                                <Icon className="material-symbols-outlined">
+                                                    location_city
+                                                </Icon>
                                                 <p className='text-sm font-semibold'>{listing1?.city?.name}</p>
                                             </div>
                                         </div>
                                         <div className='flex items-center gap-1'>
                                             <i className='print:hidden las la-clock text-lg leading-none'></i>
-                                            <p className='text-sm font-semibold'>
+                                            <p className='text-sm font-semibold flex items-center'>
                                                 {/* {console.log(listing1?.closingDate)} */}
+                                                <Icon className="material-symbols-outlined">schedule</Icon>
                                                 {new Date(listing1?.closingDate).toLocaleDateString("de-DE")}
                                             </p>
                                         </div>
@@ -120,7 +123,7 @@ const ListingPage: React.FC = () => {
                                         <span className='tag lowercase w-auto print:bg-transparent print:text-black print:p-0 tag-xs tag-primary'>
                                             <span>Java</span>
                                         </span> */}
-                                        {listing1?.skill!=null && listing1?.skill?.map((r:any) => {
+                                        {listing1?.skill != null && listing1?.skill?.map((r: any) => {
                                             return <Chip key={r.id} label={r.name} color="primary" />;
                                         })}
                                     </div>
@@ -157,7 +160,7 @@ const ListingPage: React.FC = () => {
                                         <li>Basic knowledge of web technologies (HTML, CSS, optional JS)</li>
                                     </ul> */}
                                     {listing1?.description && <div>{parse(listing1?.description)}</div>}
-                                    
+
                                 </div>
                             </div>
                         </div>
@@ -179,7 +182,7 @@ const ListingPage: React.FC = () => {
                 <div className='grid gap-4 max-w-7xl mx-auto px-4 py-8'>
                     <p className='font-nold text-xl'>Similar listings</p>
                     <div className='grid md:grid-cols-3 gap-4'>
-                        {listings!=null && listings?.map(listing => {
+                        {listings != null && listings?.map(listing => {
                             // console.log(listing);
                             return (
                                 <div key={listing?.id}>
