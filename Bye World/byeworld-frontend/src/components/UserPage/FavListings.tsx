@@ -1,4 +1,4 @@
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { useApi } from "../../hooks/api.hook";
 import { ListingsList } from "../common/ListingsList/ListingsList";
@@ -27,7 +27,20 @@ const FavListings = () => {
 
   return (
     <Box>
-      <ListingsList listings={listings ?? []}></ListingsList>
+      {listings?.length == 0 &&
+        <Box>
+          <Typography>
+            No favorite listings yet
+          </Typography>
+          <Typography>
+            To add listing as favorite, press heart icon in the top right corner of your favorite listings!
+          </Typography>
+        </Box>
+      }
+      {
+        (listings && listings?.length > 0) &&
+        <ListingsList listings={listings ?? []}></ListingsList>
+      }
     </Box>
   );
 };
