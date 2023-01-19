@@ -1,4 +1,4 @@
-import { Button, Chip, Link } from '@mui/material'
+import { Button, Chip, Icon, Link } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { Listing } from '../../model/Listing'
 import { ListingCard } from '../common/ListingsList/ListingCard'
@@ -11,6 +11,7 @@ import { api } from '../../constants'
 import { Company } from '../../model/Company'
 import parse from 'html-react-parser';
 import { Skill } from '../../model/Skill'
+import { SendCVModal } from '../SendCVModal/SendCVModal'
 
 const ListingPage: React.FC = () => {
     const navigate = useNavigate()
@@ -71,12 +72,20 @@ const ListingPage: React.FC = () => {
         // console.log(isLoggedIn)
     }, [])
 
-    return (
-        
-        <main className="flex-1">
-            
-            <div className="relative max-w-7xl mx-auto md:flex md:gap-6 px-4 py-8">
+    const [open, setOpen] = React.useState(false);
+    const handleModalClose = () => {
+        setOpen(false);
+    };
+    const handleModalOpen = () => {
+        setOpen(true);
+    };
 
+    return (
+
+        <main className="flex-1">
+
+            <div className="relative max-w-7xl mx-auto md:flex md:gap-6 px-4 py-8">
+                <SendCVModal isOpen={open} handleModalClose={handleModalClose} />
                 <div className="grid gap-4 w-full">
                     <div className='print:shadow-none relative shadow-md rounded-lg mb-6 -mx-4 md:mx-auto md:w-full'>
                         <div className='print:bg-transparent print:text-black print:border-none top-0 relative bg-white rounded-t-lg border-b md:z-10'>
@@ -95,14 +104,17 @@ const ListingPage: React.FC = () => {
                                     <div className='grid gap-1 pr-4 md:pr-0'>
                                         <div className='flex items-center gap-1'>
                                             <div className='flex items-center gap-1'>
-                                                <i className='print:hidden las la-map-marker text-lg leading-none'></i>
+                                                <Icon className="material-symbols-outlined">
+                                                    location_city
+                                                </Icon>
                                                 <p className='text-sm font-semibold'>{listing1?.city?.name}</p>
                                             </div>
                                         </div>
                                         <div className='flex items-center gap-1'>
                                             <i className='print:hidden las la-clock text-lg leading-none'></i>
-                                            <p className='text-sm font-semibold'>
+                                            <p className='text-sm font-semibold flex items-center'>
                                                 {/* {console.log(listing1?.closingDate)} */}
+                                                <Icon className="material-symbols-outlined">schedule</Icon>
                                                 {new Date(listing1?.closingDate).toLocaleDateString("de-DE")}
                                             </p>
                                         </div>
@@ -120,7 +132,7 @@ const ListingPage: React.FC = () => {
                                         <span className='tag lowercase w-auto print:bg-transparent print:text-black print:p-0 tag-xs tag-primary'>
                                             <span>Java</span>
                                         </span> */}
-                                        {listing1?.skill!=null && listing1?.skill?.map((r:any) => {
+                                        {listing1?.skill != null && listing1?.skill?.map((r: any) => {
                                             return <Chip key={r.id} label={r.name} color="primary" />;
                                         })}
                                     </div>
@@ -141,23 +153,8 @@ const ListingPage: React.FC = () => {
                             </div>
                             <div className='bg-white border-t-2 '>
                                 <div className='flex flex-col justify-start '>
-                                    {/* <div className='print:bg-transparent print:text-black print:brorder-none prose p-4 md:p-8 inline-block'>
-                                        <h3><strong>Do you want to spend cold days with a great team from Zrenjanin and gain new knowledge and skills?</strong></h3>
-                                    </div><p>Our .NET Winter Workshops are giving you the blended learning approach - theory, video materials, and solving tasks with the mentors.</p>
-                                    <p>Start: <strong>1st March 2023.<br /></strong>Duration: <strong>6 weeks<br /></strong>Location: <strong>Hybrid (Zrenjanin office + online)</strong></p>
-                                    <h3 className='font-bold mb-15 text-lg self-start ml-5 gap-5'>What do we offer?</h3>
-                                    <ul className='self-start ml-10 break-all inline-block list-disc gap-5'>
-                                        <li>Programming in cutting edge technologies - development of modern web applications</li>
-                                        <li>Introduction to agile framework for software development - Scrum training</li>
-                                        <li>Introduction to Microsoft Azure, OOP design principles, Relational databases</li>
-                                    </ul>
-                                    <h3 className='font-bold mb-15 text-lg self-start ml-5 mt-15'>What are we looking for?</h3>
-                                    <ul className='self-start ml-10 break-all inline-block list-disc'>
-                                        <li>Basic knowledge of one of the programming languages (C#, Java, Python...)</li>
-                                        <li>Basic knowledge of web technologies (HTML, CSS, optional JS)</li>
-                                    </ul> */}
                                     {listing1?.description && <div>{parse(listing1?.description)}</div>}
-                                    
+
                                 </div>
                             </div>
                         </div>
@@ -165,10 +162,12 @@ const ListingPage: React.FC = () => {
                                     border-t p-4">
 
                             <div className="flex flex-col w-full md:w-auto gap-1">
-                                <p className='font-semibold text-red-600'>If you want to participate, all you have to do is to fill out the form and send your CV.</p>
+                                <p className='font-semibold text-red-600'>If you want to participate,
+                                    all you have to do is to fill out the form and send your CV.</p>
+                                {/* {!isLoggedIn && <p className=''>If you really want to send your CV please sign in first!</p>} */}
 
-                                <Button variant="contained">Apply Here</Button>
-                                {!isLoggedIn && <p className='text-3xl text-red-800 font-semibold'>You must be signed in</p>}
+                                {<Button variant="contained" onClick={handleModalOpen}>Apply Here</Button>}
+                                {isLoggedIn && <p className='text-2xl text-red-800 font-semibold '>To open form press button</p>}
                             </div>
                         </div>
 
@@ -179,13 +178,13 @@ const ListingPage: React.FC = () => {
                 <div className='grid gap-4 max-w-7xl mx-auto px-4 py-8'>
                     <p className='font-nold text-xl'>Similar listings</p>
                     <div className='grid md:grid-cols-3 gap-4'>
-                        {listings!=null && listings?.map(listing => {
+                        {listings != null && listings?.map(listing => {
                             // console.log(listing);
                             return (
                                 <div key={listing?.id}>
-                                    <Link href={`/listing/${listing?.id}`}>
+                                    {/* <Link href={`/listing/${listing?.id}`}> */}
                                         <SimilarListingCard listing={listing} divHeight={300} divMaxWidth={400} divMinWidth={350} />
-                                    </Link>
+                                    {/* </Link> */}
                                 </div>
                             )
                         })}
