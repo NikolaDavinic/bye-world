@@ -169,6 +169,8 @@ namespace ByeWorld_backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult> GetListingById(int id)
         {
+            var userId = long.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");
+
             var db = _redis.GetDatabase();
 
             var query = _neo4j.Cypher.Match("(l:Listing)")
@@ -176,34 +178,37 @@ namespace ByeWorld_backend.Controllers
                    .Match("(cm:Company)-[cl:HAS_LISTING]->(l)")
                    .Match("(l)-[:REQUIRES]->(s:Skill)")
                    .Where((Listing l, Company cm, City c, Skill s) => l.Id == id)
+                   .OptionalMatch("(u)-[hf:HAS_FAVORITE]-(l)")
+                   .Where((User u) => u.Id == userId)
                    .Return((l, cm, c, s) => new
                    {
                        Listing=l.As<Listing>(),
                        Company=cm.As<Company>(),
                        City=c.As<City>(),
-                       Skill=s.CollectAs<Skill>()
-
+                       Skill=s.CollectAs<Skill>(),
+                       IsFavorite = Return.As<bool>("CASE hf WHEN hf THEN TRUE ELSE FALSE END")
                    });
 
             var result = (await query.ResultsAsync).Select(r => new
             {
                 Company = new
                 {
-                    Id = r.Company.Id,
-                    Name = r.Company.Name,
-                    LogoUrl=r.Company.LogoUrl
+                    r.Company.Id,
+                    r.Company.Name,
+                    r.Company.LogoUrl
                 },
                 City = new
                 {
-                    Id = r.City.Id,
-                    Name = r.City.Name
+                    r.City.Id,
+                    r.City.Name
                 },
                 r.Skill,
                 r.Listing.Id,
                 r.Listing.ClosingDate,
                 r.Listing.Title,
                 r.Listing.Description,
-                r.Listing.PostingDate
+                r.Listing.PostingDate,
+                r.IsFavorite
             }).FirstOrDefault();
 
             if (result != null)
@@ -224,6 +229,8 @@ namespace ByeWorld_backend.Controllers
             var ids = (await db.SortedSetRangeByRankAsync($"listings:leaderboard:{keyDate}", start: 0, stop: 5, Order.Descending))
                 .Select(id => int.Parse(id.ToString()))
                 .ToList();
+
+            var date = DateTime.Now.ToUniversalTime();
 
             var query = _neo4j.Cypher
                 .Match("(l:Listing)")
@@ -250,27 +257,30 @@ namespace ByeWorld_backend.Controllers
         [HttpGet("company/{id}")]
         public async Task<ActionResult> GetCompanyListings(int id)
         {
-            //MATCH(l: Listing) -[listedby: HAS_LISTING] - (c: Company)
-            //MATCH(l) -[req: REQUIRES]->(s: Skill)
-            //MATCH(l) -[loc: LOCATED_IN]->(city: City)
-            //WHERE c.Id <> 13 RETURN l, loc, c, [req.Proficiency, s] as requirement,city, listedby
+
+            var userId = long.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");
 
             var query = _neo4j.Cypher
                 .Match("(s:Skill)-[reqs:REQUIRES]-(l:Listing)-[r]-(c:City)")
                 .Match("(l)-[:HAS_LISTING]-(co:Company)")
-                .Where((Company co) => co.Id == id)
-                .Return((l, c, s, co) => new {
-                    Title = l.As<Listing>().Title,
+                .Where((Company co) => co.Id == id);
+
+            var result = query
+                .OptionalMatch("(u)-[hf:HAS_FAVORITE]-(l)")
+                .Where((User u) => u.Id == userId)
+                .Return((l, c, s, co, hf) => new {
                     City = c.As<City>(),
-                    Description = l.As<Listing>().Description,
-                    ClosingDate = l.As<Listing>().ClosingDate,
-                    PostingDate = l.As<Listing>().PostingDate,
-                    Id = l.As<Listing>().Id,
+                    l.As<Listing>().Id,
+                    l.As<Listing>().Title,
+                    l.As<Listing>().Description,
+                    l.As<Listing>().ClosingDate,
+                    l.As<Listing>().PostingDate,
                     Requirements = s.CollectAs<Skill>(),
-                    Company = co.As<Company>()
+                    Company = co.As<Company>(),
+                    IsFavorite = Return.As<bool>("CASE hf WHEN hf THEN TRUE ELSE FALSE END")
                 });
 
-            return Ok(await query.ResultsAsync);
+            return Ok(await result.ResultsAsync);
         }
 
         [HttpPut("{id}")]
@@ -451,6 +461,8 @@ namespace ByeWorld_backend.Controllers
             var query = _neo4j.Cypher
                 .Match("(l:Listing)-[*2]-(lr:Listing)")
                 .Where((Listing lr, Listing l) => l.Id == id)
+                .Match("(l:Listing)-[*2]-(lr:Listing)")
+                .Where("NOT (l)-[:HAS_FAVORITE]-(lr)")
                 .With("distinct(lr) as lr")
                 .OptionalMatch("(lr)-[:LOCATED_IN]-(c:City)")
                 .OptionalMatch("(lr)-[:HAS_LISTING]-(ic:Company)")
