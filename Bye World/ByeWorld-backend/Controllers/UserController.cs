@@ -88,7 +88,7 @@ namespace ByeWorld_backend.Controllers
 
             db.StringSet($"sessions:{sessionId}", JsonSerializer.Serialize(user), expiry: TimeSpan.FromHours(2));
             db.SetAdd("users:authenticated", user.Id);
-            db.StringSet($"users:last_active:{user.Id}", DateTime.Now.ToString(), expiry: TimeSpan.FromMinutes(2));
+            db.StringSet($"users:last_active:{user.Id}", DateTime.Now.ToString(), expiry: TimeSpan.FromHours(2));
 
             return Ok(new {
                 Session = new 

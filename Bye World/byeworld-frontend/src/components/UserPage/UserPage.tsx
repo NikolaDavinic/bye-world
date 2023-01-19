@@ -38,10 +38,6 @@ export default function UserPage() {
     );
   }
 
-  const onButtonSettings = () => {
-    console.log("Clicked on button settings!");
-  };
-
   const handleModalClose = () => {
     setOpen(false);
   };
