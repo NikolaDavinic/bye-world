@@ -22,7 +22,7 @@ namespace ByeWorld_backend.Middlewares
             if (userId != null)
             {
                 var db = _redis.GetDatabase();
-                db.StringSet($"users:last_active:{userId}", DateTime.Now.ToUniversalTime().ToString(), keepTtl: true);
+                db.StringSet($"users:last_active:{userId}", DateTime.Now.ToString("ddMMyyyyHHmmss"), keepTtl: true);
             }
 
             return _next(httpContext);
