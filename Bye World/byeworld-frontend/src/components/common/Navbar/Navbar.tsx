@@ -179,8 +179,12 @@ export const Navbar = () => {
                 <Tooltip title="Open settings">
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                     <Avatar
-                      alt="Remy Sharp"
-                      src="/static/images/avatar/2.jpg"
+                      alt={user?.name ?? "User Name"}
+                      src={
+                        (user?.imageUrl && user?.imageUrl?.length > 0) ?
+                          user?.imageUrl.replace("background=311b92", "background=fdd835") :
+                          "https://ui-avatars.com/api/?background=311b92&color=fff&name=B+W&rounded=true"
+                      }
                     />
                   </IconButton>
                 </Tooltip>
