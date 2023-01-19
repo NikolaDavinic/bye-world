@@ -1,6 +1,5 @@
 import React from "react";
-import { Box, Button, CircularProgress } from "@mui/material";
-// import Link from "@mui/material/Link";
+import { Box, Button, CircularProgress, Paper } from "@mui/material";
 import { UserSkillsModal } from "../UserSkillsModal/UserSkillsModal";
 import { useApi } from "../../hooks/api.hook";
 import { User } from "../../model/User";
@@ -56,16 +55,12 @@ export default function UserPage() {
           className="max-w-5xl mx-auto flex flex-col gap-8 px-4 -mt-12 mb-8
     w-full __section bg-gradient-to-r relative"
         >
-          {/* <script src="https://www.helloworld.rs/public/js/plugins/pdfjs/build/pdf.js" type="text/javascript"></script> */}
-
           <div className="bg-white rounded-lg shadow-sm overflow-hidden">
             <div className="flex flex-wrap gap-4 items-center justify-between p-8">
               <div className="flex flex-wrap items-center gap-6">
-                <div>
-                  <span className="bg-blue-800 text-white w-20 h-20 flex items-center justify-center text-center rounded-full text-lg font-semibold">
-                    HW
-                  </span>
-                </div>
+                <Paper variant="outlined">
+                  <img src={(user?.imageUrl && user?.imageUrl?.length > 0) ? user?.imageUrl : "https://ui-avatars.com/api/?background=311b92&color=fff&name=B+W&rounded=true"} />
+                </Paper>
                 <div className="space-y-1 md:space-y-0">
                   {userp?.id === user?.id && (
                     <Typography color="gray">
@@ -76,7 +71,7 @@ export default function UserPage() {
                 </div>
               </div>
 
-              <Button variant="outlined" onClick={() => handleModalOpen()}>
+              <Button variant="contained" onClick={() => handleModalOpen()}>
                 Edit Skills
               </Button>
             </div>

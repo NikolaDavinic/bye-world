@@ -5,11 +5,17 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Neo4jClient;
 using StackExchange.Redis;
+using System.Linq;
+using System.Net.Mail;
+using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 
 
@@ -33,14 +39,16 @@ namespace ByeWorld_backend.Controllers
         public async Task<ActionResult> SignUp([FromBody] UserRegisterDTO u)
         {
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(u.Password);
-
-            var newUser = new User { 
+            var nameStrings = u.Name.Split(" ");
+            string generatedImage= $"https://ui-avatars.com/api/?background=311b92&color=fff&name={nameStrings.First()}+{nameStrings.Last()}&rounded=true";
+            var newUser = new User {
                 Id = await _ids.UserNext(),
-                Name =u.Name,
+                Name = u.Name,
                 Email = u.Email,
                 PasswordHash = hashedPassword,
                 Phone = u.Phone,
-                Role = u.Role
+                Role = u.Role,
+                ImageUrl = generatedImage
             };
 
             var testEmail = await _neo4j.Cypher
@@ -53,13 +61,87 @@ namespace ByeWorld_backend.Controllers
                 return BadRequest("This email address is already in use, please enter new email!");
             }
 
+            //await _neo4j.Cypher.Create("(u:User $user)")
+            //                   .WithParam("user", newUser)
+            //                   .ExecuteWithoutResultsAsync();
+            //TODO: Email verification using redis
+
+            //var tokenGenerated = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            //string strToken = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+            byte[] tokenBytes = Guid.NewGuid().ToByteArray();
+            //byte[] tokenGeneratedBytes = Encoding.UTF8.GetBytes(tokenBytes);
+            var codeEncoded = WebEncoders.Base64UrlEncode(tokenBytes);
+            var confirmationLink = Url.Action("VerifyUserEmail", "user", new { codeEncoded, email = u.Email }, Request.Scheme);
+
+            String poruka;
+            poruka = $"Welcome {u.Name},\n\nPlease confirm your account registered on Bye World with this email adress on link down below.\n" +
+               /* HtmlEncoder.Default.Encode(callbackUrl)*/ confirmationLink + "\n\nWelcome to Bye World!";
+            SmtpClient Client = new SmtpClient()
+            {
+                Host = "smtp.outlook.com",
+                Port = 587,
+                EnableSsl = true,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                UseDefaultCredentials = false,
+                Credentials = new NetworkCredential()
+                {
+                    UserName = "***REMOVED***",
+                    Password = "***REMOVED***"
+                }
+            };
+            MailAddress fromMail = new MailAddress("***REMOVED***", "ByeWorld");
+            MailAddress toMail = new MailAddress(u.Email, u.Name);
+            MailMessage message = new MailMessage()
+            {
+                From = fromMail,
+                Subject = "Confirm your Bye World account",
+                Body = poruka
+            };
+
+            message.To.Add(toMail);
+            await Client.SendMailAsync(message);
+            //Storing email:key in redis for later verification
+            var db = _redis.GetDatabase();
+            await db.StringSetAsync(u.Email, codeEncoded, expiry: TimeSpan.FromMinutes(30));
             await _neo4j.Cypher.Create("(u:User $user)")
-                               .WithParam("user", newUser)
-                               .ExecuteWithoutResultsAsync();
+                   .WithParam("user", newUser)
+                   .ExecuteWithoutResultsAsync();
 
             return Ok("User added succesful!");
         }
 
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("VerifyUserEmail")]
+        public async Task<ActionResult> VerifyUserEmail([FromQuery] String codeEncoded, [FromQuery] String email)
+        {
+            if (String.IsNullOrEmpty(codeEncoded))
+                return BadRequest("Invalid verification code");
+            var result = await _neo4j.Cypher
+                .Match("(u:User)")
+                .Where((User u) => u.Email == email)
+                .Return(u => u.As<User>())
+                .ResultsAsync;
+            //TODO:Dodaj property u model User za potvrdjen nalog
+            var user = result.FirstOrDefault();
+            if (user == null)
+                return BadRequest("No user account with given adress");
+            
+            var codeDecodedBytes = WebEncoders.Base64UrlDecode(codeEncoded);
+            var codeDecoded = Encoding.UTF8.GetString(codeDecodedBytes);
+
+            var db = _redis.GetDatabase();
+            String? confirmationCode = db.StringGet(email);
+            if(confirmationCode == null)
+                return BadRequest("Error verifying user account, try again later!");
+
+            if (confirmationCode == codeEncoded)
+                //Change user's confirmation property to true
+                return Ok("Account confirmed");
+            //return Redirect("https://localhost:3000/");
+
+            return BadRequest("Error verifying user account, try again later!");
+        }
         [HttpPost("signin")]
         public async Task<ActionResult> SignIn([FromBody] UserLoginDTO creds)
         {

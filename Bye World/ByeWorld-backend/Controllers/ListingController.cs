@@ -395,11 +395,17 @@ namespace ByeWorld_backend.Controllers
             }
             var retVal=await query.Return((c, ci, l) => new
              {
-                 Listing = l.As<Listing>(),
-                 Id=l.As<Listing>().Id,
-                 Company = c.As<Company>(),
-                 CityName = ci.As<City>().Name
-             }).ResultsAsync;
+                Id = l.As<Listing>().Id,
+                Title = l.As<Listing>().Title,
+                Description = l.As<Listing>().Description,
+                CityName = ci.As<City>().Name,
+                ClosingDate = l.As<Listing>().ClosingDate,
+                PostingDate = l.As<Listing>().PostingDate,
+                //Requirements = s.CollectAs<Skill>(),
+                CompanyName = c.As<Company>().Name,
+                CompanyLogoUrl = c.As<Company>().LogoUrl,
+                CompanyId = c.As<Company>().Id,
+            }).ResultsAsync;
             if (retVal.Count() == 0)
                 return BadRequest("Dodavanje listinga neuspesno");
 
