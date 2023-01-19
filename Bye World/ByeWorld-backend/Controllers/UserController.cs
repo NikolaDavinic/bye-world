@@ -170,13 +170,13 @@ namespace ByeWorld_backend.Controllers
 
             db.StringSet($"sessions:{sessionId}", JsonSerializer.Serialize(user), expiry: TimeSpan.FromHours(2));
             db.SetAdd("users:authenticated", user.Id);
-            db.StringSet($"users:last_active:{user.Id}", DateTime.Now.ToString(), expiry: TimeSpan.FromMinutes(2));
+            db.StringSet($"users:last_active:{user.Id}", DateTime.Now.ToUniversalTime().AddHours(1).ToString(), expiry: TimeSpan.FromHours(2));
 
             return Ok(new {
                 Session = new 
                 {
                     Id = sessionId,
-                    Expires = DateTime.Now + TimeSpan.FromHours(2)
+                    Expires = DateTime.Now.ToLocalTime() + TimeSpan.FromHours(2)
                 },
                 User = user
             });
@@ -216,7 +216,7 @@ namespace ByeWorld_backend.Controllers
                     continue;
                 }
 
-                var timeActiveDt = DateTime.Parse(timeActive);
+                var timeActiveDt = DateTime.ParseExact(timeActive, "ddMMyyyyHHmmss", null);
                 if (DateTime.Now - timeActiveDt <= TimeSpan.FromMinutes(5))
                 {
                     count++;

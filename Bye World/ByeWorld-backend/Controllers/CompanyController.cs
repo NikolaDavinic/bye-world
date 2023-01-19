@@ -62,6 +62,12 @@ namespace ByeWorld_backend.Controllers
 
         }
 
+        //[HttpGet("user/{userId}")]
+        //public async Task<IActionResult> GetUserCompanies(int id)
+        //{
+        //    var 
+        //}
+
         [HttpGet("{id}")]
         public async Task<ActionResult> GetCompany(int id)
         {
