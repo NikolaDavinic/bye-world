@@ -88,15 +88,17 @@ export const Listings: React.FC = () => {
   };
   // Modal testing
   const [open, setOpen] = React.useState(false);
+
   const handleModalClose = () => {
     setOpen(false);
   };
+
   const handleModalOpen = () => {
     setOpen(true);
   };
+
   return (
     <div>
-      {/* Testing new listing modal, delete later */}
       <AddListingModal isOpen={open} handleModalClose={handleModalClose} />
       <div className="h-1/4 flex flex-col px-4 py-4 space-y-4 bg-white drop-shadow-lg">
         <h1 className="font-bold">Listings search</h1>

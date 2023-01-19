@@ -10,7 +10,7 @@ const CompanyListings = () => {
   const {
     result: listings,
     loading,
-    //TODO:Koristi ListingDTO kao kod liste listinga
+    setResult: setListings,
   } = useApi<ListingDTO[]>(`/listing/company/${companyId}`);
 
   if (loading) {
@@ -25,7 +25,24 @@ const CompanyListings = () => {
     return <></>;
   }
 
-  return <ListingsList listings={listings}></ListingsList>;
+  const toggleFavoriteListing = (id: number) => {
+    setListings(
+      listings.map((listing) => {
+        if (listing.id === id) {
+          return { ...listing, isFavorite: !Boolean(listing.isFavorite) };
+        } else {
+          return listing;
+        }
+      })
+    );
+  };
+
+  return (
+    <ListingsList
+      listings={listings}
+      toggleFavorite={toggleFavoriteListing}
+    ></ListingsList>
+  );
 };
 
 export default CompanyListings;
