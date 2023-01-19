@@ -85,7 +85,7 @@ const ListingPage: React.FC = () => {
         <main className="flex-1">
 
             <div className="relative max-w-7xl mx-auto md:flex md:gap-6 px-4 py-8">
-            <SendCVModal isOpen={open} handleModalClose={handleModalClose} />
+                <SendCVModal isOpen={open} handleModalClose={handleModalClose} />
                 <div className="grid gap-4 w-full">
                     <div className='print:shadow-none relative shadow-md rounded-lg mb-6 -mx-4 md:mx-auto md:w-full'>
                         <div className='print:bg-transparent print:text-black print:border-none top-0 relative bg-white rounded-t-lg border-b md:z-10'>
@@ -182,9 +182,9 @@ const ListingPage: React.FC = () => {
                             // console.log(listing);
                             return (
                                 <div key={listing?.id}>
-                                    <Link href={`/listing/${listing?.id}`}>
+                                    {/* <Link href={`/listing/${listing?.id}`}> */}
                                         <SimilarListingCard listing={listing} divHeight={300} divMaxWidth={400} divMinWidth={350} />
-                                    </Link>
+                                    {/* </Link> */}
                                 </div>
                             )
                         })}
