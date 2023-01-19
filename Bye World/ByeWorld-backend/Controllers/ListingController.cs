@@ -230,6 +230,8 @@ namespace ByeWorld_backend.Controllers
                 .Select(id => int.Parse(id.ToString()))
                 .ToList();
 
+            var date = DateTime.Now.ToUniversalTime();
+
             var query = _neo4j.Cypher
                 .Match("(l:Listing)")
                 .Where("l.Id IN $ids")
@@ -459,6 +461,8 @@ namespace ByeWorld_backend.Controllers
             var query = _neo4j.Cypher
                 .Match("(l:Listing)-[*2]-(lr:Listing)")
                 .Where((Listing lr, Listing l) => l.Id == id)
+                .Match("(l:Listing)-[*2]-(lr:Listing)")
+                .Where("NOT (l)-[:HAS_FAVORITE]-(lr)")
                 .With("distinct(lr) as lr")
                 .OptionalMatch("(lr)-[:LOCATED_IN]-(c:City)")
                 .OptionalMatch("(lr)-[:HAS_LISTING]-(ic:Company)")
