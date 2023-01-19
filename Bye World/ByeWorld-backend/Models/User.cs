@@ -13,5 +13,6 @@ namespace ByeWorld_backend.Models
         public string PasswordHash{ get; set; } = String.Empty;
         public string Role { get; set; } = "User";
         public List<HasSkill> Skills { get; set; } = new List<HasSkill>();
+        public bool EmailConfirmed { get; set; } = false;
     }
 }

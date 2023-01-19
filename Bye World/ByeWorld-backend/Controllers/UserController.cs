@@ -75,7 +75,7 @@ namespace ByeWorld_backend.Controllers
 
             String poruka;
             poruka = $"Welcome {u.Name},\n\nPlease confirm your account registered on Bye World with this email adress on link down below.\n" +
-               /* HtmlEncoder.Default.Encode(callbackUrl)*/ confirmationLink + "\n\nWelcome to Bye World!";
+                confirmationLink + "\n\nWelcome to Bye World!";
             SmtpClient Client = new SmtpClient()
             {
                 Host = "smtp.outlook.com",
@@ -117,16 +117,20 @@ namespace ByeWorld_backend.Controllers
         {
             if (String.IsNullOrEmpty(codeEncoded))
                 return BadRequest("Invalid verification code");
+
             var result = await _neo4j.Cypher
                 .Match("(u:User)")
                 .Where((User u) => u.Email == email)
                 .Return(u => u.As<User>())
                 .ResultsAsync;
-            //TODO:Dodaj property u model User za potvrdjen nalog
+
             var user = result.FirstOrDefault();
             if (user == null)
                 return BadRequest("No user account with given adress");
-            
+
+            if (user.EmailConfirmed)
+                return BadRequest("Account already confirmed");
+
             var codeDecodedBytes = WebEncoders.Base64UrlDecode(codeEncoded);
             var codeDecoded = Encoding.UTF8.GetString(codeDecodedBytes);
 
@@ -136,9 +140,16 @@ namespace ByeWorld_backend.Controllers
                 return BadRequest("Error verifying user account, try again later!");
 
             if (confirmationCode == codeEncoded)
-                //Change user's confirmation property to true
+            {
+                await _neo4j.Cypher
+                    .Match("(u:User)")
+                    .Where((User u) => u.Email == email)
+                    .Set("u.EmailConfirmed = true")
+                    .Return(u => u.As<User>())
+                    .ExecuteWithoutResultsAsync();
                 return Ok("Account confirmed");
             //return Redirect("https://localhost:3000/");
+            }
 
             return BadRequest("Error verifying user account, try again later!");
         }
