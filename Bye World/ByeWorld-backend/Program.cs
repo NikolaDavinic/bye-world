@@ -38,6 +38,7 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
+
 builder.Services.AddSingleton<IUserService, UserService>();
 builder.Services.AddSingleton<ICachingService, CachingService>();
 builder.Services.AddHostedService<RedisQueueService>();

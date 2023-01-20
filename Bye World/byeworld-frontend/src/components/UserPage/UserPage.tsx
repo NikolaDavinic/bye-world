@@ -1,11 +1,17 @@
 import React from "react";
-import { Box, Button, CircularProgress, Paper } from "@mui/material";
+import { Box, Button, CircularProgress, Paper, Stack } from "@mui/material";
 import { UserSkillsModal } from "../UserSkillsModal/UserSkillsModal";
 import { useApi } from "../../hooks/api.hook";
 import { User } from "../../model/User";
 import { Link, Outlet, useParams } from "react-router-dom";
 import { useAuthContext } from "../../contexts/auth.context";
 import Typography from "@mui/material/Typography";
+import ListItem from "@mui/material/ListItem";
+import Upload from "../common/Upload/Upload";
+import { upService } from "../../constants";
+import Chip from "@mui/material/Chip";
+import { getFileName } from "../../utils/helpers";
+import MatIcon from "../common/MatIcon/MatIcon";
 
 export default function UserPage() {
   const [open, setOpen] = React.useState(false);
@@ -17,6 +23,7 @@ export default function UserPage() {
     result: userp,
     loading,
     error,
+    reload,
   } = useApi<User>(`/user/${params.userId}`);
 
   if (loading) {
@@ -45,6 +52,20 @@ export default function UserPage() {
     setOpen(true);
   };
 
+  console.log(userp);
+
+  const onCvUpload = (file: File) => {
+    const formData = new FormData();
+    formData.append("cv", file);
+
+    upService
+      .post(`file/upload`, formData)
+      .then(() => {
+        reload();
+      })
+      .catch();
+  };
+
   return (
     <Box>
       <main>
@@ -59,7 +80,14 @@ export default function UserPage() {
             <div className="flex flex-wrap gap-4 items-center justify-between p-8">
               <div className="flex flex-wrap items-center gap-6">
                 <Paper variant="outlined">
-                  <img src={(user?.imageUrl && user?.imageUrl?.length > 0) ? user?.imageUrl : "https://ui-avatars.com/api/?background=311b92&color=fff&name=B+W&rounded=true"} />
+                  <img
+                    alt="user"
+                    src={
+                      user?.imageUrl && user?.imageUrl?.length > 0
+                        ? user?.imageUrl
+                        : "https://ui-avatars.com/api/?background=311b92&color=fff&name=B+W&rounded=true"
+                    }
+                  />
                 </Paper>
                 <div className="space-y-1 md:space-y-0">
                   {userp?.id === user?.id && (
@@ -71,19 +99,53 @@ export default function UserPage() {
                 </div>
               </div>
 
-              <Button variant="contained" onClick={() => handleModalOpen()}>
-                Edit Skills
-              </Button>
+              <Stack>
+                <ListItem>
+                  {user?.id == params.userId && (
+                    <Button
+                      variant="contained"
+                      onClick={() => handleModalOpen()}
+                      style={{ width: "100%" }}
+                    >
+                      Edit Skills
+                    </Button>
+                  )}
+                </ListItem>
+                {user?.id == params.userId && (
+                  <ListItem>
+                    <Upload onChange={onCvUpload} text="Upload CV"></Upload>
+                  </ListItem>
+                )}
+                {userp?.cv &&
+                  (user?.id === params.userId || user?.role === "Company") && (
+                    <ListItem>
+                      <a
+                        rel="noreferrer"
+                        href={userp.cv}
+                        target="_blank"
+                        download={getFileName(userp?.cv)}
+                      >
+                        <Chip
+                          style={{ cursor: "pointer" }}
+                          color="primary"
+                          label={`${getFileName(userp?.cv)}`}
+                          icon={<MatIcon color="primary">download</MatIcon>}
+                          variant="outlined"
+                        />
+                      </a>
+                    </ListItem>
+                  )}
+              </Stack>
             </div>
 
             <div
               className="grid grid-cols-3 md:divide-x 
-        md:divide-gray-200 md:divide-solid border-t md:border-gray-200"
+            md:divide-gray-200 md:divide-solid border-t md:border-gray-200"
             >
               <Link
                 to="fav-listings"
                 className="flex flex-wrap items-center justify-center gap-2 p-4 font-medium bg-gray-100  
-        hover:opacity-75"
+                hover:opacity-75"
               >
                 <span className="text-sm hidden md:inline-block">
                   Favorite Listings
@@ -99,7 +161,7 @@ export default function UserPage() {
               <a
                 href="/moj-nalog/kompanije"
                 className="flex flex-wrap items-center justify-center gap-2 p-4 font-medium bg-gray-100  
-        hover:opacity-75"
+                hover:opacity-75"
               >
                 <span className="text-sm hidden md:inline-block">
                   Companies

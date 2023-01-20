@@ -17,14 +17,13 @@ namespace CVUploader.Controllers
             _redis = redis;
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPost("upload")]
         public async Task<IActionResult> UploadCV(IFormFile cv)
         {
             try
             {
-                //var uid = long.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");
-                long uid = 4;
+                var uid = long.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");
 
                 _logger.LogInformation($"cv uploaded uid {uid}");
 
