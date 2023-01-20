@@ -75,7 +75,7 @@ namespace ByeWorld_backend.Controllers
                 .OptionalMatch("(c)-[]-(l:Listing)")
                 .Return((c, r, l) => new {
                     Company = c.As<Company>(),
-                    ReviewsCount = r.Count(),
+                    ReviewsCount = r.CountDistinct(),
                     AvgReview = Return.As<double>("avg(r.Value)"),
                     ListingsCount = l.CountDistinct()
                 })
@@ -106,7 +106,7 @@ namespace ByeWorld_backend.Controllers
                 .Where((Company c) => c.Id == id)
                 .Return((c, r) => new {
                     Company = c.As<Company>(),
-                    ReviewsCount = r.Count(),
+                    ReviewsCount = r.CountDistinct(),
                     AvgReview = Return.As<double>("avg(r.Value)")
                 })
                 .Limit(1);

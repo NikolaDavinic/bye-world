@@ -149,7 +149,6 @@ namespace ByeWorld_backend.Controllers
                     .Return(u => u.As<User>())
                     .ExecuteWithoutResultsAsync();
                 return Ok("Account confirmed");
-                //return Redirect("https://localhost:3000/");
             }
 
             return BadRequest("Error verifying user account, try again later!");
@@ -182,7 +181,7 @@ namespace ByeWorld_backend.Controllers
 
             db.StringSet($"sessions:{sessionId}", JsonSerializer.Serialize(user), expiry: TimeSpan.FromHours(2));
             db.SetAdd("users:authenticated", user.Id);
-            db.StringSet($"users:last_active:{user.Id}", DateTime.Now.ToUniversalTime().AddHours(1).ToString(), expiry: TimeSpan.FromHours(2));
+            db.StringSet($"users:last_active:{user.Id}", DateTime.Now.ToString("ddMMyyyyHHmmss"), expiry: TimeSpan.FromHours(2));
 
             return Ok(new
             {
@@ -224,7 +223,7 @@ namespace ByeWorld_backend.Controllers
             {
                 var timeActive = (await db.StringGetAsync($"users:last_active:{userId}")).ToString();
 
-                if (timeActive == null)
+                if (string.IsNullOrEmpty(timeActive))
                 {
                     await db.SetRemoveAsync("users:authenticated", userId);
                     continue;

@@ -41,34 +41,6 @@ const Upload = ({ text, onChange }: UploadProps) => {
         onChange={(e) => fileSelected(e)}
       />
     </div>
-    /* <div [style]="{ margin: '5px 0', overflow: 'auto', height: '100%' }">
-    <form class="form-group">
-      <div
-        [style]="{ overflow: 'hidden' }"
-        fxLayout="column"
-        fxLayoutAlign="start start">
-        <div [style]="{ width: '100%' }">
-          <mat-chip-list>
-            <mat-chip
-              *ngFor="let dodatak of dodaci"
-              selected
-              (removed)="remove(dodatak)">
-              {{ dodatak.naziv }}
-              <mat-icon matChipRemove>cancel</mat-icon>
-            </mat-chip>
-          </mat-chip-list>
-        </div>
-        <div *ngIf="uploading?.length" [style]="{ width: '100%' }">
-          <div *ngFor="let uplfile of uploading" class="file-uploading">
-            {{ uplfile.dodatak.naziv }}
-            <mat-progress-bar
-              mode="determinate"
-              [value]="uplfile.progress"></mat-progress-bar>
-          </div>
-        </div>
-      </div>
-    </form>
-  </div></div> */
   );
 };
 
