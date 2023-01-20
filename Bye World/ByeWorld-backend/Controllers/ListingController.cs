@@ -460,14 +460,12 @@ namespace ByeWorld_backend.Controllers
         {
             var query = _neo4j.Cypher
                 .Match("(l:Listing)-[*2]-(lr:Listing)")
-                .Where((Listing lr, Listing l) => l.Id == id)
-                .Match("(l:Listing)-[*2]-(lr:Listing)")
-                .Where("NOT (l)-[:HAS_FAVORITE]-(lr)")
-                .With("distinct(lr) as lr")
+                .Where("l.Id = $id AND NOT (l)-[:HAS_FAVORITE]-(lr)")
+                .WithParam("id",id)
                 .OptionalMatch("(lr)-[:LOCATED_IN]-(c:City)")
                 .OptionalMatch("(lr)-[:HAS_LISTING]-(ic:Company)")
                 .OptionalMatch("(lr)-[:REQUIRES]-(s:Skill)")
-                //.Return(reccs => reccs.CollectAs<Listing>())
+                .With("DISTINCT lr AS lr")
                 .Return((lr, ic, c, s) => new
                 {
                     Id = lr.As<Listing>().Id,
