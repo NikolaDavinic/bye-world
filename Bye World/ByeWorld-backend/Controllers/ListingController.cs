@@ -495,10 +495,10 @@ namespace ByeWorld_backend.Controllers
                 .Match("(l:Listing)-[*2]-(lr:Listing)")
                 .Where("l.Id = $id AND NOT (l)-[:HAS_FAVORITE]-(lr)")
                 .WithParam("id",id)
+                .With("DISTINCT lr AS lr")
                 .OptionalMatch("(lr)-[:LOCATED_IN]-(c:City)")
                 .OptionalMatch("(lr)-[:HAS_LISTING]-(ic:Company)")
                 .OptionalMatch("(lr)-[:REQUIRES]-(s:Skill)")
-                .With("DISTINCT lr AS lr")
                 .Return((lr, ic, c, s) => new
                 {
                     Id = lr.As<Listing>().Id,
