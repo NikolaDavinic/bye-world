@@ -280,6 +280,7 @@ namespace ByeWorld_backend.Controllers
                     .Return((u, c, l, r) => new
                     {
                         u.As<User>().Id,
+                        u.As<User>().CV,
                         u.As<User>().Role,
                         u.As<User>().Name,
                         u.As<User>().Email,

@@ -71,7 +71,6 @@ export const ListingCard: React.FC<ListingCardProps> = ({
 
               <div className="grid gap-1">
                 <div className="flex items-center gap-1 w-full overflow-hidden p-5">
-                  {/* <p className="text-sm opacity-90">{listing!.description}</p> */}
                   <div
                     style={{
                       maxHeight: "50px",

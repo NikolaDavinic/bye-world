@@ -158,8 +158,8 @@ export default function UserPage() {
                   {userp?.favListingsCount}
                 </span>
               </Link>
-              <a
-                href="/moj-nalog/kompanije"
+              <Link
+                to="companies"
                 className="flex flex-wrap items-center justify-center gap-2 p-4 font-medium bg-gray-100  
                 hover:opacity-75"
               >
@@ -173,7 +173,7 @@ export default function UserPage() {
                 >
                   {userp?.companiesCount}
                 </span>
-              </a>
+              </Link>
               <Link
                 to="reviews"
                 className="flex flex-wrap items-center justify-center gap-2 p-4 font-medium bg-gray-100  
