@@ -16,11 +16,13 @@ import IconButton from "@mui/material/IconButton/IconButton";
 import MatIcon from "../common/MatIcon/MatIcon";
 import Box from "@mui/material/Box/Box";
 import CircularProgress from "@mui/material/CircularProgress/CircularProgress";
+import { useAuthContext } from "../../contexts/auth.context";
 
 const ListingPage: React.FC = () => {
   const navigate = useNavigate();
   const params = useParams();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isAuthenticated } = useAuthContext();
 
   const {
     result: listing1,
@@ -55,6 +57,10 @@ const ListingPage: React.FC = () => {
   }
 
   const toggleFavorite = () => {
+    if (!isAuthenticated()) {
+      return navigate("/signin");
+    }
+
     if (listing1) {
       setListing({ ...listing1, isFavorite: !listing1.isFavorite });
 
@@ -66,8 +72,6 @@ const ListingPage: React.FC = () => {
         });
     }
   };
-
-  console.log(listing1);
 
   const handleModalClose = () => {
     setOpen(false);
@@ -91,6 +95,7 @@ const ListingPage: React.FC = () => {
                       <span className="font-bold text-xl">
                         {listing1?.title}
                       </span>
+
                       <IconButton
                         className="flex justify-center"
                         onClick={toggleFavorite}

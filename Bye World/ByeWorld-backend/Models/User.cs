@@ -14,5 +14,6 @@ namespace ByeWorld_backend.Models
         public string Role { get; set; } = "User";
         public List<HasSkill> Skills { get; set; } = new List<HasSkill>();
         public bool EmailConfirmed { get; set; } = false;
+        public string CV { get; set; } = String.Empty;
     }
 }

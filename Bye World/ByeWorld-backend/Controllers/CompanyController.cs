@@ -20,7 +20,9 @@ namespace ByeWorld_backend.Controllers
         private readonly IBoltGraphClient _neo4j;
         private readonly IIdentifierService _ids;
         private readonly ICachingService _cache;
+        private readonly ILogger<CompanyController> _logger;
         public CompanyController(
+            ILogger<CompanyController> logger,
             IConnectionMultiplexer redis, 
             IBoltGraphClient neo4j, 
             IIdentifierService ids, 
@@ -30,6 +32,7 @@ namespace ByeWorld_backend.Controllers
             _neo4j = neo4j;
             _ids = ids;
             _cache = cache;
+            _logger = logger;
         }
 
         [Authorize(Roles = "Company")]
@@ -71,6 +74,8 @@ namespace ByeWorld_backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult> GetCompany(int id)
         {
+            
+
             var query = _neo4j.Cypher
                 .Match("(c:Company)-[:HAS_REVIEW]-(r:Review)")
                 .Where((Company c) => c.Id == id)
@@ -123,7 +128,14 @@ namespace ByeWorld_backend.Controllers
                 })
                 .Limit(10);
 
-            var result = (await query.ResultsAsync).Select((r) => new
+            var result = await _cache.QueryCache(query, "companies:default", expiry: TimeSpan.FromMinutes(30));
+
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            var retval = result.Select((r) => new
             {
                 r.Company.Address,
                 r.Company.Email,
@@ -137,7 +149,7 @@ namespace ByeWorld_backend.Controllers
                 r.ListingsCount
             });
 
-            return Ok(result);
+            return Ok(retval);
         }
 
         [HttpGet("getUserCompanies/{id}")]
