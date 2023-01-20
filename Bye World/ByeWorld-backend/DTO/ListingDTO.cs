@@ -9,7 +9,7 @@ namespace ByeWorld_backend.DTO
         public string Description { get; set; } = string.Empty;
         public DateTime PostingDate { get; set; } = DateTime.Now;
         public DateTime ClosingDate { get; set; } = DateTime.MaxValue;
-        public List<SkillDTO> Requirements { get; set; } = new List<SkillDTO>();
+        public List<Skill> Requirements { get; set; } = new List<Skill>();
         public int CompanyId { get; set; }
         public string CityName { get; set; } = string.Empty;
         public string CompanyName { get; set; } = string.Empty;

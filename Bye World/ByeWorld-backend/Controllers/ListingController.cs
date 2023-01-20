@@ -508,7 +508,7 @@ namespace ByeWorld_backend.Controllers
                 .OptionalMatch("(lr)-[:LOCATED_IN]-(c:City)")
                 .OptionalMatch("(lr)-[:HAS_LISTING]-(ic:Company)")
                 .OptionalMatch("(lr)-[:REQUIRES]-(s:Skill)")
-                .Return((lr, ic, c, s) => new
+                .Return((lr, ic, c, s) => new 
                 {
                     Id = lr.As<Listing>().Id,
                     Title = lr.As<Listing>().Title,
