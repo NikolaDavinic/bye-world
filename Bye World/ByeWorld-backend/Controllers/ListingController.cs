@@ -120,8 +120,6 @@ namespace ByeWorld_backend.Controllers
                 .OptionalMatch("(lc)-[]-(c:City)")
                 .OptionalMatch("(lc)-[]-(co:Company)");
 
-            
-
             var result = await query.Return((lc, c, s, co) => new
             {
                 lc.As<Listing>().Id,
@@ -246,8 +244,7 @@ namespace ByeWorld_backend.Controllers
 
             if (result != null)
             {
-                string keyDate = DateTime.Now.Date.ToShortDateString();
-                db.SortedSetIncrement($"listings:leaderboard:{keyDate}", result.Id, 1);
+                db.SortedSetIncrement($"listings:leaderboard:{DateTime.Now.ToString("ddMMyyyy")}", result.Id, 1);
             }
 
             return Ok(result);
@@ -258,31 +255,31 @@ namespace ByeWorld_backend.Controllers
         {
             var db = _redis.GetDatabase();
 
-            string keyDate = DateTime.Now.Date.ToShortDateString();
-            var ids = (await db.SortedSetRangeByRankAsync($"listings:leaderboard:{keyDate}", start: 0, stop: 5, Order.Descending))
+            var ids = 
+                (await db.SortedSetRangeByRankAsync($"listings:leaderboard:{DateTime.Now.ToString("ddMMyyyy")}", start: 0, stop: 5, Order.Descending))
                 .Select(id => int.Parse(id.ToString()))
                 .ToList();
-
-            var date = DateTime.Now.ToUniversalTime();
 
             var query = _neo4j.Cypher
                 .Match("(l:Listing)")
                 .Where("l.Id IN $ids")
                 .WithParam("ids", ids)
-                //.Return((lr, ic, c, s) => new
-                //{
-                //    Id = lr.As<Listing>().Id,
-                //    Title = lr.As<Listing>().Title,
-                //    Description = lr.As<Listing>().Description,
-                //    CityName = c.As<City>().Name,
-                //    ClosingDate = lr.As<Listing>().ClosingDate,
-                //    PostingDate = lr.As<Listing>().PostingDate,
-                //    Requirements = s.CollectAs<Skill>(),
-                //    CompanyName = ic.As<Company>().Name,
-                //    CompanyLogoUrl = ic.As<Company>().LogoUrl,
-                //    CompanyId = ic.As<Company>().Id,
-                //});
-                .Return(l => l.As<Listing>());
+                .OptionalMatch("(l)-[]-(s:Skill)")
+                .OptionalMatch("(l)-[]-(c:City)")
+                .OptionalMatch("(l)-[]-(co:Company)")
+                .Return((l, c, co, s) => new
+                {
+                    c.As<City>().Name,
+                    l.As<Listing>().Id,
+                    l.As<Listing>().Title,
+                    l.As<Listing>().Description,
+                    l.As<Listing>().ClosingDate,
+                    l.As<Listing>().PostingDate,
+                    co.As<Company>().LogoUrl,
+                    Requirements = s.CollectAs<Skill>(),
+                    CompanyName = co.As<Company>().Name,
+                    CompanyId = co.As<Company>().Id,
+                });
 
             return Ok(await query.ResultsAsync);
         }
@@ -462,6 +459,7 @@ namespace ByeWorld_backend.Controllers
                 CompanyLogoUrl = c.As<Company>().LogoUrl,
                 CompanyId = c.As<Company>().Id,
             }).ResultsAsync;
+
             if (retVal.Count() == 0)
                 return BadRequest("Dodavanje listinga neuspesno");
 
@@ -471,20 +469,35 @@ namespace ByeWorld_backend.Controllers
             //db.ListRightPop("listing:newest");
             //db.ListLeftPush("listing:newest", "novi item");
 
+            var toredis = await _neo4j.Cypher
+                .Match("(l:Listing)")
+                .Where((Listing l) => l.Id == res.Id)
+                .OptionalMatch("(l)-[]-(s:Skill)")
+                .OptionalMatch("(l)-[]-(c:City)")
+                .OptionalMatch("(l)-[]-(co:Company)")
+                .Return((l, c, co, s) => new
+                {
+                    c.As<City>().Name,
+                    l.As<Listing>().Id,
+                    l.As<Listing>().Title,
+                    l.As<Listing>().Description,
+                    l.As<Listing>().ClosingDate,
+                    l.As<Listing>().PostingDate,
+                    co.As<Company>().LogoUrl,
+                    Requirements = s.CollectAs<Skill>(),
+                    CompanyName = co.As<Company>().Name,
+                    CompanyId = co.As<Company>().Id,
+                }).ResultsAsync;
+
             var newListings = db.ListRange("listing:newest");
-            if(newListings.Count()<3)
+
+            if(newListings.Count() > 3)
             {
-                await db.ListLeftPushAsync("listing:newest", JsonSerializer.Serialize(res));
+                await db.ListRightPopAsync("listing:newest");
             }
-            else
-            {
-                db.ListRightPop("listing:newest");
-                db.ListLeftPush("listing:newest", JsonSerializer.Serialize(res));
-            }
+
+            await db.ListLeftPushAsync("listing:newest", JsonSerializer.Serialize(toredis));
             
-
-
-
             return Ok(retVal);
         }
 
@@ -544,21 +557,24 @@ namespace ByeWorld_backend.Controllers
         {
             var db = _redis.GetDatabase();
 
-            var newestListings = db.ListRange("listing:newest");
+            var newestListings = db.ListRange("listing:newest", 0, 5).ToString();
 
-            ArrayList retValue = new ArrayList();
-            int brojac = 0;
-            if(newestListings!=null)
-                foreach(var n in newestListings)
-                {
-                    var el = JsonSerializer.Deserialize<Listing>(n.ToString());
-                    if(el!=null)
-                    {
-                        retValue.Add(el);
-                    }
-                }
+            //ArrayList retValue = new ArrayList();
 
-            return Ok(retValue);
+            //foreach(var n in newestListings)
+            //{
+            //    var el = JsonSerializer.Deserialize<dynamic>(n.ToString());
+            //    if(el!=null)
+            //    {
+            //        retValue.Add(el);
+            //    }
+            //}
+            //if (string.IsNullOrEmpty(newestListings))
+            //{
+            //    return NotFound();
+            //}
+
+            //return Ok(JsonSerializer.Deserialize<List<dynamic>>(newestListings));
         }
 
         [HttpGet("listingscount")]
