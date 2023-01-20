@@ -8,11 +8,11 @@ using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Neo4jClient;
 using Neo4jClient.Cypher;
 using Neo4jClient.Extensions;
-//using Newtonsoft.Json;
+using Newtonsoft.Json;
 using StackExchange.Redis;
 using System.Collections;
 using System.Runtime.InteropServices;
-using System.Text.Json;
+//using System.Text.Json;
 
 namespace ByeWorld_backend.Controllers
 {
@@ -465,28 +465,24 @@ namespace ByeWorld_backend.Controllers
 
             var res = retVal.FirstOrDefault();
 
-            //db.ListRightPush($"listing:newest:{res.Listing.Id}", DateTime.Now.ToString(), expiry: TimeSpan.FromHours(2));
-            //db.ListRightPop("listing:newest");
-            //db.ListLeftPush("listing:newest", "novi item");
-
             var toredis = await _neo4j.Cypher
                 .Match("(l:Listing)")
                 .Where((Listing l) => l.Id == res.Id)
                 .OptionalMatch("(l)-[]-(s:Skill)")
                 .OptionalMatch("(l)-[]-(c:City)")
                 .OptionalMatch("(l)-[]-(co:Company)")
-                .Return((l, c, co, s) => new
+                .Return((l, c, co, s) => new 
                 {
-                    c.As<City>().Name,
                     l.As<Listing>().Id,
                     l.As<Listing>().Title,
                     l.As<Listing>().Description,
                     l.As<Listing>().ClosingDate,
                     l.As<Listing>().PostingDate,
-                    co.As<Company>().LogoUrl,
-                    Requirements = s.CollectAs<Skill>(),
-                    CompanyName = co.As<Company>().Name,
+                    CityName = c.As<City>().Name,
                     CompanyId = co.As<Company>().Id,
+                    CompanyName = co.As<Company>().Name,
+                    Requirements = s.CollectAs<Skill>(),
+                    CompanyLogoUrl = co.As<Company>().LogoUrl,
                 }).ResultsAsync;
 
             var newListings = db.ListRange("listing:newest");
@@ -496,7 +492,7 @@ namespace ByeWorld_backend.Controllers
                 await db.ListRightPopAsync("listing:newest");
             }
 
-            await db.ListLeftPushAsync("listing:newest", JsonSerializer.Serialize(toredis));
+            await db.ListLeftPushAsync("listing:newest", JsonConvert.SerializeObject(toredis.Single()));
             
             return Ok(retVal);
         }
@@ -557,24 +553,18 @@ namespace ByeWorld_backend.Controllers
         {
             var db = _redis.GetDatabase();
 
-            var newestListings = db.ListRange("listing:newest", 0, 5).ToString();
+            var newestListings = db.ListRange("listing:newest", 0, 2).ToStringArray();
 
-            //ArrayList retValue = new ArrayList();
+            var des = new ArrayList();
+            foreach (var listing in newestListings)
+            {
+                if (!string.IsNullOrEmpty(listing))
+                {
+                    des.Add(JsonConvert.DeserializeObject<ListingDTO>(listing));
+                }
+            }
 
-            //foreach(var n in newestListings)
-            //{
-            //    var el = JsonSerializer.Deserialize<dynamic>(n.ToString());
-            //    if(el!=null)
-            //    {
-            //        retValue.Add(el);
-            //    }
-            //}
-            //if (string.IsNullOrEmpty(newestListings))
-            //{
-            //    return NotFound();
-            //}
-
-            //return Ok(JsonSerializer.Deserialize<List<dynamic>>(newestListings));
+            return Ok(des);
         }
 
         [HttpGet("listingscount")]
