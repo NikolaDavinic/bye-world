@@ -65,17 +65,42 @@ namespace ByeWorld_backend.Controllers
 
         }
 
-        //[HttpGet("user/{userId}")]
-        //public async Task<IActionResult> GetUserCompanies(int id)
-        //{
-        //    var 
-        //}
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetUserCompanies(int userId)
+        {
+            var query = _neo4j.Cypher
+                .Match("(u:User)-[:HAS_COMPANY]-(c:Company)")
+                .Where((User u) => u.Id == userId)
+                .OptionalMatch("(c)-[]-(r:Review)")
+                .OptionalMatch("(c)-[]-(l:Listing)")
+                .Return((c, r, l) => new {
+                    Company = c.As<Company>(),
+                    ReviewsCount = r.Count(),
+                    AvgReview = Return.As<double>("avg(r.Value)"),
+                    ListingsCount = l.CountDistinct()
+                })
+                .Limit(10);
+
+            var retval = (await query.ResultsAsync).Select((r) => new
+            {
+                r.Company.Address,
+                r.Company.Email,
+                r.Company.Id,
+                r.Company.LogoUrl,
+                r.Company.Name,
+                r.Company.VAT,
+                r.Company.Description,
+                r.ReviewsCount,
+                r.AvgReview,
+                r.ListingsCount
+            });
+
+            return Ok(retval);
+        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult> GetCompany(int id)
         {
-            
-
             var query = _neo4j.Cypher
                 .Match("(c:Company)-[:HAS_REVIEW]-(r:Review)")
                 .Where((Company c) => c.Id == id)
@@ -152,21 +177,21 @@ namespace ByeWorld_backend.Controllers
             return Ok(retval);
         }
 
-        [HttpGet("getUserCompanies/{id}")]
-        public async Task<ActionResult> GetUserCompanies(int id)
-        {
-            var query = _neo4j.Cypher
-                .Match("(u:User)-[:HAS_COMPANY]-(c:Company)")
-                .Where((User u) => u.Id == id)
-                .Return((c) => new
-                {
-                    Companies=c.CollectAs<Company>()
-                });
+        //[HttpGet("getUserCompanies/{id}")]
+        //public async Task<ActionResult> GetUserCompanies(int id)
+        //{
+        //    var query = _neo4j.Cypher
+        //        .Match("(u:User)-[:HAS_COMPANY]-(c:Company)")
+        //        .Where((User u) => u.Id == id)
+        //        .Return((c) => new
+        //        {
+        //            Companies=c.CollectAs<Company>()
+        //        });
 
-            var result = (await query.ResultsAsync).FirstOrDefault();
+        //    var result = (await query.ResultsAsync).FirstOrDefault();
 
-            return Ok(result);
-        }
+        //    return Ok(result);
+        //}
 
         [HttpGet("companiescount")]
         public async Task<ActionResult> CompaniesCount()

@@ -70,10 +70,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
               </div>
 
               <div className="grid gap-1">
-                <div
-                  className="flex items-center gap-1 w-full overflow-hidden p-5"
-                  style={{ boxShadow: "2px 10px #888888;" }}
-                >
+                <div className="flex items-center gap-1 w-full overflow-hidden p-5">
                   {/* <p className="text-sm opacity-90">{listing!.description}</p> */}
                   <div
                     style={{

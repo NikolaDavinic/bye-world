@@ -11,9 +11,7 @@ import Companies from "./components/CompaniesPage/CompaniesPage";
 import NotFound from "./components/NotFound/NotFound";
 import AddCompanyPage from "./components/AddCompanyPage/AddCompanyPage";
 import CompanyPage from "./components/CompanyPage/CompanyPage";
-import Footer from "./components/common/Footer/Footer";
 import { AuthStateProvider, useAuthContext } from "./contexts/auth.context";
-import { useEffect, useState } from "react";
 import ListingPage from "./components/ListingPage/ListingPage";
 import AboutCompany from "./components/CompanyPage/AboutCompany";
 import CompanyListings from "./components/CompanyPage/CompanyListings";
@@ -43,8 +41,6 @@ function App() {
     <ThemeProvider theme={theme}>
       <AuthStateProvider>
         <div className="App">
-          {/* <BrowserRouter> */}
-          {/* <GuardProvider > */}
           <Routes>
             <Route path="/" element={<Navbar />}>
               <Route path="" element={<Home />}></Route>
@@ -82,8 +78,6 @@ function App() {
               ></Route>
             </Route>
           </Routes>
-          {/* </GuardProvider> */}
-          {/* </BrowserRouter> */}
         </div>
       </AuthStateProvider>
     </ThemeProvider>
