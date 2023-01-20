@@ -23,11 +23,17 @@ namespace ByeWorld_backend.Controllers
         private readonly IConnectionMultiplexer _redis;
         private readonly IBoltGraphClient _neo4j;
         private readonly IIdentifierService _ids;
-        public ListingController(IConnectionMultiplexer redis, IBoltGraphClient neo4j, IIdentifierService ids)
+        private readonly ICachingService _cache;
+        public ListingController(
+            IConnectionMultiplexer redis, 
+            IBoltGraphClient neo4j, 
+            IIdentifierService ids,
+            ICachingService cache)
         {
             _redis = redis;
             _neo4j = neo4j;
             _ids = ids;
+            _cache = cache;
         }
 
 
@@ -36,8 +42,7 @@ namespace ByeWorld_backend.Controllers
                 [FromQuery]string? position, [FromQuery] string? seniority, [FromQuery] int? take, [FromQuery] bool sortNewest = true)
         {
             var userId = long.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");
-            //var listings = await _neo4j.Cypher.Match("(n:Listing)")
-            //                                  .Return(n => n.As<Listing>()).ResultsAsync;
+
             var query = _neo4j.Cypher
                 .Match("(s:Skill)-[reqs:REQUIRES]-(l:Listing)-[r]-(c:City)")
                 .Match("(l)-[:HAS_LISTING]-(co:Company)")
@@ -115,6 +120,8 @@ namespace ByeWorld_backend.Controllers
                 .OptionalMatch("(lc)-[]-(c:City)")
                 .OptionalMatch("(lc)-[]-(co:Company)");
 
+            
+
             var result = await query.Return((lc, c, s, co) => new
             {
                 lc.As<Listing>().Id,
@@ -143,6 +150,32 @@ namespace ByeWorld_backend.Controllers
                 .Match("(l)-[]-(s:Skill)")
                 .Match("(l)-[]-(c:City)")
                 .Match("(l)-[]-(co:Company)");
+
+            //if (uid == -1)
+            //{
+            //    var q2 = query.Return((l, c, s, co) => new
+            //    {
+            //        l.As<Listing>().Id,
+            //        l.As<Listing>().Title,
+            //        l.As<Listing>().Description,
+            //        c.As<City>().Name,
+            //        l.As<Listing>().ClosingDate,
+            //        l.As<Listing>().PostingDate,
+            //        Requirements = s.CollectAs<Skill>(),
+            //        CompanyName = co.As<Company>().Name,
+            //        CompanyLogoUrl = co.As<Company>().LogoUrl,
+            //        CompanyId = co.As<Company>().Id,
+            //    });
+
+            //    var resultNoUser = _cache.QueryCache(q2, $"user:favorites:{userId}");
+
+            //    if (resultNoUser == null)
+            //    {
+            //        return Ok(new ArrayList());
+            //    }
+
+            //    return Ok(resultNoUser);
+            //}
 
             query = query
                 .OptionalMatch("(u)-[hf:HAS_FAVORITE]-(l)")
