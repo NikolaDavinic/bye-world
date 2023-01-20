@@ -76,7 +76,7 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({
             </Link>
           </Box>
           {new Date(review.date ?? "").toLocaleDateString("en-GB")}
-          {showOptions && (
+          {showOptions && review.user?.id === user?.id && (
             <Box>
               <IconButton onClick={handleClick}>
                 <MatIcon style={{ color: "black" }}>more_vert</MatIcon>

@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace ByeWorld_backend.Services
 {
-    public class UserService
+    public class UserService : IUserService
     {
         private readonly IConnectionMultiplexer _redis;
         private readonly IBoltGraphClient _neo4j;
@@ -15,41 +15,18 @@ namespace ByeWorld_backend.Services
             _neo4j = neo4j;
         }
 
-        public async Task<User?> GetUserById(long id)
+        public async Task<string?> SetUserCV(long userId, string path)
         {
-            var tokenSource = new CancellationTokenSource();
-            var cancellationToken = tokenSource.Token;
+            var query = _neo4j.Cypher
+                .Match("(u:User)")
+                .Where((User u) => u.Id == userId)
+                .Set("u.CV = $path")
+                .WithParam("path", path)
+                .Return(u => u.As<User>().CV);
 
-            var db = _redis.GetDatabase();
+            var result = await query.ResultsAsync;
 
-            Task<RedisValue> redisTask = db.StringGetAsync($"user:{id}");
-
-            Task<IEnumerable<User>> neo4jTask = _neo4j.Cypher
-                .Match("(n:User)")
-                .Where("n.Id = $id")
-                .WithParam("id", id)
-                .Return((n) => n.As<User>())
-                .Limit(1)
-                .ResultsAsync;
-
-            if ((await Task.WhenAny(redisTask, neo4jTask)) == redisTask)
-            {
-                var redisValue = (await redisTask).ToString();
-                if (!string.IsNullOrEmpty(redisValue))
-                {
-                    tokenSource.Cancel();
-                    return JsonSerializer.Deserialize<User>(redisValue);
-                }
-            }
-
-            var value = (await neo4jTask).First();
-
-            if (value != null)
-            {
-                _ = db.StringSetAsync($"user:{value.Id}", JsonSerializer.Serialize<User?>(value));
-            }
-
-            return value;
+            return result.FirstOrDefault();
         }
     }
 }
