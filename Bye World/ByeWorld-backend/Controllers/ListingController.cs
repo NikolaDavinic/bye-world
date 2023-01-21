@@ -24,16 +24,19 @@ namespace ByeWorld_backend.Controllers
         private readonly IBoltGraphClient _neo4j;
         private readonly IIdentifierService _ids;
         private readonly ICachingService _cache;
+        private readonly ILogger<ListingController> _logger;
         public ListingController(
             IConnectionMultiplexer redis, 
             IBoltGraphClient neo4j, 
             IIdentifierService ids,
-            ICachingService cache)
+            ICachingService cache,
+            ILogger<ListingController> logger)
         {
             _redis = redis;
             _neo4j = neo4j;
             _ids = ids;
             _cache = cache;
+            _logger = logger;
         }
 
 
@@ -104,26 +107,21 @@ namespace ByeWorld_backend.Controllers
         {
             var uid = long.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");
 
-            //MATCH(u: User { Id: 4})-[*2] - (lr: Listing)
-            //WHERE NOT EXISTS((u) -[:HAS_FAVORITE] - (lr))
-            //WITH DISTINCT lr as reccs
-            //OPTIONAL MATCH(reccs)-[] - (s: Skill)
-            //OPTIONAL MATCH(reccs)-[] - (c: City)
-            //OPTIONAL MATCH(reccs)-[] - (co: Company)
-            //RETURN reccs, c, co, collect(s)
-            //ORDER BY rand()
-            //LIMIT 3
-
             var query = _neo4j.Cypher
-                .Match("(u:User)-[*2]-(l:Listing)")
-                .Where((User u) => u.Id == uid)
-                .AndWhere("NOT EXISTS ((u)-[:HAS_FAVORITE]-(l))")
-                .With("DISTINCT l as rc")
+                .Match("(u:User)")
+                .Where((User u) => u.Id==uid)
+                .OptionalMatch("(u)-[:HAS_FAVORITE]-(fav:Listing)")
+                .OptionalMatch("(fav)--(:Company)--(lfc:Listing)")
+                .OptionalMatch("(fav)--(:Skill)--(lfs:Listing)")
+                .OptionalMatch("(u)--(:Skill)--(lus:Listing)")
+                .With("collect(lfc)+collect(lfs)+collect(lus) as nodes")
+                .Unwind("nodes", "lr")
+                .With("distinct lr as rc")
                 .OptionalMatch("(rc)-[]-(s:Skill)")
                 .OptionalMatch("(rc)-[]-(c:City)")
                 .OptionalMatch("(rc)-[]-(co:Company)");
 
-            var result = await query.Return((rc, c, s, co) => new
+            var result = query.Return((rc, c, s, co) => new
             {
                 rc.As<Listing>().Id,
                 rc.As<Listing>().Title,
@@ -135,9 +133,11 @@ namespace ByeWorld_backend.Controllers
                 CompanyName = co.As<Company>().Name,
                 CompanyLogoUrl = co.As<Company>().LogoUrl,
                 CompanyId = co.As<Company>().Id,
-            }).OrderBy("rand()").Limit(3).ResultsAsync;
+            }).OrderBy("rand()").Limit(3);
 
-            return Ok(result);
+            _logger.LogInformation(result.Query.DebugQueryText);
+
+            return Ok(await result.ResultsAsync);
         }
 
         [HttpGet("favorites/{userId}")]
@@ -148,35 +148,39 @@ namespace ByeWorld_backend.Controllers
             var query = _neo4j.Cypher
                 .Match("(u:User)-[:HAS_FAVORITE]->(l:Listing)")
                 .Where((User u) => u.Id == userId)
-                .Match("(l)-[]-(s:Skill)")
-                .Match("(l)-[]-(c:City)")
-                .Match("(l)-[]-(co:Company)");
+                .OptionalMatch("(l)-[]-(s:Skill)")
+                .OptionalMatch("(l)-[]-(c:City)")
+                .OptionalMatch("(l)-[]-(co:Company)");
 
-            //if (uid == -1)
-            //{
-            //    var q2 = query.Return((l, c, s, co) => new
-            //    {
-            //        l.As<Listing>().Id,
-            //        l.As<Listing>().Title,
-            //        l.As<Listing>().Description,
-            //        c.As<City>().Name,
-            //        l.As<Listing>().ClosingDate,
-            //        l.As<Listing>().PostingDate,
-            //        Requirements = s.CollectAs<Skill>(),
-            //        CompanyName = co.As<Company>().Name,
-            //        CompanyLogoUrl = co.As<Company>().LogoUrl,
-            //        CompanyId = co.As<Company>().Id,
-            //    });
+            if (uid == -1)
+            {
+                var q2 = query.Return((l, c, s, co) => new
+                {
+                    //l.As<Listing>().Id,
+                    //l.As<Listing>().Title,
+                    //l.As<Listing>().Description,
+                    //CityName = c.As<City>().Name,
+                    //l.As<Listing>().ClosingDate,
+                    //l.As<Listing>().PostingDate,
+                    //Requirements = s.CollectAs<Skill>(),
+                    //CompanyName = co.As<Company>().Name,
+                    //CompanyLogoUrl = co.As<Company>().LogoUrl,
+                    //CompanyId = co.As<Company>().Id,
+                    //Listing = l.As<Listing>(),
+                    //Company = co.As<Company>(),
+                    //City = c.As<Company>()
+                    Nesto = "nesto"
+                });
 
-            //    var resultNoUser = _cache.QueryCache(q2, $"user:favorites:{userId}");
+                var resultNoUser = _cache.QueryCache(q2, $"user:favorites:{userId}", expiry: TimeSpan.FromMinutes(15));
 
-            //    if (resultNoUser == null)
-            //    {
-            //        return Ok(new ArrayList());
-            //    }
+                if (resultNoUser == null)
+                {
+                    return Ok(new ArrayList());
+                }
 
-            //    return Ok(resultNoUser);
-            //}
+                return Ok(resultNoUser);
+            }
 
             query = query
                 .OptionalMatch("(u)-[hf:HAS_FAVORITE]-(l)")
