@@ -44,6 +44,7 @@ namespace CVUploader.Controllers
                 //
                 dynamic json = JsonConvert.DeserializeObject(responseBody);
                 string url = json.url;
+
                 if (url.Length > 0)
                 {
                     finalPath = url;
