@@ -147,18 +147,37 @@ namespace ByeWorld_backend.Controllers
                 .With("DISTINCT r as r, l, c")
                 .Return((c, r, l) => new {
                     Company = c.As<Company>(),
-                    ReviewsCount = r.Count(),
+                    ReviewsCount = r.CountDistinct(),
                     AvgReview = Return.As<double>("avg(r.Value)"),
                     ListingsCount = l.CountDistinct()
                 })
                 .Limit(10);
 
-            var result = await _cache.QueryCache(query, "companies:default", expiry: TimeSpan.FromMinutes(30));
-
-            if (result == null)
+            if (string.IsNullOrEmpty(filter))
             {
-                return NotFound();
+                var resultDefault = await _cache.QueryCache(query, "companies:default", expiry: TimeSpan.FromMinutes(30));
+
+                if (resultDefault == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(resultDefault.Select((r) => new
+                {
+                    r.Company.Address,
+                    r.Company.Email,
+                    r.Company.Id,
+                    r.Company.LogoUrl,
+                    r.Company.Name,
+                    r.Company.VAT,
+                    r.Company.Description,
+                    r.ReviewsCount,
+                    r.AvgReview,
+                    r.ListingsCount
+                }));
             }
+
+            var result = await query.ResultsAsync;
 
             var retval = result.Select((r) => new
             {

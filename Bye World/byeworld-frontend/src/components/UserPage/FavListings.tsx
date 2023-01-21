@@ -21,17 +21,20 @@ const FavListings = () => {
     );
   }
 
+  if (!listings || listings.length === 0) {
+    return (
+      <Box>
+        <Typography>No favorite listings yet</Typography>
+        <Typography>
+          To add listing as favorite, press heart icon in the top right corner
+          of your favorite listings!
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box>
-      {listings?.length == 0 && (
-        <Box>
-          <Typography>No favorite listings yet</Typography>
-          <Typography>
-            To add listing as favorite, press heart icon in the top right corner
-            of your favorite listings!
-          </Typography>
-        </Box>
-      )}
       {listings && listings?.length > 0 && (
         <ListingsList listings={listings ?? []}></ListingsList>
       )}

@@ -20,6 +20,7 @@ const Companies: React.FC = () => {
         filter,
       },
     });
+    console.log(response.data);
     setCompanies(response.data);
   }
 

@@ -148,9 +148,9 @@ namespace ByeWorld_backend.Controllers
             var query = _neo4j.Cypher
                 .Match("(u:User)-[:HAS_FAVORITE]->(l:Listing)")
                 .Where((User u) => u.Id == userId)
-                .Match("(l)-[]-(s:Skill)")
-                .Match("(l)-[]-(c:City)")
-                .Match("(l)-[]-(co:Company)");
+                .OptionalMatch("(l)-[]-(s:Skill)")
+                .OptionalMatch("(l)-[]-(c:City)")
+                .OptionalMatch("(l)-[]-(co:Company)");
 
             //if (uid == -1)
             //{
