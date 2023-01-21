@@ -45,6 +45,7 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
   useEffect(() => {
     setOpen(isOpen);
   }, [isOpen]);
+
   const [open, setOpen] = React.useState(false);
   const [showSnackbar, setShowSnackbar] = React.useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = React.useState<string>("");
@@ -56,9 +57,7 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
 
   const { isAuthenticated, user } = useAuthContext();
 
-  const { result, loading, error } = useApi<any>(
-    `company/user/${user?.id}`
-  );
+  const { result, loading, error } = useApi<any>(`company/user/${user?.id}`);
 
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -262,9 +261,17 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
           </Button>
         </DialogActions>
       </Dialog>
-      <Snackbar open={showSnackbar} autoHideDuration={4000} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        onClose={() => setShowSnackbar(false)}>
-        <Alert onClose={() => setShowSnackbar(false)} severity="success" sx={{ width: '100%' }}>
+      <Snackbar
+        open={showSnackbar}
+        autoHideDuration={4000}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        onClose={() => setShowSnackbar(false)}
+      >
+        <Alert
+          onClose={() => setShowSnackbar(false)}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
           {snackbarMessage}
         </Alert>
       </Snackbar>

@@ -294,56 +294,5 @@ namespace ByeWorld_backend.Controllers
                 return Ok(qresult.First());
             }
         }
-
-
-        [HttpGet("login/{id}")]
-        public async Task<IActionResult> Login(int id)
-        {
-            var db = _redis.GetDatabase();
-
-            db.StringSet("sessions:8283848238423884238", JsonSerializer.Serialize(new User
-            {
-                Id = 5,
-                Email = "bann",
-                Name = "Stefan",
-                Role = "User"
-            }));
-            // PQOWPQPWPQWP
-            var userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
-
-            var tokenSource = new CancellationTokenSource();
-            var cancellationToken = tokenSource.Token;
-
-            Task<RedisValue> redisTask = db.StringGetAsync($"user:{id}");
-
-            Task<IEnumerable<User>> neo4jTask = _neo4j.Cypher
-                .Match(@"(n:User)")
-                .Where("n.Id = $id")
-                .WithParam("id", id)
-                .Return((n) => n.As<User>())
-                .Limit(1)
-                .ResultsAsync;
-
-            if ((await Task.WhenAny(redisTask, neo4jTask)) == redisTask)
-            {
-                var redisValue = (await redisTask).ToString();
-                if (!String.IsNullOrEmpty(redisValue))
-                {
-                    tokenSource.Cancel();
-                    //Console.WriteLine("redis");
-                    return Ok(JsonSerializer.Deserialize<User>(redisValue));
-                }
-            }
-
-            var value = (await neo4jTask).First();
-
-            if (value != null)
-            {
-                _ = db.StringSetAsync($"user:{value.Id}", JsonSerializer.Serialize<User?>(value));
-            }
-
-            //Console.WriteLine("neo4j");
-            return Ok(value);
-        }
     }
 }

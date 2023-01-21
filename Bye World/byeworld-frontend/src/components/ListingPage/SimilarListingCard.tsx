@@ -8,31 +8,26 @@ import { Company } from "../../model/Company";
 import { Listing } from "../../model/Listing";
 import { useNavigate } from "react-router-dom";
 import { useApi } from "../../hooks/api.hook";
-import parse from 'html-react-parser';
+import parse from "html-react-parser";
 import { ListingDTO } from "../listings/ListingsPage";
 
 interface SimilarListingCardProps {
   listing: ListingDTO;
   // divWidth: number;
   divHeight: number;
-  divMaxWidth: number;
-  divMinWidth: number;
 }
 export const SimilarListingCard: React.FC<SimilarListingCardProps> = ({
-  listing, divHeight, divMaxWidth, divMinWidth
+  listing,
+  divHeight,
 }: SimilarListingCardProps) => {
   const navigate = useNavigate();
 
-  const {
-    result: listing1,
-  } = useApi<any>(`/listing/${listing?.id}`);
+  const { result: listing1 } = useApi<any>(`/listing/${listing?.id}`);
+
+  console.log(listing);
 
   return (
-    <Card >
-      {/* <CardActionArea
-        className="h-full hover:bg-blue-100"
-        onClick={() => navigate("/listing/" + listing.id)}
-      > */}
+    <Card sx={{ height: divHeight }}>
       <CardContent className="h-full">
         <div className="flex flex-row justify-between h-full shadow-xl shadow-indigo-500/50">
           <div className="flex flex-col gap-3 px-4 md:pl-4 mb-4">
@@ -46,7 +41,7 @@ export const SimilarListingCard: React.FC<SimilarListingCardProps> = ({
               </div>
             </div>
             <div className="grid gap-1">
-              <div className="flex items-center gap-1 w-1/2 overflow-hidden">
+              <div className="flex items-center gap-1 overflow-hidden">
                 <p className="font-semibold opacity-75">
                   {/* Naziv komapnije */}
                   <Link href={`/company/${listing.companyId}/about`}>
@@ -67,14 +62,17 @@ export const SimilarListingCard: React.FC<SimilarListingCardProps> = ({
                   <Icon className="material-symbols-outlined">
                     location_city
                   </Icon>
-                  <p className="text-sm font-semibold">{listing?.cityName != null && listing.cityName}</p>
+                  <p className="text-sm font-semibold">
+                    {listing?.cityName != null && listing.cityName}
+                  </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-1">
                 <Icon className="material-symbols-outlined">schedule</Icon>
                 <p className="text-sm font-semibold">
-                  {listing?.closingDate != null && new Date(listing.closingDate).toLocaleDateString("de-DE")}
+                  {listing?.closingDate != null &&
+                    new Date(listing.closingDate).toLocaleDateString("de-DE")}
                 </p>
               </div>
             </div>
@@ -87,9 +85,10 @@ export const SimilarListingCard: React.FC<SimilarListingCardProps> = ({
                                 <button type="button" className="w-auto bg-main text-white rounded-md cursor-pointer" >
                                     <span className='text-white'>Senior </span>
                                 </button> */}
-              {listing?.requirements != null && listing?.requirements?.map((r: any) => {
-                return <Chip key={r.id} label={r.name} color="primary" />;
-              })}
+              {listing?.requirements != null &&
+                listing?.requirements?.map((r: any) => {
+                  return <Chip key={r.name} label={r.name} color="primary" />;
+                })}
             </Box>
           </div>
           {/* <div className="w-1/5 flex flex-col justify-center align-middle">

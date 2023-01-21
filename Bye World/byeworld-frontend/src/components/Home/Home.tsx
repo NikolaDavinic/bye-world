@@ -1,4 +1,4 @@
-import { Chip, Link, Stack } from "@mui/material";
+import { Chip, Stack } from "@mui/material";
 import { Box } from "@mui/system";
 import HomeCard from "./HomeCard";
 import { ListingCard } from "../common/ListingsList/ListingCard";
@@ -8,9 +8,12 @@ import { useApi } from "../../hooks/api.hook";
 import { Listing } from "../../model/Listing";
 import { User } from "../../model/User";
 import { ListingDTO } from "../listings/ListingsPage";
+import { Link } from "react-router-dom";
+import UserSuggestions from "../UserPage/UserSuggestions";
+import { useAuthContext } from "../../contexts/auth.context";
+import { Typography } from "@mui/joy";
 
 export const Home: React.FC = () => {
-
   const {
     result: topListings,
     loading,
@@ -21,21 +24,17 @@ export const Home: React.FC = () => {
     result: topSkills,
   } = useApi<string[]>(`/skill/topskills`);
 
-  const {
-    result: active,
-  } = useApi<any>(`/user/authcount`);
+  const { isAuthenticated } = useAuthContext();
 
-  const {
-    result: numberOfListings,
-  } = useApi<any>(`/listing/listingscount`);
+  const { result: active } = useApi<any>(`/user/authcount`);
 
-  const {
-    result: numberOfCompanies,
-  } = useApi<any>(`/company/companiescount`);
+  const { result: numberOfListings } = useApi<any>(`/listing/listingscount`);
 
-  const {
-    result: newestListings,
-  } = useApi<ListingDTO[]>(`/listing/newestlistings`);
+  const { result: numberOfCompanies } = useApi<any>(`/company/companiescount`);
+
+  const { result: newestListings } = useApi<ListingDTO[]>(
+    `/listing/newestlistings`
+  );
 
   const testArray = [
     {
@@ -51,8 +50,8 @@ export const Home: React.FC = () => {
     {
       name: "Companies",
       count: numberOfCompanies,
-      icon: 3
-    }
+      icon: 3,
+    },
   ];
 
   const testListings = [
@@ -105,12 +104,12 @@ export const Home: React.FC = () => {
     },
     {
       id: 2,
-      name: "C#"
+      name: "C#",
     },
     {
       id: 3,
-      name: "TypeScript"
-    }
+      name: "TypeScript",
+    },
   ];
 
   return (
@@ -123,14 +122,24 @@ export const Home: React.FC = () => {
           <div className="px-4 max-w-7xl mx-auto w-full relative">
             <div>
               <div className="max-w-xl mx-auto">
-                <h1 className="max-w-md md:max-w-xl mx-auto text-xl md:text-4xl text-blue-800 font-bold mb-6 md:mb-12 text-center">
-                  Largest website of jobs
+                <h1 className="max-w-md md:max-w-xl mx-auto text-xl md:text-4xl text-blue-800 font-bold mb-6 md:mb-12 text-center animate-pulse">
+                  Unleash the full potential of your IT career
                 </h1>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {isAuthenticated() ? (
+        <UserSuggestions></UserSuggestions>
+      ) : (
+        <Box className="p-5">
+          <p style={{ color: "gray" }}>
+            Register today to get personalized job listings*
+          </p>
+        </Box>
+      )}
 
       <div
         className="max-w-5xl mx-auto py-6 md:my-12 relative px-4"
@@ -143,7 +152,12 @@ export const Home: React.FC = () => {
           >
             {testArray.map((el) => {
               return (
-                <HomeCard name={el.name} icon={el.icon} count={el.count} />
+                <HomeCard
+                  name={el.name}
+                  icon={el.icon}
+                  count={el.count}
+                  key={el.name}
+                />
               );
             })}
           </div>
@@ -151,7 +165,7 @@ export const Home: React.FC = () => {
       </div>
       <section className="py-8 lg:py-12 px-4">
         <div className="max-w-7xl mx-auto flex-col justify-center">
-        <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-blue-800 ">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-blue-800 ">
             Popular skills today
           </h2>
           <div
@@ -163,11 +177,10 @@ export const Home: React.FC = () => {
                 <>
                   <Chip key={id} label={el} size="medium" color="primary" />
                 </>
-              )
+              );
             })}
           </div>
         </div>
-
       </section>
       <section className="py-8 lg:py-12 px-4 ">
         <div className="max-w-7xl mx-auto flex justify-center flex-col">
@@ -175,42 +188,34 @@ export const Home: React.FC = () => {
             Featured listings
           </h2>
           <div className="relative max-w-7xl mx-auto md:flex md:gap-6 px-4 py-8">
-            {/* <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-4 md:gap-6 max-w-7xl mx-auto px-4 py-8">
-              {testListings.map(listing => {
-                return (
-                  <SimilarListingCard listing={listing} divHeight={325} divMaxWidth={400} divMinWidth={350} />
-                )
-              })}
-            </div> */}
             <div
               className="flex items-center justify-center"
-              style={{ backgroundColor: "#fdd835" }}
+              style={{ backgroundColor: "var(--secondary-main)" }}
             >
-              <div className="grid gap-4 max-w-7xl mx-auto px-4 py-8">
+              <div className="grid gap-4 max-w-7xl px-4 py-8">
                 <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-4">
-                  {topListings != null ? topListings.map((listing) => {
-                    // console.log(listing);
-                    return (
-                      <SimilarListingCard
-                        listing={listing}
-                        divHeight={300}
-                        divMaxWidth={400}
-                        divMinWidth={350}
-                      />
-                    );
-                  }) :
+                  {topListings != null ? (
+                    topListings.map((listing) => {
+                      return (
+                        <SimilarListingCard
+                          listing={listing}
+                          divHeight={300}
+                          key={listing.id}
+                        />
+                      );
+                    })
+                  ) : (
                     <>
-                      <h2>
-                        In database we don't have any listing
-                      </h2>
-                    </>}
+                      <h2>In database we don't have any listing</h2>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
           </div>
           <div className="text-center mt-8 flex justify-center">
             <Link
-              href="/listings"
+              to="/listings"
               className="border-2 border-blue-700 bg-blue-700 font-bold rounded-lg text-lg no-underline 
                   flex items-center justify-center w-4/5"
             >
@@ -228,24 +233,13 @@ export const Home: React.FC = () => {
             <p className="text-lg md:text-xl max-w-4xl opacity-50 self-start">
               Here we show listings that have been posted in the last 2 hours
             </p>
-            <div className='grid md:grid-cols-3 gap-4'>
-              {
-                newestListings != null && newestListings.map((item) => {
-                  console.log(item)
-                  return (
-                    <>
-                      <Link href={`/listing/${item.id}`}>
-                        <SimilarListingCard
-                          listing={item}
-                          divHeight={300}
-                          divMaxWidth={400}
-                          divMinWidth={350}
-                        />
-                      </Link>
-                    </>
-                  )
-                })
-              }
+            <div className="grid md:grid-cols-3 gap-4">
+              {newestListings != null &&
+                newestListings.map((item) => (
+                  <Link to={`/listing/${item.id}`} key={item.id}>
+                    <SimilarListingCard listing={item} divHeight={300} />
+                  </Link>
+                ))}
             </div>
           </div>
         </div>

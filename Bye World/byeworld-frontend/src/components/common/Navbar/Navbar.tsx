@@ -66,7 +66,6 @@ export const Navbar = () => {
                   <Typography
                     variant="h6"
                     noWrap
-                    component="a"
                     sx={{
                       mr: 2,
                       flexGrow: 1,
@@ -128,7 +127,6 @@ export const Navbar = () => {
                   <Typography
                     variant="h5"
                     noWrap
-                    component="a"
                     sx={{
                       mr: 2,
                       flexGrow: 1,
@@ -181,9 +179,12 @@ export const Navbar = () => {
                     <Avatar
                       alt={user?.name ?? "User Name"}
                       src={
-                        (user?.imageUrl && user?.imageUrl?.length > 0) ?
-                          user?.imageUrl.replace("background=311b92", "background=fdd835") :
-                          "https://ui-avatars.com/api/?background=311b92&color=fff&name=B+W&rounded=true"
+                        user?.imageUrl && user?.imageUrl?.length > 0
+                          ? user?.imageUrl.replace(
+                              "background=311b92",
+                              "background=fdd835"
+                            )
+                          : "https://ui-avatars.com/api/?background=311b92&color=fff&name=B+W&rounded=true"
                       }
                     />
                   </IconButton>
