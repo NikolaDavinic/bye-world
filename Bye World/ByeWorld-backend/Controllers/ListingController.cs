@@ -44,8 +44,8 @@ namespace ByeWorld_backend.Controllers
             var userId = long.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");
 
             var query = _neo4j.Cypher
-                .Match("(s:Skill)-[reqs:REQUIRES]-(l:Listing)-[r]-(c:City)")
-                .Match("(l)-[:HAS_LISTING]-(co:Company)")
+                .OptionalMatch("(s:Skill)-[reqs:REQUIRES]-(l:Listing)-[r]-(c:City)")
+                .OptionalMatch("(l)-[:HAS_LISTING]-(co:Company)")
                 .Where((Listing l) => true);
             if (!includeExpired)
             {
@@ -421,10 +421,10 @@ namespace ByeWorld_backend.Controllers
                 {
                     if (!skillNodes.Any(skillNode=>skillNode.Name==req.Name))
                     {
-                        //long skillId = await _ids.SkillNext();
+                        long skillId = await _ids.SkillNext();
                         skillNodes = skillNodes.Concat(await _neo4j.Cypher
                             .Create("(s:Skill $newSkill)")
-                            .WithParam("newSkill", new Skill { Id = 0, Name = req.Name })
+                            .WithParam("newSkill", new Skill { Id = skillId, Name = req.Name })
                             .Return(s => s.As<Skill>())
                             .ResultsAsync);
                     }
@@ -445,9 +445,15 @@ namespace ByeWorld_backend.Controllers
             for (int i = 0; i < listing.Requirements.Count; i++)
             {
                 //long skillID = await _ids.SkillNext();
-                query = query.Create($"(l)-[:REQUIRES {{Proficiency: $prof{i}}}]->(c{i}: Skill $newSkill{i})")
-                        .WithParam($"prof{i}", listing.Requirements[i].Proficiency)
-                        .WithParam($"newSkill{i}", new Skill { Name = listing.Requirements[i].Name, Id = 0/*Id = skillID*/ });
+                //query = query.Create($"(l)-[:REQUIRES {{Proficiency: $prof{i}}}]->(c{i}: Skill $newSkill{i})")
+                //        .WithParam($"prof{i}", listing.Requirements[i].Proficiency)
+                //        .WithParam($"newSkill{i}", new Skill { Name = listing.Requirements[i].Name, Id = 0/*Id = skillID*/ });
+                query = query
+                            .With($"l as l,ci as ci, c as c")
+                            .Match($"(c{i}: Skill)")
+                            .Where($"c{i}.Name='{listing.Requirements[i].Name}'")
+                            .Create($"(l)-[:REQUIRES {{Proficiency: $prof{i}}}]->(c{i})")
+                            .WithParam($"prof{i}", listing.Requirements[i].Proficiency);
             }
             var retVal=await query.Return((c, ci, l) => new
              {
@@ -497,9 +503,11 @@ namespace ByeWorld_backend.Controllers
 
             await db.ListLeftPushAsync("listing:newest", JsonConvert.SerializeObject(toredis.Single()));
 
+            DateTime firstDayOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+
             foreach (var req in listing.Requirements)
             {
-                await db.SortedSetIncrementAsync($"skills:leaderboard:{DateTime.Now.ToString("ddMMyyyy")}", req.Name, 1);
+                await db.SortedSetIncrementAsync($"skills:leaderboard:{firstDayOfMonth.ToString("ddMMyyyy")}", req.Name, 1);
             }
 
             return Ok(retVal);

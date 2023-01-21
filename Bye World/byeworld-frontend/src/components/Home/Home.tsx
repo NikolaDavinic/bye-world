@@ -18,6 +18,10 @@ export const Home: React.FC = () => {
   } = useApi<ListingDTO[]>(`/listing/toplistings`);
 
   const {
+    result: topSkills,
+  } = useApi<string[]>(`/skill/topskills`);
+
+  const {
     result: active,
   } = useApi<any>(`/user/authcount`);
 
@@ -154,10 +158,10 @@ export const Home: React.FC = () => {
             className="mx-auto justify-between md:w-auto md:flex md:items-center md:justify-center md:flex-wrap grid grid-cols-2
               md:grid-cols-none place-items-center place-content-center gap-4 md:gap-8"
           >
-            {popularLanguages.map(el => {
+            {topSkills && topSkills?.map((el,id) => {
               return (
                 <>
-                  <Chip key={el.id} label={el.name} size="medium" color="primary" />
+                  <Chip key={id} label={el} size="medium" color="primary" />
                 </>
               )
             })}

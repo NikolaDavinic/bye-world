@@ -107,9 +107,10 @@ namespace ByeWorld_backend.Controllers
         public async Task<ActionResult> GetTopSkills()
         {
             var db = _redis.GetDatabase();
+            DateTime firstDayOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
 
             var skills =
-                (await db.SortedSetRangeByRankAsync($"skills:leaderboard:{DateTime.Now.ToString("ddMMyyyy")}", start: 0, stop: 5, Order.Descending))
+                (await db.SortedSetRangeByRankAsync($"skills:leaderboard:{firstDayOfMonth.ToString("ddMMyyyy")}", start: 0, stop: 5, Order.Descending))
                 .Select(name=>name.ToString())
                 .ToList();
 
