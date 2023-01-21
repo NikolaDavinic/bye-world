@@ -12,6 +12,7 @@ import { upService } from "../../constants";
 import Chip from "@mui/material/Chip";
 import { getFileName } from "../../utils/helpers";
 import MatIcon from "../common/MatIcon/MatIcon";
+import UserSuggestions from "./UserSuggestions";
 
 export default function UserPage() {
   const [open, setOpen] = React.useState(false);
@@ -52,8 +53,6 @@ export default function UserPage() {
     setOpen(true);
   };
 
-  console.log(userp);
-
   const onCvUpload = (file: File) => {
     const formData = new FormData();
     formData.append("cv", file);
@@ -68,6 +67,11 @@ export default function UserPage() {
 
   return (
     <Box>
+      {userp?.id == params.userId && (
+        <Box>
+          <UserSuggestions></UserSuggestions>
+        </Box>
+      )}
       <main>
         <UserSkillsModal isOpen={open} handleModalClose={handleModalClose} />
 

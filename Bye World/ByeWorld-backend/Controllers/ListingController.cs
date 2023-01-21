@@ -116,17 +116,17 @@ namespace ByeWorld_backend.Controllers
                 .Where((User u) => u.Id == uid)
                 .AndWhere("NOT EXISTS ((u)-[:HAS_FAVORITE]-(l))")
                 .With("DISTINCT l as rc")
-                .OptionalMatch("(lc)-[]-(s:Skill)")
-                .OptionalMatch("(lc)-[]-(c:City)")
-                .OptionalMatch("(lc)-[]-(co:Company)");
+                .OptionalMatch("(rc)-[]-(s:Skill)")
+                .OptionalMatch("(rc)-[]-(c:City)")
+                .OptionalMatch("(rc)-[]-(co:Company)");
 
-            var result = await query.Return((lc, c, s, co) => new
+            var result = await query.Return((rc, c, s, co) => new
             {
-                lc.As<Listing>().Id,
-                lc.As<Listing>().Title,
-                lc.As<Listing>().Description,
-                lc.As<Listing>().PostingDate,
-                lc.As<Listing>().ClosingDate,
+                rc.As<Listing>().Id,
+                rc.As<Listing>().Title,
+                rc.As<Listing>().Description,
+                rc.As<Listing>().PostingDate,
+                rc.As<Listing>().ClosingDate,
                 c.As<City>().Name,
                 Requirements = s.CollectAs<Skill>(),
                 CompanyName = co.As<Company>().Name,
