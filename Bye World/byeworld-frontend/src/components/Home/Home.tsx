@@ -116,7 +116,7 @@ export const Home: React.FC = () => {
     <main className="">
       <div
         className="bg-gray-300 py-5 md:py-8 relative flex items-center"
-        style={{ backgroundColor: "#fdd835" }}
+        style={{ backgroundColor: "var(--secondary-main)" }}
       >
         <div className="flex flex-col mx-auto w-full">
           <div className="px-4 max-w-7xl mx-auto w-full relative">
@@ -166,7 +166,7 @@ export const Home: React.FC = () => {
       <section className="py-8 lg:py-12 px-4">
         <div className="max-w-7xl mx-auto flex-col justify-center">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-blue-800 ">
-            Popular skills today
+            Most demanded skills this month
           </h2>
           <div
             className="mx-auto justify-between md:w-auto md:flex md:items-center md:justify-center md:flex-wrap grid grid-cols-2
