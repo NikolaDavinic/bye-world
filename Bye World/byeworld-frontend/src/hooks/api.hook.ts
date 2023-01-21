@@ -5,6 +5,11 @@ export function useApi<T>(path: string, initialValue?: T) {
   const [result, setResult] = useState<T | null>(initialValue ?? null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>();
+  const [rlVal, setRlVal] = useState<boolean>();
+
+  const reload = () => {
+    setRlVal((prev) => !prev);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -28,7 +33,7 @@ export function useApi<T>(path: string, initialValue?: T) {
     return () => {
       cancelled = true;
     };
-  }, [path]);
+  }, [path, rlVal]);
 
-  return { result, loading, error, setResult, setError };
+  return { result, loading, error, setResult, setError, reload };
 }

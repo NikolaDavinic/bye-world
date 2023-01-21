@@ -11,9 +11,7 @@ import Companies from "./components/CompaniesPage/CompaniesPage";
 import NotFound from "./components/NotFound/NotFound";
 import AddCompanyPage from "./components/AddCompanyPage/AddCompanyPage";
 import CompanyPage from "./components/CompanyPage/CompanyPage";
-import Footer from "./components/common/Footer/Footer";
-import { AuthStateProvider, useAuthContext } from "./contexts/auth.context";
-import { useEffect, useState } from "react";
+import { AuthStateProvider } from "./contexts/auth.context";
 import ListingPage from "./components/ListingPage/ListingPage";
 import AboutCompany from "./components/CompanyPage/AboutCompany";
 import CompanyListings from "./components/CompanyPage/CompanyListings";
@@ -22,6 +20,7 @@ import AddReviewPage from "./components/CompanyPage/AddReviewPage";
 import AuthenticatedGuard from "./components/common/RouteGuards/AuthenticatedGuard";
 import FavListings from "./components/UserPage/FavListings";
 import UserReviews from "./components/UserPage/UserReviews";
+import UserCompanies from "./components/UserPage/UserCompanies";
 
 const theme = createTheme({
   palette: {
@@ -43,8 +42,6 @@ function App() {
     <ThemeProvider theme={theme}>
       <AuthStateProvider>
         <div className="App">
-          {/* <BrowserRouter> */}
-          {/* <GuardProvider > */}
           <Routes>
             <Route path="/" element={<Navbar />}>
               <Route path="" element={<Home />}></Route>
@@ -57,6 +54,7 @@ function App() {
                 ></Route>
                 <Route path="fav-listings" element={<FavListings />}></Route>
                 <Route path="reviews" element={<UserReviews />}></Route>
+                <Route path="companies" element={<UserCompanies />}></Route>
               </Route>
               <Route path="/companies" element={<Companies />}></Route>
               <Route path="/company/:companyId" element={<CompanyPage />}>
@@ -82,8 +80,6 @@ function App() {
               ></Route>
             </Route>
           </Routes>
-          {/* </GuardProvider> */}
-          {/* </BrowserRouter> */}
         </div>
       </AuthStateProvider>
     </ThemeProvider>

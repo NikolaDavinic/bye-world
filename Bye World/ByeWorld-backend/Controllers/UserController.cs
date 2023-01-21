@@ -1,4 +1,4 @@
-using ByeWorld_backend.DTO;
+﻿using ByeWorld_backend.DTO;
 using ByeWorld_backend.Models;
 using ByeWorld_backend.Services;
 using Microsoft.AspNetCore.Authentication;
@@ -40,8 +40,9 @@ namespace ByeWorld_backend.Controllers
         {
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(u.Password);
             var nameStrings = u.Name.Split(" ");
-            string generatedImage= $"https://ui-avatars.com/api/?background=311b92&color=fff&name={nameStrings.First()}+{nameStrings.Last()}&rounded=true";
-            var newUser = new User {
+            string generatedImage = $"https://ui-avatars.com/api/?background=311b92&color=fff&name={nameStrings.First()}+{nameStrings.Last()}&rounded=true";
+            var newUser = new User
+            {
                 Id = await _ids.UserNext(),
                 Name = u.Name,
                 Email = u.Email,
@@ -56,7 +57,7 @@ namespace ByeWorld_backend.Controllers
                 .Where((User us) => us.Email == u.Email)
                 .Return(us => us.As<User>()).ResultsAsync;
 
-            if(testEmail.Any())
+            if (testEmail.Any())
             {
                 return BadRequest("This email address is already in use, please enter new email!");
             }
@@ -128,7 +129,7 @@ namespace ByeWorld_backend.Controllers
 
             var db = _redis.GetDatabase();
             String? confirmationCode = db.StringGet(email);
-            if(confirmationCode == null)
+            if (confirmationCode == null)
                 return BadRequest("Error verifying user account, try again later!");
 
             if (confirmationCode == codeEncoded)
@@ -143,7 +144,6 @@ namespace ByeWorld_backend.Controllers
                 await db.KeyDeleteAsync(email);
 
                 return Ok("Account confirmed");
-            //return Redirect("https://localhost:3000/");
             }
 
             return BadRequest("Error verifying user account, try again later!");
@@ -176,10 +176,11 @@ namespace ByeWorld_backend.Controllers
 
             db.StringSet($"sessions:{sessionId}", JsonSerializer.Serialize(user), expiry: TimeSpan.FromHours(2));
             db.SetAdd("users:authenticated", user.Id);
-            db.StringSet($"users:last_active:{user.Id}", DateTime.Now.ToUniversalTime().AddHours(1).ToString(), expiry: TimeSpan.FromHours(2));
+            db.StringSet($"users:last_active:{user.Id}", DateTime.Now.ToString("ddMMyyyyHHmmss"), expiry: TimeSpan.FromHours(2));
 
-            return Ok(new {
-                Session = new 
+            return Ok(new
+            {
+                Session = new
                 {
                     Id = sessionId,
                     Expires = DateTime.Now.ToLocalTime() + TimeSpan.FromHours(2)
@@ -213,10 +214,11 @@ namespace ByeWorld_backend.Controllers
             var count = 0;
 
             var authenticatedUsers = (await db.SetMembersAsync("users:authenticated")).ToList();
-            foreach(var userId in authenticatedUsers) {
+            foreach (var userId in authenticatedUsers)
+            {
                 var timeActive = (await db.StringGetAsync($"users:last_active:{userId}")).ToString();
 
-                if (timeActive == null)
+                if (string.IsNullOrEmpty(timeActive))
                 {
                     await db.SetRemoveAsync("users:authenticated", userId);
                     continue;
@@ -272,6 +274,7 @@ namespace ByeWorld_backend.Controllers
                     .Return((u, c, l, r) => new
                     {
                         u.As<User>().Id,
+                        u.As<User>().CV,
                         u.As<User>().Role,
                         u.As<User>().Name,
                         u.As<User>().Email,
@@ -344,4 +347,3 @@ namespace ByeWorld_backend.Controllers
         }
     }
 }
-

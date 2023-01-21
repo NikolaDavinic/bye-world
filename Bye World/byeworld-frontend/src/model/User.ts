@@ -10,5 +10,6 @@ export interface User {
   companiesCount?: number;
   favListingsCount?: number;
   reviewsCount?: number;
+  cv?: string;
   role?: "User" | "Company";
 }

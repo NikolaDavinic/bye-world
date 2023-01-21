@@ -20,7 +20,9 @@ namespace ByeWorld_backend.Controllers
         private readonly IBoltGraphClient _neo4j;
         private readonly IIdentifierService _ids;
         private readonly ICachingService _cache;
+        private readonly ILogger<CompanyController> _logger;
         public CompanyController(
+            ILogger<CompanyController> logger,
             IConnectionMultiplexer redis, 
             IBoltGraphClient neo4j, 
             IIdentifierService ids, 
@@ -30,6 +32,7 @@ namespace ByeWorld_backend.Controllers
             _neo4j = neo4j;
             _ids = ids;
             _cache = cache;
+            _logger = logger;
         }
 
         [Authorize(Roles = "Company")]
@@ -62,11 +65,38 @@ namespace ByeWorld_backend.Controllers
 
         }
 
-        //[HttpGet("user/{userId}")]
-        //public async Task<IActionResult> GetUserCompanies(int id)
-        //{
-        //    var 
-        //}
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetUserCompanies(int userId)
+        {
+            var query = _neo4j.Cypher
+                .Match("(u:User)-[:HAS_COMPANY]-(c:Company)")
+                .Where((User u) => u.Id == userId)
+                .OptionalMatch("(c)-[]-(r:Review)")
+                .OptionalMatch("(c)-[]-(l:Listing)")
+                .Return((c, r, l) => new {
+                    Company = c.As<Company>(),
+                    ReviewsCount = r.CountDistinct(),
+                    AvgReview = Return.As<double>("avg(r.Value)"),
+                    ListingsCount = l.CountDistinct()
+                })
+                .Limit(10);
+
+            var retval = (await query.ResultsAsync).Select((r) => new
+            {
+                r.Company.Address,
+                r.Company.Email,
+                r.Company.Id,
+                r.Company.LogoUrl,
+                r.Company.Name,
+                r.Company.VAT,
+                r.Company.Description,
+                r.ReviewsCount,
+                r.AvgReview,
+                r.ListingsCount
+            });
+
+            return Ok(retval);
+        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult> GetCompany(int id)
@@ -76,7 +106,7 @@ namespace ByeWorld_backend.Controllers
                 .Where((Company c) => c.Id == id)
                 .Return((c, r) => new {
                     Company = c.As<Company>(),
-                    ReviewsCount = r.Count(),
+                    ReviewsCount = r.CountDistinct(),
                     AvgReview = Return.As<double>("avg(r.Value)")
                 })
                 .Limit(1);
@@ -123,7 +153,14 @@ namespace ByeWorld_backend.Controllers
                 })
                 .Limit(10);
 
-            var result = (await query.ResultsAsync).Select((r) => new
+            var result = await _cache.QueryCache(query, "companies:default", expiry: TimeSpan.FromMinutes(30));
+
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            var retval = result.Select((r) => new
             {
                 r.Company.Address,
                 r.Company.Email,
@@ -137,24 +174,24 @@ namespace ByeWorld_backend.Controllers
                 r.ListingsCount
             });
 
-            return Ok(result);
+            return Ok(retval);
         }
 
-        [HttpGet("getUserCompanies/{id}")]
-        public async Task<ActionResult> GetUserCompanies(int id)
-        {
-            var query = _neo4j.Cypher
-                .Match("(u:User)-[:HAS_COMPANY]-(c:Company)")
-                .Where((User u) => u.Id == id)
-                .Return((c) => new
-                {
-                    Companies=c.CollectAs<Company>()
-                });
+        //[HttpGet("getUserCompanies/{id}")]
+        //public async Task<ActionResult> GetUserCompanies(int id)
+        //{
+        //    var query = _neo4j.Cypher
+        //        .Match("(u:User)-[:HAS_COMPANY]-(c:Company)")
+        //        .Where((User u) => u.Id == id)
+        //        .Return((c) => new
+        //        {
+        //            Companies=c.CollectAs<Company>()
+        //        });
 
-            var result = (await query.ResultsAsync).FirstOrDefault();
+        //    var result = (await query.ResultsAsync).FirstOrDefault();
 
-            return Ok(result);
-        }
+        //    return Ok(result);
+        //}
 
         [HttpGet("companiescount")]
         public async Task<ActionResult> CompaniesCount()

@@ -1,4 +1,4 @@
-import { Link, Stack } from "@mui/material";
+import { Chip, Link, Stack } from "@mui/material";
 import { Box } from "@mui/system";
 import HomeCard from "./HomeCard";
 import { ListingCard } from "../common/ListingsList/ListingCard";
@@ -94,6 +94,21 @@ export const Home: React.FC = () => {
     },
   ];
 
+  const popularLanguages = [
+    {
+      id: 1,
+      name: "Python",
+    },
+    {
+      id: 2,
+      name: "C#"
+    },
+    {
+      id: 3,
+      name: "TypeScript"
+    }
+  ];
+
   return (
     <main className="">
       <div
@@ -130,6 +145,26 @@ export const Home: React.FC = () => {
           </div>
         </div>
       </div>
+      <section className="py-8 lg:py-12 px-4">
+        <div className="max-w-7xl mx-auto flex-col justify-center">
+        <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-blue-800 ">
+            Popular skills today
+          </h2>
+          <div
+            className="mx-auto justify-between md:w-auto md:flex md:items-center md:justify-center md:flex-wrap grid grid-cols-2
+              md:grid-cols-none place-items-center place-content-center gap-4 md:gap-8"
+          >
+            {popularLanguages.map(el => {
+              return (
+                <>
+                  <Chip key={el.id} label={el.name} size="medium" color="primary" />
+                </>
+              )
+            })}
+          </div>
+        </div>
+
+      </section>
       <section className="py-8 lg:py-12 px-4 ">
         <div className="max-w-7xl mx-auto flex justify-center flex-col">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-blue-800 ">

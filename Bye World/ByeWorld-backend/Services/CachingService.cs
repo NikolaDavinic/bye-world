@@ -1,7 +1,8 @@
 ﻿using Neo4jClient;
 using Neo4jClient.Cypher;
+using Newtonsoft.Json;
 using StackExchange.Redis;
-using System.Text.Json;
+//using System.Text.Json;
 
 namespace ByeWorld_backend.Services
 {
@@ -32,7 +33,7 @@ namespace ByeWorld_backend.Services
                 if (!string.IsNullOrEmpty(redisValue))
                 {
                     tokenSource.Cancel();
-                    return JsonSerializer.Deserialize<List<T>>(redisValue);
+                    return JsonConvert.DeserializeObject<List<T>>(redisValue);
                 }
             }
 
@@ -40,7 +41,7 @@ namespace ByeWorld_backend.Services
 
             if (value != null && value.Any())
             {
-                _ = db.StringSetAsync(redisKey, JsonSerializer.Serialize(value), expiry: expiry ?? TimeSpan.FromHours(1));
+                _ = db.StringSetAsync(redisKey, JsonConvert.SerializeObject(value), expiry: expiry ?? TimeSpan.FromHours(1));
             }
 
             return value;
@@ -54,14 +55,14 @@ namespace ByeWorld_backend.Services
 
             if (!string.IsNullOrEmpty(redisValue))
             {
-                return JsonSerializer.Deserialize<List<T>>(redisValue);
+                return JsonConvert.DeserializeObject<IEnumerable<T>>(redisValue);
             }
 
             var result = await neoQuery.ResultsAsync;
 
             if (result != null && result.Any())
             {
-                _ = db.StringSetAsync(redisKey, JsonSerializer.Serialize(result), expiry: expiry ?? TimeSpan.FromHours(1));
+                _ = db.StringSetAsync(redisKey, JsonConvert.SerializeObject(result), expiry: expiry ?? TimeSpan.FromHours(1));
             }
 
             return result;

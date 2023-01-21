@@ -21,26 +21,20 @@ const FavListings = () => {
     );
   }
 
-  // const toggleFavoriteListing = (id: number) => {
-  //   setListings((listings) => );
-  // };
-
   return (
     <Box>
-      {listings?.length == 0 &&
+      {listings?.length == 0 && (
         <Box>
+          <Typography>No favorite listings yet</Typography>
           <Typography>
-            No favorite listings yet
-          </Typography>
-          <Typography>
-            To add listing as favorite, press heart icon in the top right corner of your favorite listings!
+            To add listing as favorite, press heart icon in the top right corner
+            of your favorite listings!
           </Typography>
         </Box>
-      }
-      {
-        (listings && listings?.length > 0) &&
+      )}
+      {listings && listings?.length > 0 && (
         <ListingsList listings={listings ?? []}></ListingsList>
-      }
+      )}
     </Box>
   );
 };

@@ -1,10 +1,6 @@
 using ByeWorld_backend.Middlewares;
-using ByeWorld_backend.Services;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.OpenApi.Models;
-using Neo4jClient;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,18 +14,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IConnectionMultiplexer>(
     ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("redis")));
-builder.Services.AddSingleton<IBoltGraphClient>(options =>
-{
-    var neo4jClient = new BoltGraphClient(
-        builder.Configuration.GetConnectionString("neo4j"),
-        builder.Configuration.GetSection("Neo4jClientAuth:user").Value,
-        builder.Configuration.GetSection("Neo4jClientAuth:password").Value);
-    neo4jClient.ConnectAsync().Wait();
-    return neo4jClient;
-});
 
 builder.Services.AddAuthentication("session-scheme")
    .AddScheme<AuthenticationSchemeOptions, SessionAuthenticationSchemeHandler>("session-scheme", options => { });
+
 builder.Services.AddAuthorization(options =>
 {
     options.DefaultPolicy = new AuthorizationPolicyBuilder()
@@ -37,12 +25,6 @@ builder.Services.AddAuthorization(options =>
         .RequireAuthenticatedUser()
         .Build();
 });
-
-
-builder.Services.AddSingleton<IUserService, UserService>();
-builder.Services.AddSingleton<ICachingService, CachingService>();
-builder.Services.AddHostedService<RedisQueueService>();
-builder.Services.AddSingleton<IIdentifierService, IdentifierService>();
 
 builder.Services.AddCors(options =>
 {
@@ -86,11 +68,11 @@ else
 
 app.UseHttpsRedirection();
 
+app.UseStaticFiles();
+
 app.UseAuthentication();
 
 app.UseAuthorization();
-
-app.UseMiddleware<ActiveUsersCounter>();
 
 app.MapControllers();
 

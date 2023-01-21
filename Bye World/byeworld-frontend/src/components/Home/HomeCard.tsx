@@ -17,7 +17,7 @@ const HomeCard: React.FC<HomeCardProps> = ({
     const navigate = useNavigate()
     return (
         <div className='w-[160px] h-[160px] relative bg-white rounded-lg shadow-md flex flex-col items-center justify-center
-            gap-4 hover:opacity-75 hover:transition-all hover:scale-110 p-6 border border-gray-100'>
+            gap-4 hover:opacity-75 hover:transition-all hover:scale-110 p-6 border border-gray-100 shadow-lg shadow-neutral-100'>
             {/* <Card sx={{ maxWidth: 1200, width: "auto", minWidth: 1000, height: 250 }}> */}
                 {/* <CardActionArea */}
                     {/* className="h-full hover:bg-blue-100"> */}
