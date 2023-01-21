@@ -103,6 +103,18 @@ namespace ByeWorld_backend.Controllers
             await addQuery.ExecuteWithoutResultsAsync();
             return Ok();
         }
+        [HttpGet("topskills")]
+        public async Task<ActionResult> GetTopSkills()
+        {
+            var db = _redis.GetDatabase();
+
+            var skills =
+                (await db.SortedSetRangeByRankAsync($"skills:leaderboard:{DateTime.Now.ToString("ddMMyyyy")}", start: 0, stop: 5, Order.Descending))
+                .Select(name=>name.ToString())
+                .ToList();
+
+            return Ok(skills);
+        }
 
     }
 }

@@ -496,7 +496,12 @@ namespace ByeWorld_backend.Controllers
             }
 
             await db.ListLeftPushAsync("listing:newest", JsonConvert.SerializeObject(toredis.Single()));
-            
+
+            foreach (var req in listing.Requirements)
+            {
+                await db.SortedSetIncrementAsync($"skills:leaderboard:{DateTime.Now.ToString("ddMMyyyy")}", req.Name, 1);
+            }
+
             return Ok(retVal);
         }
 

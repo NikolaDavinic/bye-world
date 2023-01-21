@@ -151,9 +151,6 @@ const ListingPage: React.FC = () => {
                       })}
                   </div>
                   <div className="flex flex-col items-start">
-                    <p className="print:text-black print:no-underline link font-semibold text-xl">
-                      Description:
-                    </p>
                     <div className="flex flex-col justify-start ">
                       {listing1?.description && (
                         <div>{parse(listing1?.description)}</div>

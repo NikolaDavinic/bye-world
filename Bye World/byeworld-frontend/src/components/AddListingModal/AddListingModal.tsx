@@ -46,6 +46,8 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
     setOpen(isOpen);
   }, [isOpen]);
   const [open, setOpen] = React.useState(false);
+  const [showSnackbar, setShowSnackbar] = React.useState<boolean>(false);
+  const [snackbarMessage, setSnackbarMessage] = React.useState<string>("");
 
   const navigate = useNavigate();
   const handleClose = () => {
@@ -55,7 +57,7 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
   const { isAuthenticated, user } = useAuthContext();
 
   const { result, loading, error } = useApi<any>(
-    `company/getUserCompanies/${user?.id}`
+    `company/user/${user?.id}`
   );
 
   const [title, setTitle] = useState<string>("");
@@ -89,6 +91,8 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
       })
       .catch((error) => {
         console.error(error);
+        setSnackbarMessage(error);
+        setShowSnackbar(true);
       });
   };
 
@@ -148,7 +152,7 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
               variant="standard"
               onChange={(e) => setCompanyId(Number(e.target.value))}
             >
-              {result.companies.map((c: Company) => (
+              {result.map((c: Company) => (
                 <MenuItem key={c.id} value={c.id}>
                   {c.name}
                 </MenuItem>
@@ -258,12 +262,12 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
           </Button>
         </DialogActions>
       </Dialog>
-      {/* <Snackbar open={open} autoHideDuration={6000} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-                onClose={handleClose}>
-                <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                    This is a success message!
-                </Alert>
-            </Snackbar> */}
+      <Snackbar open={showSnackbar} autoHideDuration={4000} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        onClose={() => setShowSnackbar(false)}>
+        <Alert onClose={() => setShowSnackbar(false)} severity="success" sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
