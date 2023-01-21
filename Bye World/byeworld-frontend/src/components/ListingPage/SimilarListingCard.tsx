@@ -41,7 +41,7 @@ export const SimilarListingCard: React.FC<SimilarListingCardProps> = ({
               </div>
             </div>
             <div className="grid gap-1">
-              <div className="flex items-center gap-1 w-1/2 overflow-hidden">
+              <div className="flex items-center gap-1 overflow-hidden">
                 <p className="font-semibold opacity-75">
                   {/* Naziv komapnije */}
                   <Link href={`/company/${listing.companyId}/about`}>

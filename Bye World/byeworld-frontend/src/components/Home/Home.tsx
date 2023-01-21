@@ -9,6 +9,9 @@ import { Listing } from "../../model/Listing";
 import { User } from "../../model/User";
 import { ListingDTO } from "../listings/ListingsPage";
 import { Link } from "react-router-dom";
+import UserSuggestions from "../UserPage/UserSuggestions";
+import { useAuthContext } from "../../contexts/auth.context";
+import { Typography } from "@mui/joy";
 
 export const Home: React.FC = () => {
   const {
@@ -16,6 +19,8 @@ export const Home: React.FC = () => {
     loading,
     error,
   } = useApi<ListingDTO[]>(`/listing/toplistings`);
+
+  const { isAuthenticated } = useAuthContext();
 
   const { result: active } = useApi<any>(`/user/authcount`);
 
@@ -113,14 +118,24 @@ export const Home: React.FC = () => {
           <div className="px-4 max-w-7xl mx-auto w-full relative">
             <div>
               <div className="max-w-xl mx-auto">
-                <h1 className="max-w-md md:max-w-xl mx-auto text-xl md:text-4xl text-blue-800 font-bold mb-6 md:mb-12 text-center">
-                  Largest website of jobs
+                <h1 className="max-w-md md:max-w-xl mx-auto text-xl md:text-4xl text-blue-800 font-bold mb-6 md:mb-12 text-center animate-pulse">
+                  Unleash the full potential of your IT career
                 </h1>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {isAuthenticated() ? (
+        <UserSuggestions></UserSuggestions>
+      ) : (
+        <Box className="p-5">
+          <p style={{ color: "gray" }}>
+            Register today to get personalized job listings*
+          </p>
+        </Box>
+      )}
 
       <div
         className="max-w-5xl mx-auto py-6 md:my-12 relative px-4"
