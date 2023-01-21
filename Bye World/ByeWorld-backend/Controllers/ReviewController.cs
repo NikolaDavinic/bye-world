@@ -16,8 +16,14 @@ namespace ByeWorld_backend.Controllers
         private readonly IConnectionMultiplexer _redis;
         private readonly IBoltGraphClient _neo4j;
         private readonly IIdentifierService _ids;
-        public ReviewController(IConnectionMultiplexer redis, IBoltGraphClient neo4j, IIdentifierService ids)
+        private readonly ICachingService _cache;
+        public ReviewController(
+            IConnectionMultiplexer redis, 
+            IBoltGraphClient neo4j, 
+            IIdentifierService ids,
+            ICachingService cache)
         {
+            _cache = cache;
             _redis = redis;
             _neo4j = neo4j;
             _ids = ids;
@@ -37,9 +43,12 @@ namespace ByeWorld_backend.Controllers
                     UserId = u.As<User>().Id,
                     UserName = u.As<User>().Name,
                     UserImageUrl = u.As<User>().ImageUrl
-                });
+                })
+                .Limit(10);
 
-            var returnVal = (await query.ResultsAsync).Select(r => new
+            var result = await _cache.QueryCache(query, $"company:reviews:{id}", expiry: TimeSpan.FromMinutes(30));
+
+            var returnVal = result?.Select(r => new
             {
                 Company = new
                 {
@@ -74,16 +83,23 @@ namespace ByeWorld_backend.Controllers
                 .Set("r.Description = $desc")
                 .WithParam("value", rw.Value)
                 .WithParam("desc", rw.Description)
-                .Return(r => r.As<Review>())
+                .With("r as r")
+                .OptionalMatch("(r)-[]-(c:Company)")
+                .Return((r, c) => new {
+                    Review = r.As<Review>(),
+                    CompanyId = c.As<Company>().Id
+                })
                 .ResultsAsync)
                 .FirstOrDefault();
 
-            if (result == null)
+            if (result?.Review != null)
             {
-                return BadRequest("Update failed");
+                var db = _redis.GetDatabase();
+                _ = db.KeyDeleteAsync($"company:reviews:{result?.CompanyId}");
+                return Ok(result?.Review);
             } else
             {
-                return Ok(result);
+                return BadRequest("Update failed");
             }
         }
 
@@ -91,17 +107,23 @@ namespace ByeWorld_backend.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteReview(int id)
         {
-            var userId = int.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "0");
+            var userId = int.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");
 
             var result = (await _neo4j.Cypher
                 .Match("(r:Review)-[]-(u:User)")
                 .Where((Review r, User u) => r.Id == id && u.Id == userId)
+                .OptionalMatch("(r)-[]-(c:Company)")
                 .DetachDelete("r")
-                .Return(r => r.As<Review>())
+                .Return((r, c) => new { 
+                    Review = r.As<Review>(),
+                    CompanyId = c.As<Company>().Id 
+                })
                 .ResultsAsync).FirstOrDefault();
 
-            if (result != null)
+            if (result?.Review != null)
             {
+                var db = _redis.GetDatabase();
+                _ = db.KeyDeleteAsync($"company:reviews:{result?.CompanyId}");
                 return Ok("Review deleted");
             } else
             {
@@ -152,6 +174,9 @@ namespace ByeWorld_backend.Controllers
         public async Task<IActionResult> AddReview([FromBody] AddReviewDTO rw)
         {
             long userId = Int32.Parse(HttpContext.User.Claims.FirstOrDefault(x => x.Type.Equals("Id"))?.Value ?? "0");
+
+            var db = _redis.GetDatabase();
+            _ = db.KeyDeleteAsync($"company:reviews:{rw.CompanyId}");
 
             var review = new Review
             {

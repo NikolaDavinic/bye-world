@@ -212,18 +212,28 @@ namespace ByeWorld_backend.Controllers
                    .Match("(cm:Company)-[cl:HAS_LISTING]->(l)")
                    .Match("(l)-[:REQUIRES]->(s:Skill)")
                    .Where((Listing l, Company cm, City c, Skill s) => l.Id == id)
-                   .OptionalMatch("(u)-[hf:HAS_FAVORITE]-(l)")
-                   .Where((User u) => u.Id == userId)
                    .Return((l, cm, c, s) => new
                    {
                        Listing=l.As<Listing>(),
                        Company=cm.As<Company>(),
                        City=c.As<City>(),
                        Skill=s.CollectAs<Skill>(),
-                       IsFavorite = Return.As<bool>("CASE hf WHEN hf THEN TRUE ELSE FALSE END")
-                   });
+                   })
+                   .Limit(1);
 
-            var result = (await query.ResultsAsync).Select(r => new
+            var qresult = await _cache.QueryCache(query, $"listings:{id}");
+
+            bool isFavorite = false;
+            if (userId != -1)
+            {
+                isFavorite = (await _neo4j.Cypher
+                    .Match("(u:User)-[hf:HAS_FAVORITE]-(l:Listing)")
+                    .Where((User u, Listing l) => u.Id == userId && l.Id == id)
+                    .Return(hf => Return.As<bool>("CASE hf WHEN hf THEN TRUE ELSE FALSE END"))
+                    .ResultsAsync).FirstOrDefault();
+            }
+
+            var result = qresult?.Select(r => new
             {
                 Company = new
                 {
@@ -243,7 +253,7 @@ namespace ByeWorld_backend.Controllers
                 r.Listing.Title,
                 r.Listing.Description,
                 r.Listing.PostingDate,
-                r.IsFavorite
+                IsFavorite = isFavorite
             }).FirstOrDefault();
 
             if (result != null)
@@ -586,12 +596,13 @@ namespace ByeWorld_backend.Controllers
         [HttpGet("listingscount")]
         public async Task<ActionResult> ListingsCount()
         {
-            var query = await _neo4j.Cypher
+            var query = _neo4j.Cypher
                 .Match("(l:Listing)")
-                .Return(l => l.Count())
-                .ResultsAsync;
+                .Return(l => l.Count());
 
-            return Ok(query.Single());
+            var result = await _cache.QueryCache(query, "listings:count", expiry: TimeSpan.FromMinutes(15));
+
+            return Ok(result?.Single() ?? 0);
         }
     }
 }
