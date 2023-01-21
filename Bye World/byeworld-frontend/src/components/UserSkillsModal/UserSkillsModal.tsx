@@ -35,14 +35,23 @@ export const UserSkillsModal: React.FC<UserSkillsModalProps> = ({
     const handleClose = () => {
         handleModalClose();
     };
-    useEffect(() => {
-        const response = api.get("/skill/myskills")
-            .then((result) => setSkills(result.data));
-    }, []);
-
+    // useEffect(() => {
+    //     const response = api.get("/skill/myskills")
+    //         .then((result) => result.data.Length > 0 && setSkills(result.data));
+    // }, []);
     const [skills, setSkills] = useState<SkillDTO[]>([
         { name: "", proficiency: "" }
     ]);
+    useEffect(() => {
+        const fetchData = async () => {
+            const response = await api.get("/skill/myskills");
+            response.data.length > 0 && setSkills(response.data);
+        }
+
+        fetchData()
+            .catch(console.error);
+    }, [])
+
 
     const onSubmit = () => {
         const data: SkillDTO[] = skills;
