@@ -112,10 +112,10 @@ const ListingPage: React.FC = () => {
                     </h1>
                     <h4>
                       <Link
-                        href={`/company/${listing1?.company.id}`}
+                        href={`/company/${listing1?.company?.id}`}
                         className="print:text-black print:no-underline link font-semibold"
                       >
-                        {listing1?.company.name}
+                        {listing1?.company?.name}
                       </Link>
                     </h4>
                   </div>
