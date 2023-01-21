@@ -44,7 +44,7 @@ const ListingPage: React.FC = () => {
     error,
   } = useApi<ListingDTO[]>(`/listing/similarlistings/${params.id}`);
 
-  useEffect(() => { }, []);
+  useEffect(() => {}, []);
 
   const [open, setOpen] = React.useState(false);
 
@@ -89,7 +89,6 @@ const ListingPage: React.FC = () => {
           <div className="print:shadow-none relative shadow-md rounded-lg mb-6 -mx-4 md:mx-auto md:w-full">
             <div className="print:bg-transparent print:text-black print:border-none top-0 relative bg-white rounded-t-lg border-b md:z-10">
               <div className="flex md:flex:row border-t-2 md:flex-wrap">
-
                 <div className="flex-col grid gap-4 flex-1 pt-4 md:pt-8 md:pl-8 pl-4 md:mb-8 mb-4">
                   <div>
                     <h1>
@@ -103,8 +102,9 @@ const ListingPage: React.FC = () => {
                       >
                         <MatIcon
                           style={{ color: "red", fontSize: "1.6rem" }}
-                          variant={`${listing1?.isFavorite ? "contained" : "outlined"
-                            }`}
+                          variant={`${
+                            listing1?.isFavorite ? "contained" : "outlined"
+                          }`}
                         >
                           favorite
                         </MatIcon>
@@ -143,7 +143,6 @@ const ListingPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
-
                     {listing1?.skill != null &&
                       listing1?.skill?.map((r: any) => {
                         return (
@@ -152,7 +151,9 @@ const ListingPage: React.FC = () => {
                       })}
                   </div>
                   <div className="flex flex-col items-start">
-                    <p className="print:text-black print:no-underline link font-semibold text-xl">Description:</p>
+                    <p className="print:text-black print:no-underline link font-semibold text-xl">
+                      Description:
+                    </p>
                     <div className="flex flex-col justify-start ">
                       {listing1?.description && (
                         <div>{parse(listing1?.description)}</div>
@@ -162,15 +163,13 @@ const ListingPage: React.FC = () => {
                 </div>
                 <div className="flex justify-center align-center ">
                   <div className="print:mx-0 flex items-center justify-center md:mr-24 mt-4 md:mt-8 mb-4 mx-auto md:m-auto order-first md:order-last">
-                    <Link
-                      className="hover:opacity-75 bg-white p-2 rounded-md self-end"
-                    >
+                    <Link className="hover:opacity-75 bg-white p-2 rounded-md self-end">
                       <img
                         alt=""
                         className="w-40 h-40"
                         src={
                           listing1?.company?.logoUrl &&
-                            listing1?.company?.logoUrl.length >= 0
+                          listing1?.company?.logoUrl.length >= 0
                             ? listing1?.company?.logoUrl
                             : "https://www.adaptivewfs.com/wp-content/uploads/2020/07/logo-placeholder-image.png"
                         }
@@ -181,9 +180,7 @@ const ListingPage: React.FC = () => {
                     </Link>
                   </div>
                 </div>
-
               </div>
-
             </div>
             <div
               className=" print:hidden sticky bottom-0 bg-white rounded-b-lg flex flex-col md:flex-row items-center justify-center  
@@ -211,18 +208,15 @@ const ListingPage: React.FC = () => {
       </div>
       <div className="bg-gray-200">
         <div className="grid gap-4 max-w-7xl mx-auto px-4 py-8">
-          <p className="font-nold text-2xl text-start font-bold">Similar listings</p>
+          <p className="font-nold text-2xl text-start font-bold">
+            Similar listings
+          </p>
           <div className="grid md:grid-cols-3 gap-4">
             {listings != null &&
               listings?.map((listing) => {
                 return (
                   <div key={listing?.id}>
-                    <SimilarListingCard
-                      listing={listing}
-                      divHeight={300}
-                      divMaxWidth={400}
-                      divMinWidth={350}
-                    />
+                    <SimilarListingCard listing={listing} divHeight={300} />
                   </div>
                 );
               })}

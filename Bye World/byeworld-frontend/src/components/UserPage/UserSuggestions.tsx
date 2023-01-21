@@ -36,13 +36,11 @@ const UserSuggestions = () => {
     <Grid container sx={{ width: "100%" }}>
       {suggestions.map((item) => {
         return (
-          <>
-            <Grid item>
-              <Link href={`/listing/${item.id}`} key={item.id}>
-                {/* <SimilarListingCard listing={item} /> */}
-              </Link>
-            </Grid>
-          </>
+          <Grid item key={item.id}>
+            <Link href={`/listing/${item.id}`}>
+              {/* <SimilarListingCard listing={item} /> */}
+            </Link>
+          </Grid>
         );
       })}
     </Grid>

@@ -1,4 +1,4 @@
-import { Chip, Link, Stack } from "@mui/material";
+import { Chip, Stack } from "@mui/material";
 import { Box } from "@mui/system";
 import HomeCard from "./HomeCard";
 import { ListingCard } from "../common/ListingsList/ListingCard";
@@ -8,6 +8,7 @@ import { useApi } from "../../hooks/api.hook";
 import { Listing } from "../../model/Listing";
 import { User } from "../../model/User";
 import { ListingDTO } from "../listings/ListingsPage";
+import { Link } from "react-router-dom";
 
 export const Home: React.FC = () => {
   const {
@@ -132,7 +133,12 @@ export const Home: React.FC = () => {
           >
             {testArray.map((el) => {
               return (
-                <HomeCard name={el.name} icon={el.icon} count={el.count} />
+                <HomeCard
+                  name={el.name}
+                  icon={el.icon}
+                  count={el.count}
+                  key={el.name}
+                />
               );
             })}
           </div>
@@ -168,30 +174,23 @@ export const Home: React.FC = () => {
             Featured listings
           </h2>
           <div className="relative max-w-7xl mx-auto md:flex md:gap-6 px-4 py-8">
-            {/* <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-4 md:gap-6 max-w-7xl mx-auto px-4 py-8">
-              {testListings.map(listing => {
-                return (
-                  <SimilarListingCard listing={listing} divHeight={325} divMaxWidth={400} divMinWidth={350} />
-                )
-              })}
-            </div> */}
             <div
               className="flex items-center justify-center"
-              style={{ backgroundColor: "#fdd835" }}
+              style={{ backgroundColor: "var(--secondary-main)" }}
             >
-              <div className="grid gap-4 max-w-7xl mx-auto px-4 py-8">
+              <div className="grid gap-4 max-w-7xl px-4 py-8">
                 <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-4">
-                  {topListings != null ? topListings.map((listing) => {
-                    // console.log(listing);
-                    return (
-                      <SimilarListingCard
-                        listing={listing}
-                        divHeight={300}
-                        divMaxWidth={400}
-                        divMinWidth={350}
-                      />
-                    );
-                  }) :
+                  {topListings != null ? (
+                    topListings.map((listing) => {
+                      return (
+                        <SimilarListingCard
+                          listing={listing}
+                          divHeight={300}
+                          key={listing.id}
+                        />
+                      );
+                    })
+                  ) : (
                     <>
                       <h2>In database we don't have any listing</h2>
                     </>
@@ -202,7 +201,7 @@ export const Home: React.FC = () => {
           </div>
           <div className="text-center mt-8 flex justify-center">
             <Link
-              href="/listings"
+              to="/listings"
               className="border-2 border-blue-700 bg-blue-700 font-bold rounded-lg text-lg no-underline 
                   flex items-center justify-center w-4/5"
             >
@@ -222,21 +221,11 @@ export const Home: React.FC = () => {
             </p>
             <div className="grid md:grid-cols-3 gap-4">
               {newestListings != null &&
-                newestListings.map((item) => {
-                  console.log(item);
-                  return (
-                    <>
-                      <Link href={`/listing/${item.id}`}>
-                        <SimilarListingCard
-                          listing={item}
-                          divHeight={300}
-                          divMaxWidth={400}
-                          divMinWidth={350}
-                        />
-                      </Link>
-                    </>
-                  );
-                })}
+                newestListings.map((item) => (
+                  <Link to={`/listing/${item.id}`} key={item.id}>
+                    <SimilarListingCard listing={item} divHeight={300} />
+                  </Link>
+                ))}
             </div>
           </div>
         </div>

@@ -15,25 +15,19 @@ interface SimilarListingCardProps {
   listing: ListingDTO;
   // divWidth: number;
   divHeight: number;
-  divMaxWidth: number;
-  divMinWidth: number;
 }
 export const SimilarListingCard: React.FC<SimilarListingCardProps> = ({
   listing,
   divHeight,
-  divMaxWidth,
-  divMinWidth,
 }: SimilarListingCardProps) => {
   const navigate = useNavigate();
 
   const { result: listing1 } = useApi<any>(`/listing/${listing?.id}`);
 
+  console.log(listing);
+
   return (
-    <Card>
-      {/* <CardActionArea
-        className="h-full hover:bg-blue-100"
-        onClick={() => navigate("/listing/" + listing.id)}
-      > */}
+    <Card sx={{ height: divHeight }}>
       <CardContent className="h-full">
         <div className="flex flex-row justify-between h-full shadow-xl shadow-indigo-500/50">
           <div className="flex flex-col gap-3 px-4 md:pl-4 mb-4">
@@ -93,7 +87,7 @@ export const SimilarListingCard: React.FC<SimilarListingCardProps> = ({
                                 </button> */}
               {listing?.requirements != null &&
                 listing?.requirements?.map((r: any) => {
-                  return <Chip key={r.id} label={r.name} color="primary" />;
+                  return <Chip key={r.name} label={r.name} color="primary" />;
                 })}
             </Box>
           </div>
