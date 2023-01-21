@@ -216,12 +216,13 @@ namespace ByeWorld_backend.Controllers
         [HttpGet("companiescount")]
         public async Task<ActionResult> CompaniesCount()
         {
-            var query = await _neo4j.Cypher
+            var query = _neo4j.Cypher
                 .Match("(c:Company)")
-                .Return(c => c.Count())
-                .ResultsAsync;
+                .Return(c => c.Count());
 
-            return Ok(query.Single());
+            var result = await _cache.QueryCache(query, "companies:count", expiry: TimeSpan.FromMinutes(15));
+
+            return Ok(result?.Single() ?? 0);
         }
     }
 }
