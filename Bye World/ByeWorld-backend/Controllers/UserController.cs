@@ -62,15 +62,7 @@ namespace ByeWorld_backend.Controllers
                 return BadRequest("This email address is already in use, please enter new email!");
             }
 
-            //await _neo4j.Cypher.Create("(u:User $user)")
-            //                   .WithParam("user", newUser)
-            //                   .ExecuteWithoutResultsAsync();
-            //TODO: Email verification using redis
-
-            //var tokenGenerated = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            //string strToken = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
             byte[] tokenBytes = Guid.NewGuid().ToByteArray();
-            //byte[] tokenGeneratedBytes = Encoding.UTF8.GetBytes(tokenBytes);
             var codeEncoded = WebEncoders.Base64UrlEncode(tokenBytes);
             var confirmationLink = Url.Action("VerifyUserEmail", "user", new { codeEncoded, email = u.Email }, Request.Scheme);
 
@@ -148,6 +140,9 @@ namespace ByeWorld_backend.Controllers
                     .Set("u.EmailConfirmed = true")
                     .Return(u => u.As<User>())
                     .ExecuteWithoutResultsAsync();
+
+                await db.KeyDeleteAsync(email);
+
                 return Ok("Account confirmed");
             }
 

@@ -39,7 +39,7 @@ namespace ByeWorld_backend.Controllers
 
         [HttpGet("filter")]
         public async Task<ActionResult> GetAllListings([FromQuery] string? keyword, [FromQuery]string? city, 
-                [FromQuery]string? position, [FromQuery] string? seniority, [FromQuery] int? take, [FromQuery] bool sortNewest = true)
+                [FromQuery]string? position, [FromQuery] string? seniority, [FromQuery] int? take, [FromQuery] bool sortNewest = true, [FromQuery] bool includeExpired = false)
         {
             var userId = long.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");
 
@@ -47,7 +47,10 @@ namespace ByeWorld_backend.Controllers
                 .Match("(s:Skill)-[reqs:REQUIRES]-(l:Listing)-[r]-(c:City)")
                 .Match("(l)-[:HAS_LISTING]-(co:Company)")
                 .Where((Listing l) => true);
-
+            if (!includeExpired)
+            {
+                query = query.AndWhere((Listing l) => l.ClosingDate < DateTime.Now);
+            }
             if (!String.IsNullOrEmpty(keyword))
             {
                 query=query.AndWhere((Listing l) => l.Title.Contains(keyword));
