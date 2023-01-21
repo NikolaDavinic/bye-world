@@ -8,7 +8,7 @@ import { Company } from "../../model/Company";
 import { Listing } from "../../model/Listing";
 import { useNavigate } from "react-router-dom";
 import { useApi } from "../../hooks/api.hook";
-import parse from 'html-react-parser';
+import parse from "html-react-parser";
 import { ListingDTO } from "../listings/ListingsPage";
 
 interface SimilarListingCardProps {
@@ -19,16 +19,24 @@ interface SimilarListingCardProps {
   divMinWidth: number;
 }
 export const SimilarListingCard: React.FC<SimilarListingCardProps> = ({
-  listing, divHeight, divMaxWidth, divMinWidth
+  listing,
+  divHeight,
+  divMaxWidth,
+  divMinWidth,
 }: SimilarListingCardProps) => {
   const navigate = useNavigate();
 
-  const {
-    result: listing1,
-  } = useApi<any>(`/listing/${listing?.id}`);
+  const { result: listing1 } = useApi<any>(`/listing/${listing?.id}`);
 
   return (
-    <Card sx={{ maxWidth: divMaxWidth, width: "auto", minWidth: divMinWidth, height: divHeight }}>
+    <Card
+      sx={{
+        maxWidth: divMaxWidth,
+        width: "auto",
+        minWidth: divMinWidth,
+        height: divHeight,
+      }}
+    >
       {/* <CardActionArea
         className="h-full hover:bg-blue-100"
         onClick={() => navigate("/listing/" + listing.id)}
@@ -67,14 +75,17 @@ export const SimilarListingCard: React.FC<SimilarListingCardProps> = ({
                   <Icon className="material-symbols-outlined">
                     location_city
                   </Icon>
-                  <p className="text-sm font-semibold">{listing?.cityName != null && listing.cityName}</p>
+                  <p className="text-sm font-semibold">
+                    {listing?.cityName != null && listing.cityName}
+                  </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-1">
                 <Icon className="material-symbols-outlined">schedule</Icon>
                 <p className="text-sm font-semibold">
-                  {listing?.closingDate != null && new Date(listing.closingDate).toLocaleDateString("de-DE")}
+                  {listing?.closingDate != null &&
+                    new Date(listing.closingDate).toLocaleDateString("de-DE")}
                 </p>
               </div>
             </div>
@@ -87,9 +98,10 @@ export const SimilarListingCard: React.FC<SimilarListingCardProps> = ({
                                 <button type="button" className="w-auto bg-main text-white rounded-md cursor-pointer" >
                                     <span className='text-white'>Senior </span>
                                 </button> */}
-              {listing?.requirements != null && listing?.requirements?.map((r: any) => {
-                return <Chip key={r.id} label={r.name} color="primary" />;
-              })}
+              {listing?.requirements != null &&
+                listing?.requirements?.map((r: any) => {
+                  return <Chip key={r.id} label={r.name} color="primary" />;
+                })}
             </Box>
           </div>
           {/* <div className="w-1/5 flex flex-col justify-center align-middle">

@@ -10,28 +10,21 @@ import { User } from "../../model/User";
 import { ListingDTO } from "../listings/ListingsPage";
 
 export const Home: React.FC = () => {
-
   const {
     result: topListings,
     loading,
     error,
   } = useApi<ListingDTO[]>(`/listing/toplistings`);
 
-  const {
-    result: active,
-  } = useApi<any>(`/user/authcount`);
+  const { result: active } = useApi<any>(`/user/authcount`);
 
-  const {
-    result: numberOfListings,
-  } = useApi<any>(`/listing/listingscount`);
+  const { result: numberOfListings } = useApi<any>(`/listing/listingscount`);
 
-  const {
-    result: numberOfCompanies,
-  } = useApi<any>(`/company/companiescount`);
+  const { result: numberOfCompanies } = useApi<any>(`/company/companiescount`);
 
-  const {
-    result: newestListings,
-  } = useApi<ListingDTO[]>(`/listing/newestlistings`);
+  const { result: newestListings } = useApi<ListingDTO[]>(
+    `/listing/newestlistings`
+  );
 
   const testArray = [
     {
@@ -47,8 +40,8 @@ export const Home: React.FC = () => {
     {
       name: "Companies",
       count: numberOfCompanies,
-      icon: 3
-    }
+      icon: 3,
+    },
   ];
 
   const testListings = [
@@ -101,12 +94,12 @@ export const Home: React.FC = () => {
     },
     {
       id: 2,
-      name: "C#"
+      name: "C#",
     },
     {
       id: 3,
-      name: "TypeScript"
-    }
+      name: "TypeScript",
+    },
   ];
 
   return (
@@ -147,23 +140,27 @@ export const Home: React.FC = () => {
       </div>
       <section className="py-8 lg:py-12 px-4">
         <div className="max-w-7xl mx-auto flex-col justify-center">
-        <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-blue-800 ">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-blue-800 ">
             Popular skills today
           </h2>
           <div
             className="mx-auto justify-between md:w-auto md:flex md:items-center md:justify-center md:flex-wrap grid grid-cols-2
               md:grid-cols-none place-items-center place-content-center gap-4 md:gap-8"
           >
-            {popularLanguages.map(el => {
+            {popularLanguages.map((el) => {
               return (
                 <>
-                  <Chip key={el.id} label={el.name} size="medium" color="primary" />
+                  <Chip
+                    key={el.id}
+                    label={el.name}
+                    size="medium"
+                    color="primary"
+                  />
                 </>
-              )
+              );
             })}
           </div>
         </div>
-
       </section>
       <section className="py-8 lg:py-12 px-4 ">
         <div className="max-w-7xl mx-auto flex justify-center flex-col">
@@ -184,22 +181,23 @@ export const Home: React.FC = () => {
             >
               <div className="grid gap-4 max-w-7xl mx-auto px-4 py-8">
                 <div className="grid md:grid-cols-3 gap-4">
-                  {topListings != null ? topListings.map((listing) => {
-                    // console.log(listing);
-                    return (
-                      <SimilarListingCard
-                        listing={listing}
-                        divHeight={300}
-                        divMaxWidth={400}
-                        divMinWidth={350}
-                      />
-                    );
-                  }) :
+                  {topListings != null ? (
+                    topListings.map((listing) => {
+                      // console.log(listing);
+                      return (
+                        <SimilarListingCard
+                          listing={listing}
+                          divHeight={300}
+                          divMaxWidth={400}
+                          divMinWidth={350}
+                        />
+                      );
+                    })
+                  ) : (
                     <>
-                      <h2>
-                        In database we don't have any listing
-                      </h2>
-                    </>}
+                      <h2>In database we don't have any listing</h2>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -224,10 +222,10 @@ export const Home: React.FC = () => {
             <p className="text-lg md:text-xl max-w-4xl opacity-50 self-start">
               Here we show listings that have been posted in the last 2 hours
             </p>
-            <div className='grid md:grid-cols-3 gap-4'>
-              {
-                newestListings != null && newestListings.map((item) => {
-                  console.log(item)
+            <div className="grid md:grid-cols-3 gap-4">
+              {newestListings != null &&
+                newestListings.map((item) => {
+                  console.log(item);
                   return (
                     <>
                       <Link href={`/listing/${item.id}`}>
@@ -239,9 +237,8 @@ export const Home: React.FC = () => {
                         />
                       </Link>
                     </>
-                  )
-                })
-              }
+                  );
+                })}
             </div>
           </div>
         </div>

@@ -1,8 +1,16 @@
-import { Box, CircularProgress, Link, Typography } from "@mui/material";
-import React from "react";
-import { useApi } from "../../hooks/api.hook";
+import {
+  Box,
+  CircularProgress,
+  Link,
+  ListItem,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { SimilarListingCard } from "../ListingPage/SimilarListingCard";
 import { ListingDTO } from "../listings/ListingsPage";
+import { useApi } from "../../hooks/api.hook";
+import Grid from "@mui/material/Grid";
+import { ListingCard } from "../common/ListingsList/ListingCard";
 
 const UserSuggestions = () => {
   const { result: suggestions, loading } =
@@ -25,22 +33,19 @@ const UserSuggestions = () => {
   }
 
   return (
-    <Box>
+    <Grid container sx={{ width: "100%" }}>
       {suggestions.map((item) => {
         return (
           <>
-            <Link href={`/listing/${item.id}`} key={item.id}>
-              <SimilarListingCard
-                listing={item}
-                divHeight={300}
-                divMaxWidth={400}
-                divMinWidth={350}
-              />
-            </Link>
+            <Grid item>
+              <Link href={`/listing/${item.id}`} key={item.id}>
+                {/* <SimilarListingCard listing={item} /> */}
+              </Link>
+            </Grid>
           </>
         );
       })}
-    </Box>
+    </Grid>
   );
 };
 
