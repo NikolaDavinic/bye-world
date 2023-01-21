@@ -441,7 +441,6 @@ namespace ByeWorld_backend.Controllers
                .Create("(l)-[:LOCATED_IN]->(ci)")
                .WithParam("newListing", newListing);
 
-            //TODO: Sredi ID samo
             for (int i = 0; i < listing.Requirements.Count; i++)
             {
                 //long skillID = await _ids.SkillNext();

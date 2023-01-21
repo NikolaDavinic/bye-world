@@ -60,7 +60,7 @@ export default function UserPage() {
     upService
       .post(`file/upload`, formData)
       .then(() => {
-        reload();
+        window.location.reload();
       })
       .catch();
   };
