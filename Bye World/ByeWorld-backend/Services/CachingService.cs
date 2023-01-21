@@ -55,7 +55,8 @@ namespace ByeWorld_backend.Services
 
             if (!string.IsNullOrEmpty(redisValue))
             {
-                return JsonConvert.DeserializeObject<IEnumerable<T>>(redisValue);
+                return JsonConvert.DeserializeObject<List<T>>(redisValue);
+                //return JsonConvert.DeserializeObject<dynamic>("[{\"Id\":71,\"Title\":\"Pekar\",\"Description\":\"<p>Description</p>\\n\",\"CityName\":\"Nis\",\"ClosingDate\":\"2023-01-22T00:00:00Z\",\"PostingDate\":\"2023-01-15T00:39:31.145Z\",\"CompanyName\":\"Google\",\"CompanyLogoUrl\":\"\",\"CompanyId\":14}]");
             }
 
             var result = await neoQuery.ResultsAsync;

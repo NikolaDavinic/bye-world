@@ -156,16 +156,20 @@ namespace ByeWorld_backend.Controllers
             {
                 var q2 = query.Return((l, c, s, co) => new
                 {
-                    l.As<Listing>().Id,
-                    l.As<Listing>().Title,
-                    l.As<Listing>().Description,
-                    CityName = c.As<City>().Name,
-                    l.As<Listing>().ClosingDate,
-                    l.As<Listing>().PostingDate,
+                    //l.As<Listing>().Id,
+                    //l.As<Listing>().Title,
+                    //l.As<Listing>().Description,
+                    //CityName = c.As<City>().Name,
+                    //l.As<Listing>().ClosingDate,
+                    //l.As<Listing>().PostingDate,
                     //Requirements = s.CollectAs<Skill>(),
-                    CompanyName = co.As<Company>().Name,
-                    CompanyLogoUrl = co.As<Company>().LogoUrl,
-                    CompanyId = co.As<Company>().Id,
+                    //CompanyName = co.As<Company>().Name,
+                    //CompanyLogoUrl = co.As<Company>().LogoUrl,
+                    //CompanyId = co.As<Company>().Id,
+                    //Listing = l.As<Listing>(),
+                    //Company = co.As<Company>(),
+                    //City = c.As<Company>()
+                    Nesto = "nesto"
                 });
 
                 var resultNoUser = _cache.QueryCache(q2, $"user:favorites:{userId}", expiry: TimeSpan.FromMinutes(15));
