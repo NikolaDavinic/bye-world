@@ -37,7 +37,7 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
         <CardContent>
           <Chip
             color="primary"
-            label={company.avgReview}
+            label={company.avgReview?.toPrecision(3)}
             variant="outlined"
             icon={
               <Icon

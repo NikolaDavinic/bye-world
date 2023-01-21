@@ -1,4 +1,4 @@
-import { Button, Icon, TextField } from "@mui/material";
+import { Button, FormControlLabel, FormGroup, Icon, Switch, TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { api } from "../../constants";
 import { Listing } from "../../model/Listing";
@@ -24,7 +24,9 @@ export const Listings: React.FC = () => {
   const [city, setCity] = useState<string>("");
   const [seniority, setSeniority] = useState<string>("");
   const [sortNewest, setSortNewest] = useState<Boolean>(true);
+  const [includeExpired, setIncludeExpired] = useState<Boolean>(false);
   const [listings, setListings] = useState<ListingDTO[]>([]);
+
   //Paging
   //Increment of listings number
   const increment = 3;
@@ -32,7 +34,7 @@ export const Listings: React.FC = () => {
   const [count, setCount] = useState<number>(3);
 
   const onFilter = () => {
-    getFilteredListings(keyword, city, skill, seniority, sortNewest, count);
+    getFilteredListings(keyword, city, skill, seniority, sortNewest, includeExpired, count);
   };
 
   const toggleFavoriteListing = (id: number) => {
@@ -51,6 +53,10 @@ export const Listings: React.FC = () => {
     if (sortNewest != newest) setSortNewest(newest);
   };
 
+  const onChangeExpired = () => {
+    setIncludeExpired(prevExpired => !prevExpired);
+  };
+
   const fetchMoreListings = () => {
     setCount((prevCount) => prevCount + increment);
     onFilter();
@@ -62,7 +68,8 @@ export const Listings: React.FC = () => {
     skill: string,
     seniority: string,
     sortNewest: Boolean,
-    take: Number
+    includeExpired: Boolean,
+    take: Number,
   ) {
     const response = await api.get("/listing/filter", {
       params: {
@@ -71,6 +78,7 @@ export const Listings: React.FC = () => {
         skill,
         seniority,
         sortNewest,
+        includeExpired,
         take,
       },
     });
@@ -79,7 +87,7 @@ export const Listings: React.FC = () => {
   }
   useEffect(() => {
     onFilter();
-  }, [sortNewest]);
+  }, [sortNewest, includeExpired]);
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Enter") {
@@ -163,6 +171,11 @@ export const Listings: React.FC = () => {
           >
             Expiring soon
           </Button>
+          <FormGroup>
+            <FormControlLabel labelPlacement="end"
+              control={<Switch value={includeExpired} onChange={(e) => onChangeExpired()} />}
+              label="Include Expired" />
+          </FormGroup>
           {/* Testing new listing modal, delete later */}
           <Button variant="text" onClick={() => handleModalOpen()}>
             New Listing
