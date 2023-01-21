@@ -152,31 +152,31 @@ namespace ByeWorld_backend.Controllers
                 .Match("(l)-[]-(c:City)")
                 .Match("(l)-[]-(co:Company)");
 
-            //if (uid == -1)
-            //{
-            //    var q2 = query.Return((l, c, s, co) => new
-            //    {
-            //        l.As<Listing>().Id,
-            //        l.As<Listing>().Title,
-            //        l.As<Listing>().Description,
-            //        c.As<City>().Name,
-            //        l.As<Listing>().ClosingDate,
-            //        l.As<Listing>().PostingDate,
-            //        Requirements = s.CollectAs<Skill>(),
-            //        CompanyName = co.As<Company>().Name,
-            //        CompanyLogoUrl = co.As<Company>().LogoUrl,
-            //        CompanyId = co.As<Company>().Id,
-            //    });
+            if (uid == -1)
+            {
+                var q2 = query.Return((l, c, s, co) => new
+                {
+                    l.As<Listing>().Id,
+                    l.As<Listing>().Title,
+                    l.As<Listing>().Description,
+                    CityName = c.As<City>().Name,
+                    l.As<Listing>().ClosingDate,
+                    l.As<Listing>().PostingDate,
+                    //Requirements = s.CollectAs<Skill>(),
+                    CompanyName = co.As<Company>().Name,
+                    CompanyLogoUrl = co.As<Company>().LogoUrl,
+                    CompanyId = co.As<Company>().Id,
+                });
 
-            //    var resultNoUser = _cache.QueryCache(q2, $"user:favorites:{userId}");
+                var resultNoUser = _cache.QueryCache(q2, $"user:favorites:{userId}", expiry: TimeSpan.FromMinutes(15));
 
-            //    if (resultNoUser == null)
-            //    {
-            //        return Ok(new ArrayList());
-            //    }
+                if (resultNoUser == null)
+                {
+                    return Ok(new ArrayList());
+                }
 
-            //    return Ok(resultNoUser);
-            //}
+                return Ok(resultNoUser);
+            }
 
             query = query
                 .OptionalMatch("(u)-[hf:HAS_FAVORITE]-(l)")
