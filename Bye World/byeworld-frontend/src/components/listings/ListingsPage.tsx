@@ -35,7 +35,7 @@ export const Listings: React.FC = () => {
   const [includeExpired, setIncludeExpired] = useState<Boolean>(false);
   const [listings, setListings] = useState<ListingDTO[]>([]);
 
-  const { isAuthenticated } = useAuthContext();
+  const { isAuthenticated, userIsCompany } = useAuthContext();
 
   //Paging
   //Increment of listings number
@@ -203,9 +203,8 @@ export const Listings: React.FC = () => {
               label="Include Expired"
             />
           </FormGroup>
-          {/* Testing new listing modal, delete later */}
-          {isAuthenticated() && (
-            <Button variant="text" onClick={() => handleModalOpen()}>
+          {(isAuthenticated() && userIsCompany) && (
+            <Button variant="outlined" onClick={() => handleModalOpen()}>
               New Listing
             </Button>
           )}
