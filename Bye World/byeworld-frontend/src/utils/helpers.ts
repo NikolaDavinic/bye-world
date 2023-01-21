@@ -10,14 +10,19 @@ export const shortenText = (text: string, length: number) => {
 };
 
 export const getFileName = (path: string) => {
-  const extension = path.slice(
-    (Math.max(0, path.lastIndexOf(".")) || Infinity) + 1
-  );
-  const name = path
-    .slice(0, -extension.length - 31)
-    .substring("https:/localhost:7017/cvs/".length);
+  if (path.indexOf("localhost")!=-1) {
+    const extension = path.slice(
+      (Math.max(0, path.lastIndexOf(".")) || Infinity) + 1
+    );
+    const name = path
+      .slice(0, -extension.length - 31)
+      .substring("https:/localhost:7017/cvs/".length);
 
-  return name + extension;
+    return name + extension;
+  }
+  else {
+    return "DOWNLOAD CV"
+  }
 };
 
 export const lsGetSession: () => Session | null = () => {
