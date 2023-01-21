@@ -1,9 +1,9 @@
-import { Button, Chip, Icon, Link } from "@mui/material";
+import { Button, Chip, Icon } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { Listing } from "../../model/Listing";
 import { ListingCard } from "../common/ListingsList/ListingCard";
 import { SimilarListingCard } from "./SimilarListingCard";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useApi } from "../../hooks/api.hook";
 import axios from "axios";
 import { ListingDTO } from "../listings/ListingsPage";
@@ -23,6 +23,8 @@ const ListingPage: React.FC = () => {
   const params = useParams();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { isAuthenticated } = useAuthContext();
+
+  const { user } = useAuthContext();
 
   const {
     result: listing1,
@@ -44,7 +46,7 @@ const ListingPage: React.FC = () => {
     error,
   } = useApi<ListingDTO[]>(`/listing/similarlistings/${params.id}`);
 
-  useEffect(() => {}, []);
+  useEffect(() => { }, []);
 
   const [open, setOpen] = React.useState(false);
 
@@ -81,6 +83,10 @@ const ListingPage: React.FC = () => {
     setOpen(true);
   };
 
+  const openGmail = () => {
+    window.location.replace(`mailto:${listing1?.company.email}`)
+  }
+
   return (
     <main className="flex-1">
       <div className="relative max-w-7xl mx-auto md:flex md:gap-6 px-4 py-8">
@@ -102,9 +108,8 @@ const ListingPage: React.FC = () => {
                       >
                         <MatIcon
                           style={{ color: "red", fontSize: "1.6rem" }}
-                          variant={`${
-                            listing1?.isFavorite ? "contained" : "outlined"
-                          }`}
+                          variant={`${listing1?.isFavorite ? "contained" : "outlined"
+                            }`}
                         >
                           favorite
                         </MatIcon>
@@ -112,7 +117,7 @@ const ListingPage: React.FC = () => {
                     </h1>
                     <h4>
                       <Link
-                        href={`/company/${listing1?.company?.id}`}
+                        to={`/company/${listing1?.company?.id}`}
                         className="print:text-black print:no-underline link font-semibold"
                       >
                         {listing1?.company?.name}
@@ -160,18 +165,15 @@ const ListingPage: React.FC = () => {
                 </div>
                 <div className="flex justify-center align-center ">
                   <div className="print:mx-0 flex items-center justify-center md:mr-24 mt-4 md:mt-8 mb-4 mx-auto md:m-auto order-first md:order-last">
-                    <Link className="hover:opacity-75 bg-white p-2 rounded-md self-end">
+                    <Link to={`/company/${listing1?.company?.id}/about`} className="hover:opacity-75 bg-white p-2 rounded-md self-end">
                       <img
                         alt=""
                         className="w-40 h-40"
                         src={
                           listing1?.company?.logoUrl &&
-                          listing1?.company?.logoUrl.length >= 0
+                            listing1?.company?.logoUrl.length >= 0
                             ? listing1?.company?.logoUrl
                             : "https://www.adaptivewfs.com/wp-content/uploads/2020/07/logo-placeholder-image.png"
-                        }
-                        onClick={() =>
-                          navigate(`/company/${listing1?.company?.id}/about`)
                         }
                       />
                     </Link>
@@ -189,9 +191,10 @@ const ListingPage: React.FC = () => {
                   the form and send your CV.
                 </p>
                 {
-                  <Button variant="contained" onClick={handleModalOpen}>
-                    Apply Here
-                  </Button>
+                  
+                    <Button variant="contained" onClick={openGmail}>
+                      Apply Here
+                    </Button>
                 }
                 {isLoggedIn && (
                   <p className="text-2xl text-red-800 font-semibold ">

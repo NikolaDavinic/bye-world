@@ -233,7 +233,8 @@ namespace ByeWorld_backend.Controllers
                 {
                     r.Company.Id,
                     r.Company.Name,
-                    r.Company.LogoUrl
+                    r.Company.LogoUrl,
+                    r.Company.Email
                 },
                 City = new
                 {
