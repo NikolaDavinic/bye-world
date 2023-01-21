@@ -28,16 +28,16 @@ export const SimilarListingCard: React.FC<SimilarListingCardProps> = ({
   } = useApi<any>(`/listing/${listing?.id}`);
 
   return (
-    <Card sx={{ maxWidth: divMaxWidth, width: "auto", minWidth: divMinWidth, height: divHeight }}>
+    <Card >
       {/* <CardActionArea
         className="h-full hover:bg-blue-100"
         onClick={() => navigate("/listing/" + listing.id)}
       > */}
       <CardContent className="h-full">
         <div className="flex flex-row justify-between h-full shadow-xl shadow-indigo-500/50">
-          <div className="flex flex-col gap-3 px-4 md:pl-4 mb-4 w-2/3">
+          <div className="flex flex-col gap-3 px-4 md:pl-4 mb-4">
             <div className="grid gap-1 box-content">
-              <div className="flex items-center gap-1 w-1/2 overflow-hidden ">
+              <div className="flex items-center gap-1 overflow-hidden ">
                 <p className="hover:opacity-50 font-bold text-lg ">
                   <Link href={`/listing/${listing.id}`}>
                     {listing?.title != null && listing!.title}
