@@ -102,8 +102,9 @@ namespace ByeWorld_backend.Controllers
         public async Task<ActionResult> GetCompany(int id)
         {
             var query = _neo4j.Cypher
-                .Match("(c:Company)-[:HAS_REVIEW]-(r:Review)")
+                .Match("(c:Company)")
                 .Where((Company c) => c.Id == id)
+                .OptionalMatch("(c)-[:HAS_REVIEW]-(r: Review)")
                 .Return((c, r) => new {
                     Company = c.As<Company>(),
                     ReviewsCount = r.CountDistinct(),

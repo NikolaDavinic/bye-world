@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
+using Newtonsoft.Json;
 using StackExchange.Redis;
+using System.Net.Http.Headers;
 using System.Text.Json;
 
 namespace CVUploader.Controllers
@@ -24,37 +27,61 @@ namespace CVUploader.Controllers
             try
             {
                 var uid = long.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");
-
+                string finalPath = string.Empty;
                 _logger.LogInformation($"cv uploaded uid {uid}");
 
-                string path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\cvs");
-
-                if (!Directory.Exists(path))
+                //UPLOAD CV TEST
+                ByteArrayContent fileContent;
+                using (var memoryStream = new MemoryStream())
                 {
-                    Directory.CreateDirectory(path);
+                    await cv.CopyToAsync(memoryStream);
+                    fileContent = new ByteArrayContent(memoryStream.ToArray());
                 }
+                fileContent.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/pdf");
+                var client = new HttpClient();
+                var response = await client.PostAsync("https://www.filestackapi.com/api/store/S3?key=***REMOVED***", fileContent);
+                var responseBody = await response.Content.ReadAsStringAsync();
+                //
+                dynamic json = JsonConvert.DeserializeObject(responseBody);
+                string url = json.url;
 
-                string fileName = new PasswordGenerator.Password(
-                     includeLowercase: true,
-                     includeUppercase: true,
-                     passwordLength: 30,
-                     includeSpecial: false,
-                     includeNumeric: false).Next();
+                if (url.Length > 0)
+                {
+                    finalPath = url;
+                }
+                else //Redundancy upload to server instead of file upload API
+                {
+                    string path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\cvs");
 
-                var newFileName = Path.GetFileNameWithoutExtension(cv.FileName) + "." + fileName + Path.GetExtension(cv.FileName);
-                var filePath = Path.Combine(path, newFileName);
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
 
-                using var stream = new FileStream(filePath, FileMode.Create);
-                await cv.CopyToAsync(stream);
+                    string fileName = new PasswordGenerator.Password(
+                         includeLowercase: true,
+                         includeUppercase: true,
+                         passwordLength: 30,
+                         includeSpecial: false,
+                         includeNumeric: false).Next();
+
+                    var newFileName = Path.GetFileNameWithoutExtension(cv.FileName) + "." + fileName + Path.GetExtension(cv.FileName);
+                    var filePath = Path.Combine(path, newFileName);
+
+                    using var stream = new FileStream(filePath, FileMode.Create);
+                    await cv.CopyToAsync(stream);
+                    finalPath= $"https:/localhost:7017/cvs/{newFileName}";
+                }
 
                 var db = _redis.GetDatabase();
 
                 await db.PublishAsync("cv:upload",
-                    JsonSerializer.Serialize(new { Path = $"https:/localhost:7017/cvs/{newFileName}", UserId = uid }));
+                    System.Text.Json.JsonSerializer.Serialize(new { Path = finalPath, UserId = uid }));
 
                 _logger.LogInformation($"redis msg published {uid}");
 
                 return Ok("cv uploaded");
+                
             } catch (Exception ex)
             {
                 return BadRequest(ex.Message);

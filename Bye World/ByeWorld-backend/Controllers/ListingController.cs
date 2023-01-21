@@ -154,25 +154,21 @@ namespace ByeWorld_backend.Controllers
 
             if (uid == -1)
             {
-                var q2 = query.Return((l, c, s, co) => new
+                var qr = query.Return((l, c, s, co) => new
                 {
-                    //l.As<Listing>().Id,
-                    //l.As<Listing>().Title,
-                    //l.As<Listing>().Description,
-                    //CityName = c.As<City>().Name,
-                    //l.As<Listing>().ClosingDate,
-                    //l.As<Listing>().PostingDate,
-                    //Requirements = s.CollectAs<Skill>(),
-                    //CompanyName = co.As<Company>().Name,
-                    //CompanyLogoUrl = co.As<Company>().LogoUrl,
-                    //CompanyId = co.As<Company>().Id,
-                    //Listing = l.As<Listing>(),
-                    //Company = co.As<Company>(),
-                    //City = c.As<Company>()
-                    Nesto = "nesto"
+                    l.As<Listing>().Id,
+                    l.As<Listing>().Title,
+                    l.As<Listing>().Description,
+                    CityName = c.As<City>().Name,
+                    l.As<Listing>().ClosingDate,
+                    l.As<Listing>().PostingDate,
+                    Requirements = s.CollectAs<Skill>(),
+                    CompanyName = co.As<Company>().Name,
+                    CompanyLogoUrl = co.As<Company>().LogoUrl,
+                    CompanyId = co.As<Company>().Id
                 });
 
-                var resultNoUser = _cache.QueryCache(q2, $"user:favorites:{userId}", expiry: TimeSpan.FromMinutes(15));
+                var resultNoUser = await _cache.QueryCache(qr, $"user:favorites:{userId}", expiry: TimeSpan.FromMinutes(15));
 
                 if (resultNoUser == null)
                 {
@@ -183,7 +179,7 @@ namespace ByeWorld_backend.Controllers
             }
 
             query = query
-                .OptionalMatch("(u)-[hf:HAS_FAVORITE]-(l)")
+                .OptionalMatch("(u:User)-[hf:HAS_FAVORITE]-(l)")
                 .Where((User u) => u.Id == uid);
 
             var result = await query.Return((l, c, s, co, hf) => new
