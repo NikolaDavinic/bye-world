@@ -1,6 +1,14 @@
-import { Button, FormControlLabel, FormGroup, Icon, Switch, TextField } from "@mui/material";
+import {
+  Button,
+  FormControlLabel,
+  FormGroup,
+  Icon,
+  Switch,
+  TextField,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { api } from "../../constants";
+import { useAuthContext } from "../../contexts/auth.context";
 import { Listing } from "../../model/Listing";
 import { Skill } from "../../model/Skill";
 import { AddListingModal } from "../AddListingModal/AddListingModal";
@@ -27,6 +35,8 @@ export const Listings: React.FC = () => {
   const [includeExpired, setIncludeExpired] = useState<Boolean>(false);
   const [listings, setListings] = useState<ListingDTO[]>([]);
 
+  const { isAuthenticated } = useAuthContext();
+
   //Paging
   //Increment of listings number
   const increment = 3;
@@ -34,7 +44,15 @@ export const Listings: React.FC = () => {
   const [count, setCount] = useState<number>(3);
 
   const onFilter = () => {
-    getFilteredListings(keyword, city, skill, seniority, sortNewest, includeExpired, count);
+    getFilteredListings(
+      keyword,
+      city,
+      skill,
+      seniority,
+      sortNewest,
+      includeExpired,
+      count
+    );
   };
 
   const toggleFavoriteListing = (id: number) => {
@@ -54,7 +72,7 @@ export const Listings: React.FC = () => {
   };
 
   const onChangeExpired = () => {
-    setIncludeExpired(prevExpired => !prevExpired);
+    setIncludeExpired((prevExpired) => !prevExpired);
   };
 
   const fetchMoreListings = () => {
@@ -69,7 +87,7 @@ export const Listings: React.FC = () => {
     seniority: string,
     sortNewest: Boolean,
     includeExpired: Boolean,
-    take: Number,
+    take: Number
   ) {
     const response = await api.get("/listing/filter", {
       params: {
@@ -107,7 +125,9 @@ export const Listings: React.FC = () => {
 
   return (
     <div>
-      <AddListingModal isOpen={open} handleModalClose={handleModalClose} />
+      {isAuthenticated() && (
+        <AddListingModal isOpen={open} handleModalClose={handleModalClose} />
+      )}
       <div className="h-1/4 flex flex-col px-4 py-4 space-y-4 bg-white drop-shadow-lg">
         <h1 className="font-bold">Listings search</h1>
         <div className="flex flex-row justify-center gap-6">
@@ -172,14 +192,23 @@ export const Listings: React.FC = () => {
             Expiring soon
           </Button>
           <FormGroup>
-            <FormControlLabel labelPlacement="end"
-              control={<Switch value={includeExpired} onChange={(e) => onChangeExpired()} />}
-              label="Include Expired" />
+            <FormControlLabel
+              labelPlacement="end"
+              control={
+                <Switch
+                  value={includeExpired}
+                  onChange={(e) => onChangeExpired()}
+                />
+              }
+              label="Include Expired"
+            />
           </FormGroup>
           {/* Testing new listing modal, delete later */}
-          <Button variant="text" onClick={() => handleModalOpen()}>
-            New Listing
-          </Button>
+          {isAuthenticated() && (
+            <Button variant="text" onClick={() => handleModalOpen()}>
+              New Listing
+            </Button>
+          )}
         </div>
       </div>
       <div className="bg-gray-100 h-full min-h-full ">
