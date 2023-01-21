@@ -127,8 +127,8 @@ export const Home: React.FC = () => {
       >
         <div className="flex items-center justify-center">
           <div
-            className="mx-auto md:w-auto md:flex md:items-center md:justify-center md:flex-wrap grid grid-cols-2
-              md:grid-cols-none place-items-center place-content-center gap-4 md:gap-8"
+            className="mx-auto md:w-auto md:flex md:items-center md:justify-center sm:grid-cols-2 md:flex-wrap grid grid-cols-1
+             place-items-center place-content-center gap-4 md:gap-8"
           >
             {testArray.map((el) => {
               return (
@@ -180,20 +180,18 @@ export const Home: React.FC = () => {
               style={{ backgroundColor: "#fdd835" }}
             >
               <div className="grid gap-4 max-w-7xl mx-auto px-4 py-8">
-                <div className="grid md:grid-cols-3 gap-4">
-                  {topListings != null ? (
-                    topListings.map((listing) => {
-                      // console.log(listing);
-                      return (
-                        <SimilarListingCard
-                          listing={listing}
-                          divHeight={300}
-                          divMaxWidth={400}
-                          divMinWidth={350}
-                        />
-                      );
-                    })
-                  ) : (
+                <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-4">
+                  {topListings != null ? topListings.map((listing) => {
+                    // console.log(listing);
+                    return (
+                      <SimilarListingCard
+                        listing={listing}
+                        divHeight={300}
+                        divMaxWidth={400}
+                        divMinWidth={350}
+                      />
+                    );
+                  }) :
                     <>
                       <h2>In database we don't have any listing</h2>
                     </>
