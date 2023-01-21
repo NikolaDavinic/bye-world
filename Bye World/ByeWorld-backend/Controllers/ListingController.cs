@@ -272,7 +272,7 @@ namespace ByeWorld_backend.Controllers
                 .OptionalMatch("(l)-[]-(co:Company)")
                 .Return((l, c, co, s) => new
                 {
-                    c.As<City>().Name,
+                    CityName = c.As<City>().Name,
                     l.As<Listing>().Id,
                     l.As<Listing>().Title,
                     l.As<Listing>().Description,
