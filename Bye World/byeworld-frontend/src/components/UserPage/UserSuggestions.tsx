@@ -1,7 +1,6 @@
 import {
   Box,
   CircularProgress,
-  Link,
   ListItem,
   Stack,
   Typography,
@@ -11,6 +10,7 @@ import { ListingDTO } from "../listings/ListingsPage";
 import { useApi } from "../../hooks/api.hook";
 import Grid from "@mui/material/Grid";
 import { ListingCard } from "../common/ListingsList/ListingCard";
+import { Link } from "react-router-dom";
 
 const UserSuggestions = () => {
   const { result: suggestions, loading } =
@@ -33,17 +33,21 @@ const UserSuggestions = () => {
   }
 
   return (
-    <Grid container sx={{ width: "100%" }}>
-      {suggestions.map((item) => {
-        return (
-          <Grid item key={item.id}>
-            <Link href={`/listing/${item.id}`}>
-              {/* <SimilarListingCard listing={item} /> */}
-            </Link>
-          </Grid>
-        );
-      })}
-    </Grid>
+    <Box className="flex center py-5 justify-center">
+      <Box className="xl:w-3/5 w-full">
+        <Grid container columns={{ xs: 1, md: 3 }}>
+          {suggestions.map((item) => {
+            return (
+              <Grid key={item.id} xs={1}>
+                <Link to={`/listing/${item.id}`}>
+                  <SimilarListingCard listing={item} divHeight={300} />
+                </Link>
+              </Grid>
+            );
+          })}
+        </Grid>
+      </Box>
+    </Box>
   );
 };
 
