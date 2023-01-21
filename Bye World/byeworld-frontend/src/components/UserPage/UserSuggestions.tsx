@@ -24,12 +24,8 @@ const UserSuggestions = () => {
     );
   }
 
-  if (!suggestions) {
-    return (
-      <Box>
-        <Typography>User does not have any companies</Typography>
-      </Box>
-    );
+  if (!suggestions || suggestions.length === 0) {
+    return <></>;
   }
 
   return (
