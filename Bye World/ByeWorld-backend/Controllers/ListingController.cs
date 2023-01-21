@@ -24,16 +24,19 @@ namespace ByeWorld_backend.Controllers
         private readonly IBoltGraphClient _neo4j;
         private readonly IIdentifierService _ids;
         private readonly ICachingService _cache;
+        private readonly ILogger<ListingController> _logger;
         public ListingController(
             IConnectionMultiplexer redis, 
             IBoltGraphClient neo4j, 
             IIdentifierService ids,
-            ICachingService cache)
+            ICachingService cache,
+            ILogger<ListingController> logger)
         {
             _redis = redis;
             _neo4j = neo4j;
             _ids = ids;
             _cache = cache;
+            _logger = logger;
         }
 
 
@@ -44,8 +47,8 @@ namespace ByeWorld_backend.Controllers
             var userId = long.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");
 
             var query = _neo4j.Cypher
-                .Match("(s:Skill)-[reqs:REQUIRES]-(l:Listing)-[r]-(c:City)")
-                .Match("(l)-[:HAS_LISTING]-(co:Company)")
+                .OptionalMatch("(s:Skill)-[reqs:REQUIRES]-(l:Listing)-[r]-(c:City)")
+                .OptionalMatch("(l)-[:HAS_LISTING]-(co:Company)")
                 .Where((Listing l) => true);
             if (!includeExpired)
             {
@@ -104,26 +107,21 @@ namespace ByeWorld_backend.Controllers
         {
             var uid = long.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");
 
-            //MATCH(u: User { Id: 4})-[*2] - (lr: Listing)
-            //WHERE NOT EXISTS((u) -[:HAS_FAVORITE] - (lr))
-            //WITH DISTINCT lr as reccs
-            //OPTIONAL MATCH(reccs)-[] - (s: Skill)
-            //OPTIONAL MATCH(reccs)-[] - (c: City)
-            //OPTIONAL MATCH(reccs)-[] - (co: Company)
-            //RETURN reccs, c, co, collect(s)
-            //ORDER BY rand()
-            //LIMIT 3
-
             var query = _neo4j.Cypher
-                .Match("(u:User)-[*2]-(l:Listing)")
-                .Where((User u) => u.Id == uid)
-                .AndWhere("NOT EXISTS ((u)-[:HAS_FAVORITE]-(l))")
-                .With("DISTINCT l as rc")
+                .Match("(u:User)")
+                .Where((User u) => u.Id==uid)
+                .OptionalMatch("(u)-[:HAS_FAVORITE]-(fav:Listing)")
+                .OptionalMatch("(fav)--(:Company)--(lfc:Listing)")
+                .OptionalMatch("(fav)--(:Skill)--(lfs:Listing)")
+                .OptionalMatch("(u)--(:Skill)--(lus:Listing)")
+                .With("collect(lfc)+collect(lfs)+collect(lus) as nodes")
+                .Unwind("nodes", "lr")
+                .With("distinct lr as rc")
                 .OptionalMatch("(rc)-[]-(s:Skill)")
                 .OptionalMatch("(rc)-[]-(c:City)")
                 .OptionalMatch("(rc)-[]-(co:Company)");
 
-            var result = await query.Return((rc, c, s, co) => new
+            var result = query.Return((rc, c, s, co) => new
             {
                 rc.As<Listing>().Id,
                 rc.As<Listing>().Title,
@@ -135,9 +133,11 @@ namespace ByeWorld_backend.Controllers
                 CompanyName = co.As<Company>().Name,
                 CompanyLogoUrl = co.As<Company>().LogoUrl,
                 CompanyId = co.As<Company>().Id,
-            }).OrderBy("rand()").Limit(3).ResultsAsync;
+            }).OrderBy("rand()").Limit(3);
 
-            return Ok(result);
+            _logger.LogInformation(result.Query.DebugQueryText);
+
+            return Ok(await result.ResultsAsync);
         }
 
         [HttpGet("favorites/{userId}")]
@@ -148,9 +148,9 @@ namespace ByeWorld_backend.Controllers
             var query = _neo4j.Cypher
                 .Match("(u:User)-[:HAS_FAVORITE]->(l:Listing)")
                 .Where((User u) => u.Id == userId)
-                .Match("(l)-[]-(s:Skill)")
-                .Match("(l)-[]-(c:City)")
-                .Match("(l)-[]-(co:Company)");
+                .OptionalMatch("(l)-[]-(s:Skill)")
+                .OptionalMatch("(l)-[]-(c:City)")
+                .OptionalMatch("(l)-[]-(co:Company)");
 
             if (uid == -1)
             {
@@ -425,10 +425,10 @@ namespace ByeWorld_backend.Controllers
                 {
                     if (!skillNodes.Any(skillNode=>skillNode.Name==req.Name))
                     {
-                        //long skillId = await _ids.SkillNext();
+                        long skillId = await _ids.SkillNext();
                         skillNodes = skillNodes.Concat(await _neo4j.Cypher
                             .Create("(s:Skill $newSkill)")
-                            .WithParam("newSkill", new Skill { Id = 0, Name = req.Name })
+                            .WithParam("newSkill", new Skill { Id = skillId, Name = req.Name })
                             .Return(s => s.As<Skill>())
                             .ResultsAsync);
                     }
@@ -445,13 +445,18 @@ namespace ByeWorld_backend.Controllers
                .Create("(l)-[:LOCATED_IN]->(ci)")
                .WithParam("newListing", newListing);
 
-            //TODO: Sredi ID samo
             for (int i = 0; i < listing.Requirements.Count; i++)
             {
                 //long skillID = await _ids.SkillNext();
-                query = query.Create($"(l)-[:REQUIRES {{Proficiency: $prof{i}}}]->(c{i}: Skill $newSkill{i})")
-                        .WithParam($"prof{i}", listing.Requirements[i].Proficiency)
-                        .WithParam($"newSkill{i}", new Skill { Name = listing.Requirements[i].Name, Id = 0/*Id = skillID*/ });
+                //query = query.Create($"(l)-[:REQUIRES {{Proficiency: $prof{i}}}]->(c{i}: Skill $newSkill{i})")
+                //        .WithParam($"prof{i}", listing.Requirements[i].Proficiency)
+                //        .WithParam($"newSkill{i}", new Skill { Name = listing.Requirements[i].Name, Id = 0/*Id = skillID*/ });
+                query = query
+                            .With($"l as l,ci as ci, c as c")
+                            .Match($"(c{i}: Skill)")
+                            .Where($"c{i}.Name='{listing.Requirements[i].Name}'")
+                            .Create($"(l)-[:REQUIRES {{Proficiency: $prof{i}}}]->(c{i})")
+                            .WithParam($"prof{i}", listing.Requirements[i].Proficiency);
             }
             var retVal=await query.Return((c, ci, l) => new
              {
@@ -501,9 +506,11 @@ namespace ByeWorld_backend.Controllers
 
             await db.ListLeftPushAsync("listing:newest", JsonConvert.SerializeObject(toredis.Single()));
 
+            DateTime firstDayOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+
             foreach (var req in listing.Requirements)
             {
-                await db.SortedSetIncrementAsync($"skills:leaderboard:{DateTime.Now.ToString("ddMMyyyy")}", req.Name, 1);
+                await db.SortedSetIncrementAsync($"skills:leaderboard:{firstDayOfMonth.ToString("ddMMyyyy")}", req.Name, 1);
             }
 
             return Ok(retVal);
