@@ -101,7 +101,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
               })}
             </Box>
           </div>
-          <div className="w-1/5 flex flex-col justify-center align-middle">
+          <div className="w-1/5 flex flex-col justify-center align-middle cursor-pointer">
             <img
               alt=""
               className="w-40 h-40"

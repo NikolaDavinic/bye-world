@@ -43,7 +43,7 @@ export const Listings: React.FC = () => {
   //Starting number of listings
   const [count, setCount] = useState<number>(3);
 
-  const onFilter = (skip: number) => {
+  const onFilter = () => {
     getFilteredListings(
       keyword,
       city,
@@ -51,7 +51,6 @@ export const Listings: React.FC = () => {
       seniority,
       sortNewest,
       includeExpired,
-      skip,
       count
     );
   };
@@ -78,7 +77,7 @@ export const Listings: React.FC = () => {
 
   const fetchMoreListings = () => {
     setCount((prevCount) => prevCount + increment);
-    onFilter(listings.length);
+    onFilter();
   };
 
   async function getFilteredListings(
@@ -88,10 +87,9 @@ export const Listings: React.FC = () => {
     seniority: string,
     sortNewest: Boolean,
     includeExpired: Boolean,
-    skip: Number,
     take: Number
   ) {
-    const response = await api.get<ListingDTO[]>("/listing/filter", {
+    const response = await api.get("/listing/filter", {
       params: {
         keyword,
         city,
@@ -100,28 +98,18 @@ export const Listings: React.FC = () => {
         sortNewest,
         includeExpired,
         take,
-        skip,
       },
     });
-
-    setListings((prev) => {
-      if (skip === 0) {
-        return [...response.data];
-      }
-      const newitems = response.data.filter(
-        (item) => prev.findIndex((t) => t.id === item.id) === -1
-      );
-      return [...prev, ...newitems];
-    });
+    console.log(response.data);
+    setListings(response.data);
   }
-
   useEffect(() => {
-    onFilter(0);
+    onFilter();
   }, [sortNewest, includeExpired]);
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Enter") {
-      onFilter(0);
+      onFilter();
     }
   };
   // Modal testing
@@ -177,7 +165,7 @@ export const Listings: React.FC = () => {
           />
           <Button
             variant="contained"
-            onClick={() => onFilter(0)}
+            onClick={() => onFilter()}
             startIcon={
               <Icon
                 sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}
@@ -215,7 +203,7 @@ export const Listings: React.FC = () => {
               label="Include Expired"
             />
           </FormGroup>
-          {isAuthenticated() && userIsCompany() && (
+          {(isAuthenticated() && userIsCompany) && (
             <Button variant="outlined" onClick={() => handleModalOpen()}>
               New Listing
             </Button>

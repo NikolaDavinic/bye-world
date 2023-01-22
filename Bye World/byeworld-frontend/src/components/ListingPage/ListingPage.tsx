@@ -73,8 +73,8 @@ const ListingPage: React.FC = () => {
     setOpen(true);
   };
 
-  const openGmail = () => {
-    window.location.replace(`mailto:${listing1?.company?.email}`);
+  const openEmail = () => {
+    window.location.replace(`mailto:${listing1?.company?.email}?subject=${listing1?.title} Application`);
   };
 
   const deleteListing = () => {
@@ -106,9 +106,8 @@ const ListingPage: React.FC = () => {
                       >
                         <MatIcon
                           style={{ color: "red", fontSize: "1.6rem" }}
-                          variant={`${
-                            listing1?.isFavorite ? "contained" : "outlined"
-                          }`}
+                          variant={`${listing1?.isFavorite ? "contained" : "outlined"
+                            }`}
                         >
                           favorite
                         </MatIcon>
@@ -147,10 +146,13 @@ const ListingPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    {listing1?.skill != null &&
-                      listing1?.skill?.map((r: any) => {
+                    {listing1?.requirements != null &&
+                      listing1?.requirements?.map((r: any) => {
                         return (
-                          <Chip key={r.id} label={r.name} color="primary" />
+                          <>
+                            <Chip key={r.id} label={`${r.name} (${r.proficiency as string})`} color="primary" />
+                            {/* <Chip className="capitalize" key={r.id} label={(r.proficiency as string)} color="secondary" /> */}
+                          </>
                         );
                       })}
                   </div>
@@ -173,7 +175,7 @@ const ListingPage: React.FC = () => {
                         className="w-40 h-40"
                         src={
                           listing1?.company?.logoUrl &&
-                          listing1?.company?.logoUrl.length >= 0
+                            listing1?.company?.logoUrl.length >= 0
                             ? listing1?.company?.logoUrl
                             : "https://www.adaptivewfs.com/wp-content/uploads/2020/07/logo-placeholder-image.png"
                         }
@@ -209,7 +211,7 @@ const ListingPage: React.FC = () => {
             >
               <div className="flex flex-col w-full md:w-auto gap-1">
                 {
-                  <Button variant="contained" onClick={openGmail}>
+                  <Button variant="contained" onClick={openEmail}>
                     Apply Here
                   </Button>
                 }

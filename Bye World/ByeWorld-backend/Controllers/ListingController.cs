@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Neo4j.Driver;
 using Neo4jClient;
 using Neo4jClient.Cypher;
 using Neo4jClient.Extensions;
@@ -13,7 +14,13 @@ using StackExchange.Redis;
 using System.Collections;
 using System.Runtime.InteropServices;
 //using System.Text.Json;
-
+public class RequirementDTO
+{
+    public string Proficiency { get; set; }
+    public long Id { get; set; }
+    public string Name { get; set; } = String.Empty;
+    public Skill Skill { get; set; }
+}
 namespace ByeWorld_backend.Controllers
 {
     [ApiController]
@@ -216,18 +223,19 @@ namespace ByeWorld_backend.Controllers
             var db = _redis.GetDatabase();
 
             var query = _neo4j.Cypher.Match("(l:Listing)")
-                   .OptionalMatch("(l)-[lc:LOCATED_IN]->(c:City)")
-                   .OptionalMatch("(l)-[:REQUIRES]->(s:Skill)")
                    .Match("(cm:Company)-[cl:HAS_LISTING]->(l)")
                    .Match("(u:User)-[:HAS_COMPANY]-(cm)")
                    .Where((Listing l) => l.Id == id)
-                   .Return((l, cm, c, s, u) => new
+                   .OptionalMatch("(l)-[lc:LOCATED_IN]->(c:City)")
+                   .OptionalMatch("(l)-[r:REQUIRES]->(s:Skill)")
+                   .With("apoc.map.merge(r, s) as req, u, cm, c, l")
+                   .Return((l, cm, c, u,req) => new
                    {
-                       UserId=u.As<User>().Id,
-                       Listing=l.As<Listing>(),
-                       Company=cm.As<Company>(),
-                       City=c.As<City>(),
-                       Skill=s.CollectAs<Skill>(),
+                       UserId = u.As<User>().Id,
+                       Listing = l.As<Listing>(),
+                       Company = cm.As<Company>(),
+                       City = c.As<City>(),
+                       Requirements = req.CollectAs<RequirementDTO>()
                    })
                    .Limit(1);
 
@@ -258,7 +266,7 @@ namespace ByeWorld_backend.Controllers
                     r.City.Id,
                     r.City.Name
                 },
-                r.Skill,
+                r.Requirements,
                 r.Listing.Id,
                 r.Listing.ClosingDate,
                 r.Listing.Title,
