@@ -28,8 +28,14 @@ namespace ByeWorld_backend.Controllers
         private readonly IConnectionMultiplexer _redis;
         private readonly IBoltGraphClient _neo4j;
         private readonly IIdentifierService _ids;
-        public UserController(IConnectionMultiplexer redis, IBoltGraphClient neo4j, IIdentifierService ids)
+        private readonly IConfiguration _config;
+        public UserController(
+            IConnectionMultiplexer redis, 
+            IBoltGraphClient neo4j, 
+            IIdentifierService ids,
+            IConfiguration config)
         {
+            _config = config;
             _redis = redis;
             _neo4j = neo4j;
             _ids = ids;
@@ -69,6 +75,10 @@ namespace ByeWorld_backend.Controllers
             String poruka;
             poruka = $"Welcome {u.Name},\n\nPlease confirm your account registered on Bye World with this email adress on link down below.\n" +
                 confirmationLink + "\n\nWelcome to Bye World!";
+
+            var emailAdress = _config.GetSection("MailCredentials:email").Value.ToString();
+            var password = _config.GetSection("MailCredentials:password").Value.ToString();
+
             SmtpClient Client = new SmtpClient()
             {
                 Host = "smtp.outlook.com",
@@ -78,11 +88,12 @@ namespace ByeWorld_backend.Controllers
                 UseDefaultCredentials = false,
                 Credentials = new NetworkCredential()
                 {
-                    UserName = "***REMOVED***",
-                    Password = "***REMOVED***"
+                    UserName = emailAdress,
+                    Password = password
                 }
             };
-            MailAddress fromMail = new MailAddress("***REMOVED***", "ByeWorld");
+
+            MailAddress fromMail = new MailAddress(emailAdress, "ByeWorld");
             MailAddress toMail = new MailAddress(u.Email, u.Name);
             MailMessage message = new MailMessage()
             {
@@ -93,7 +104,7 @@ namespace ByeWorld_backend.Controllers
 
             message.To.Add(toMail);
             await Client.SendMailAsync(message);
-            //Storing email:key in redis for later verification
+
             var db = _redis.GetDatabase();
             await db.StringSetAsync(u.Email, codeEncoded, expiry: TimeSpan.FromMinutes(30));
             await _neo4j.Cypher.Create("(u:User $user)")
