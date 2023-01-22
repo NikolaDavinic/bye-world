@@ -94,7 +94,6 @@ export const ListingCard: React.FC<ListingCardProps> = ({
                 </p>
               </div>
             </div>
-            {/*TODO: ?? Map required skills below and fix tag navigation */}
             <Box className="flex items-center gap-2 flex-wrap">
               {listing.requirements.map((r, i) => {
                 return <Chip key={i} label={r.name} color="primary" />;
