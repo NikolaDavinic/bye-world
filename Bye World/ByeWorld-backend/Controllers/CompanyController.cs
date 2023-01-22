@@ -65,6 +65,33 @@ namespace ByeWorld_backend.Controllers
 
         }
 
+        [Authorize(Roles = "Company")]
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteCompany(int id)
+        {
+            var userId = int.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");
+
+            var query = _neo4j.Cypher
+                .Match("(c:Company)-[]-(u:User)")
+                .Where((Company c, User u) => c.Id == id && u.Id == userId)
+                .OptionalMatch("(l:Listing)-[]-(c)")
+                .OptionalMatch("(r:Review)-[]-(c)")
+                .DetachDelete("l")
+                .DetachDelete("r")
+                .DetachDelete("c")
+                .Return((c) => c.As<Company>());
+
+            var result = (await query.ResultsAsync).FirstOrDefault();
+
+            if (result != null)
+            {
+                return Ok("Company removed");
+            } else
+            {
+                return BadRequest("Error occured");
+            }
+        }
+
         [HttpGet("user/{userId}")]
         public async Task<IActionResult> GetUserCompanies(int userId)
         {
@@ -103,9 +130,11 @@ namespace ByeWorld_backend.Controllers
         {
             var query = _neo4j.Cypher
                 .Match("(c:Company)")
+                .Match("(c)-[]-(u:User)")
                 .Where((Company c) => c.Id == id)
-                .OptionalMatch("(c)-[:HAS_REVIEW]-(r: Review)")
-                .Return((c, r) => new {
+                .OptionalMatch("(c)-[:HAS_REVIEW]-(r:Review)")
+                .Return((c, r, u) => new {
+                    UserId = u.As<User>().Id,
                     Company = c.As<Company>(),
                     ReviewsCount = r.CountDistinct(),
                     AvgReview = Return.As<double>("avg(r.Value)")
@@ -121,6 +150,7 @@ namespace ByeWorld_backend.Controllers
 
             var company = result.Select((r) => new 
             {
+                r.UserId,
                 r.Company.Address,
                 r.Company.Email,
                 r.Company.Id,

@@ -11,12 +11,21 @@ import {
   Typography,
 } from "@mui/material";
 import { border } from "@mui/system";
+import { ConfirmProvider, useConfirm } from "material-ui-confirm";
 import React, { createContext, useEffect, useState } from "react";
-import { Navigate, NavLink, Outlet, useParams, Link } from "react-router-dom";
+import {
+  Navigate,
+  NavLink,
+  Outlet,
+  useParams,
+  Link,
+  useNavigate,
+} from "react-router-dom";
 import { api } from "../../constants";
 import { useAuthContext } from "../../contexts/auth.context";
 import { useApi } from "../../hooks/api.hook";
 import { Company } from "../../model/Company";
+import MatIcon from "../common/MatIcon/MatIcon";
 
 const exCompany: Company = {
   id: 1,
@@ -38,8 +47,10 @@ const exCompany: Company = {
 export const CompanyContext = createContext<Company>({} as Company);
 
 const CompanyPage = () => {
-  const { isAuthenticated } = useAuthContext();
+  const { isAuthenticated, user } = useAuthContext();
   const params = useParams();
+  const confirm = useConfirm();
+  const navigate = useNavigate();
 
   const {
     result: company,
@@ -59,25 +70,45 @@ const CompanyPage = () => {
     }
   }
 
+  const deleteCompany = () => {
+    confirm({
+      content: "Are you sure you want to delete this company?",
+      title: "Confirm Action",
+    }).then(() => {
+      api.delete(`company/${company?.id}`).then(() => navigate("/companies"));
+    });
+  };
+
   return (
     <>
       <Box className="bg-gray-100">
         <Box className="max-w-5xl mx-auto px-4 pt-16 pb-4 md:pb-8 relative">
           <Box className="flex flex-col gap-4 w-full">
-            <Box
-              className="inline-flex bg-white p-3 rounded shadow-xl"
-              width="160px"
-              height="160px"
-            >
-              <img
-                style={{ objectFit: company.logoUrl ? "cover" : "contain" }}
-                src={
-                  company.logoUrl
-                    ? company.logoUrl
-                    : "/company-logo-placeholder.jpg"
-                }
-                alt={`${company.name} logo`}
-              />
+            <Box className="w-full flex justify-between">
+              <Box
+                className="bg-white p-3 rounded shadow-xl"
+                width="160px"
+                height="160px"
+              >
+                <img
+                  style={{ objectFit: company.logoUrl ? "cover" : "contain" }}
+                  src={
+                    company.logoUrl
+                      ? company.logoUrl
+                      : "/company-logo-placeholder.jpg"
+                  }
+                  alt={`${company.name} logo`}
+                />
+              </Box>
+              {user?.id === company.userId && (
+                <Box>
+                  <Button sx={{ m: 0, p: 0 }} onClick={() => deleteCompany()}>
+                    <MatIcon style={{ fontSize: "2rem", color: "red" }}>
+                      delete
+                    </MatIcon>
+                  </Button>
+                </Box>
+              )}
             </Box>
 
             <Box

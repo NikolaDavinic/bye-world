@@ -14,4 +14,5 @@ export interface Company {
   avgReview?: number;
   listings?: Listing[];
   reviews?: Review[];
+  userId?: number;
 }

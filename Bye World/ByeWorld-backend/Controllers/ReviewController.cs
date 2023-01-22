@@ -74,7 +74,7 @@ namespace ByeWorld_backend.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateReview([FromBody] UpdateReviewDTO rw)
         {
-            var userId = int.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "0");
+            var userId = int.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");
 
             var result = (await _neo4j.Cypher
                 .Match("(r:Review)-[]-(u:User)")

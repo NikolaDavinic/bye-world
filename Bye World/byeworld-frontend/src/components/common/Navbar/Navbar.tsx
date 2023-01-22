@@ -18,6 +18,7 @@ import { styled, alpha } from "@mui/material/styles";
 import MatIcon from "../MatIcon/MatIcon";
 import TextField from "@mui/material/TextField";
 import UsersSearch from "./UsersSearch";
+import { ConfirmProvider } from "material-ui-confirm";
 
 const pages = ["Listings", "Companies"];
 
@@ -230,7 +231,9 @@ export const Navbar = () => {
       </AppBar>
 
       <Box sx={{ minHeight: "80vh" }}>
-        <Outlet />
+        <ConfirmProvider>
+          <Outlet />
+        </ConfirmProvider>
       </Box>
       <Footer />
     </>
