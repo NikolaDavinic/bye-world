@@ -3,11 +3,11 @@
 - Nikola Davinić 		[17588]
 
 U bazi je kreirano dosta korisničkih naloga, neki od popunjenih kako bi se isprobale sve funkcionalnosti aplikacije jesu:
-email: milanstojkovic2707@gmail.com
-lozinka: 123
+<div>email: milanstojkovic2707@gmail.com</div>
+<div>lozinka: 123</div>
 
-email: davinicniki1@gmail.com
-password: 123
+<div>email: davinicniki1@gmail.com</div>
+<div>lozinka: 123</div>
 
 Za pokretanje aplikacije potrebno je startovati main api (ByeWorld-backend),
 Za funkcionisanje otpremanja CV-a, potrebno je pokrenuti CVUploader projekat,
