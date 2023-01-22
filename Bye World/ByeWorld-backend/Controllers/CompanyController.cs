@@ -4,6 +4,7 @@ using ByeWorld_backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Neo4j.Driver;
 using Neo4jClient;
 using Neo4jClient.Cypher;
 using StackExchange.Redis;
@@ -248,6 +249,29 @@ namespace ByeWorld_backend.Controllers
             var result = await _cache.QueryCache(query, "companies:count", expiry: TimeSpan.FromMinutes(15));
 
             return Ok(result?.Single() ?? 0);
+        }
+
+        [HttpPut("/updatecompany")]
+        public async Task<ActionResult> UpdateCompany([FromBody] UpdateCompanyDTO company)
+        {
+            var query = _neo4j.Cypher
+                .Match("(c:Company)")
+                .Where((Company c) => c.Id == company.Id)
+                .Set("c = $company")
+                .WithParam("company", company)
+                .Return((c) => c.As<Company>())
+                .Limit(1);
+
+            var result = (await query.ResultsAsync);
+            if(!result.Any())
+            {
+                return BadRequest();
+            }
+
+            var db = _redis.GetDatabase();
+            _ = db.KeyDeleteAsync($"companies:{company.Id}");
+
+            return Ok(result);
         }
     }
 }

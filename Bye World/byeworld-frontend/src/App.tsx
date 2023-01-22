@@ -21,7 +21,7 @@ import AuthenticatedGuard from "./components/common/RouteGuards/AuthenticatedGua
 import FavListings from "./components/UserPage/FavListings";
 import UserReviews from "./components/UserPage/UserReviews";
 import UserCompanies from "./components/UserPage/UserCompanies";
-
+import UpdateCompanyPage from "./components/UpdateCompanyPage/UpdateCompanyPage";
 const theme = createTheme({
   palette: {
     primary: {
@@ -70,6 +70,7 @@ function App() {
               <Route path="/listing/:id" element={<ListingPage />}></Route>
               <Route path="*" element={<NotFound />}></Route>
               <Route path="/addcompany" element={<AddCompanyPage />}></Route>
+              <Route path="/updatecompany" element={<UpdateCompanyPage />}></Route>
               <Route
                 path="/signin"
                 element={<AuthenticatedGuard>{<SignIn />}</AuthenticatedGuard>}

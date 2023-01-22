@@ -79,6 +79,10 @@ const CompanyPage = () => {
     });
   };
 
+  const updateCompany = () => {
+
+  }
+
   return (
     <>
       <Box className="bg-gray-100">
@@ -102,6 +106,13 @@ const CompanyPage = () => {
               </Box>
               {user?.id === company.userId && (
                 <Box>
+                  <Link to={`/updatecompany/${company.id}`}>
+                    <Button sx={{ m: 0, p: 0 }} onClick={() => updateCompany()}>
+                      <MatIcon style={{ fontSize: "2rem", color: "red" }}>
+                        edit
+                      </MatIcon>
+                    </Button>
+                  </Link>
                   <Button sx={{ m: 0, p: 0 }} onClick={() => deleteCompany()}>
                     <MatIcon style={{ fontSize: "2rem", color: "red" }}>
                       delete
@@ -130,11 +141,10 @@ const CompanyPage = () => {
                         icon={
                           <Icon
                             style={{
-                              color: `${
-                                company.avgReview
+                              color: `${company.avgReview
                                   ? "RGB(246,190,0)"
                                   : "RGB(70, 70, 70)"
-                              }`,
+                                }`,
                             }}
                             className="material-symbols-outlined"
                           >
