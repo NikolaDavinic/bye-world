@@ -21,7 +21,7 @@ const CompaniesPageHeader: React.FC<CompaniesPageHeaderProps> = ({
   return (
     <>
       <Box className="relative flex justify-center">
-        <Box className="bg-gray-100" minHeight="200px" minWidth="100%"></Box>
+        <Box className="bg-white drop-shadow-lg" minHeight="250px" minWidth="100%"></Box>
         <Box
           textAlign="left"
           className="w-full md:w-4/5 xl:w-4/6 px-10"
@@ -40,7 +40,7 @@ const CompaniesPageHeader: React.FC<CompaniesPageHeaderProps> = ({
             {userIsCompany() && (
               <Box>
                 <Link to="/addcompany">
-                  <Button variant="outlined">ADD COMPANY</Button>
+                  <Button variant="contained">ADD COMPANY</Button>
                 </Link>
               </Box>
             )}

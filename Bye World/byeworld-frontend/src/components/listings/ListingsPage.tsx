@@ -240,7 +240,7 @@ export const Listings: React.FC = () => {
           </Box>
         )}
       </div>
-      <div className="flex  m-5  px-60">
+      <div className="flex m-5 gap-4 px-60 flex-row">
         <Button
           fullWidth
           variant={"contained"}
@@ -248,7 +248,24 @@ export const Listings: React.FC = () => {
         >
           Show more
         </Button>
+        <Button
+          variant="outlined"
+          onClick={(ev) =>
+            window.scrollTo({
+              top: 0,
+              behavior: 'smooth',
+            })}
+          endIcon={
+            <Icon
+              sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}
+              className="material-symbols-outlined"
+            >
+              arrow_upward
+            </Icon>
+          }
+        >
+        </Button>
       </div>
-    </div>
+    </div >
   );
 };
