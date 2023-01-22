@@ -8,7 +8,7 @@ U bazi je kreirano dosta korisničkih naloga, neki od popunjenih kako bi se ispr
 
 <div>email: davinicniki1@gmail.com</div>
 <div>lozinka: 123</div>
-&bp;
+<br>
 Za pokretanje aplikacije potrebno je startovati main api (ByeWorld-backend),
 Za funkcionisanje otpremanja CV-a, potrebno je pokrenuti CVUploader projekat,
 Za pokretanje klijentske strane potrebno je pozicionirati se u byeworld-frontend folder
