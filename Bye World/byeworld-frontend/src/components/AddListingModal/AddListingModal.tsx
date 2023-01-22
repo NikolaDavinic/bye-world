@@ -7,7 +7,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { useEffect, useState } from "react";
-import { Icon, IconButton, MenuItem, Select, Typography } from "@mui/material";
+import { CircularProgress, Icon, IconButton, MenuItem, Select, Typography } from "@mui/material";
 import { api } from "../../constants";
 import { useNavigate } from "react-router-dom";
 import Snackbar from "@mui/material/Snackbar";
@@ -59,7 +59,7 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
   const { isAuthenticated, user } = useAuthContext();
 
   const { result, loading, error } = useApi<any>(`company/user/${user?.id}`);
-
+  const [showSpinner, setShowSpinner] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [descriptionEditor, setDescriptionEditor] = useState<EditorState>();
@@ -72,6 +72,7 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
   ]);
 
   const onSubmit = () => {
+    setShowSpinner(true);
     var passed = true;
     if (title.length == 0) {
       setSnackbarSeverity("warning")
@@ -99,8 +100,10 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
         passed = false;
       }
     })
-    if (!passed)
+    if (!passed) {
+      setShowSpinner(false);
       return;
+    }
     const data: ListingDTO = {
       title: title,
       cityName: cityName,
@@ -137,6 +140,7 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
         fullWidth={true}
         maxWidth={"md"}
       >
+        {showSpinner && <CircularProgress className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />}
         <DialogTitle>New Listing</DialogTitle>
         <DialogContent>
           <DialogContentText>Enter new listing details.</DialogContentText>
