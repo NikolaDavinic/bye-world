@@ -74,8 +74,6 @@ export const SimilarListingCard: React.FC<SimilarListingCardProps> = ({
                 </p>
               </div>
             </div>
-            {/* TODO: Replace with Material UI chip */}
-            {/*TODO: Map required skills below and fix tag navigation */}
             <Box className="flex items-center gap-2 flex-wrap">
               {/* <a href="/oglasi-za-posao/crm" className="bg-main text-white rounded-md btn btn-xs btn-primary w-auto">
                                     Java

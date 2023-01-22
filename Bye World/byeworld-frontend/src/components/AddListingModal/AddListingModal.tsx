@@ -175,7 +175,6 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
               />
             </div>
           </Paper>
-          {/* TODO:Sredi da se select napuni na nazivima kompanija korisnika a value item-a je id izabrane kompanije */}
           {result && (
             <Select
               labelId="demo-simple-select-label"
