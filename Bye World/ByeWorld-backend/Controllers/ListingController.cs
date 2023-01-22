@@ -47,28 +47,33 @@ namespace ByeWorld_backend.Controllers
             var userId = long.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");
 
             var query = _neo4j.Cypher
-                .OptionalMatch("(s:Skill)-[reqs:REQUIRES]-(l:Listing)-[r]-(c:City)")
-                .OptionalMatch("(l)-[:HAS_LISTING]-(co:Company)")
+                .Match("(s:Skill)-[reqs:REQUIRES]-(l:Listing)-[r]-(c:City)")
                 .Where((Listing l) => true);
+
             if (!includeExpired)
             {
                 query = query.AndWhere((Listing l) => l.ClosingDate < DateTime.Now);
             }
             if (!String.IsNullOrEmpty(keyword))
             {
-                query=query.AndWhere((Listing l) => l.Title.Contains(keyword));
+                query = query.AndWhere((Listing l) => l.Title.Contains(keyword));
             }
             if (!String.IsNullOrEmpty(city))
             {
-                query=query.AndWhere((Listing l,City c) => c.Name.Contains(city));
+                query = query.AndWhere((Listing l,City c) => c.Name.Contains(city));
             }
             //TODO: CONTAINS ili = kod pretragu, kad trazis za java da li da vrati i javascript??????
             if (!String.IsNullOrEmpty(position))
-             {
+            {
                 query = query.AndWhere($"toLower(s.Name) CONTAINS toLower('{position}')");
             }
             if (!String.IsNullOrEmpty(seniority))
+            {
                 query = query.AndWhere($"toLower(reqs.Proficiency) CONTAINS toLower('{seniority}')");
+            }
+
+            query = query
+                .OptionalMatch("(l)-[:HAS_LISTING]-(co:Company)");
 
             query = query
                 .OptionalMatch("(u:User)-[hf:HAS_FAVORITE]-(l)")
@@ -77,24 +82,27 @@ namespace ByeWorld_backend.Controllers
             //TODO: Napravi DTO?
             var retVal = query.Return((l, c, s, co, hf) => new
             {
-                Id = l.As<Listing>().Id,
-                Title = l.As<Listing>().Title,
-                Description = l.As<Listing>().Description,
+                l.As<Listing>().Id,
+                l.As<Listing>().Title,
+                l.As<Listing>().Description,
                 CityName = c.As<City>().Name,
-                ClosingDate = l.As<Listing>().ClosingDate,
-                PostingDate = l.As<Listing>().PostingDate,
+                l.As<Listing>().ClosingDate,
+                l.As<Listing>().PostingDate,
                 Requirements = s.CollectAs<Skill>(),
                 CompanyName = co.As<Company>().Name,
                 CompanyLogoUrl = co.As<Company>().LogoUrl,
                 CompanyId= co.As<Company>().Id,
                 IsFavorite = Return.As<bool>("CASE hf WHEN hf THEN TRUE ELSE FALSE END")
             });
+
             if (sortNewest)
             {
                 retVal = retVal.OrderBy("l.PostingDate DESC");
             }
             else
+            {
                 retVal = retVal.OrderBy("l.ClosingDate ASC");
+            }
 
             var result = await retVal.Skip(skip).Limit(take).ResultsAsync;
 
@@ -208,12 +216,14 @@ namespace ByeWorld_backend.Controllers
             var db = _redis.GetDatabase();
 
             var query = _neo4j.Cypher.Match("(l:Listing)")
-                   .Match("(l)-[lc:LOCATED_IN]->(c:City)")
+                   .OptionalMatch("(l)-[lc:LOCATED_IN]->(c:City)")
+                   .OptionalMatch("(l)-[:REQUIRES]->(s:Skill)")
                    .Match("(cm:Company)-[cl:HAS_LISTING]->(l)")
-                   .Match("(l)-[:REQUIRES]->(s:Skill)")
-                   .Where((Listing l, Company cm, City c, Skill s) => l.Id == id)
-                   .Return((l, cm, c, s) => new
+                   .Match("(u:User)-[:HAS_COMPANY]-(cm)")
+                   .Where((Listing l) => l.Id == id)
+                   .Return((l, cm, c, s, u) => new
                    {
+                       UserId=u.As<User>().Id,
                        Listing=l.As<Listing>(),
                        Company=cm.As<Company>(),
                        City=c.As<City>(),
@@ -240,7 +250,8 @@ namespace ByeWorld_backend.Controllers
                     r.Company.Id,
                     r.Company.Name,
                     r.Company.LogoUrl,
-                    r.Company.Email
+                    r.Company.Email,
+                    r.UserId
                 },
                 City = new
                 {
@@ -375,7 +386,7 @@ namespace ByeWorld_backend.Controllers
         {
             await _neo4j.Cypher.Match("(l:Listing)")
                                .Where((Listing l) => l.Id == id)
-                               .Delete("l")
+                               .DetachDelete("l")
                                .ExecuteWithoutResultsAsync();
             return Ok();
         }

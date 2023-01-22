@@ -43,8 +43,7 @@ export const Listings: React.FC = () => {
   //Starting number of listings
   const [count, setCount] = useState<number>(3);
 
-  const onFilter = () => {
-    const skip = listings.length;
+  const onFilter = (skip: number) => {
     getFilteredListings(
       keyword,
       city,
@@ -79,7 +78,7 @@ export const Listings: React.FC = () => {
 
   const fetchMoreListings = () => {
     setCount((prevCount) => prevCount + increment);
-    onFilter();
+    onFilter(listings.length);
   };
 
   async function getFilteredListings(
@@ -106,6 +105,9 @@ export const Listings: React.FC = () => {
     });
 
     setListings((prev) => {
+      if (skip === 0) {
+        return [...response.data];
+      }
       const newitems = response.data.filter(
         (item) => prev.findIndex((t) => t.id === item.id) === -1
       );
@@ -114,12 +116,12 @@ export const Listings: React.FC = () => {
   }
 
   useEffect(() => {
-    onFilter();
+    onFilter(0);
   }, [sortNewest, includeExpired]);
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Enter") {
-      onFilter();
+      onFilter(0);
     }
   };
   // Modal testing
@@ -175,7 +177,7 @@ export const Listings: React.FC = () => {
           />
           <Button
             variant="contained"
-            onClick={() => onFilter()}
+            onClick={() => onFilter(0)}
             startIcon={
               <Icon
                 sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}

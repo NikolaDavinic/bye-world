@@ -167,7 +167,7 @@ export const Navbar = () => {
               ))}
             </Box>
             <Box
-              sx={{ display: "block", bgcolor: "white", mx: "10px" }}
+              sx={{ mx: "10px" }}
               className="flex items-center justify-center"
             >
               <UsersSearch></UsersSearch>

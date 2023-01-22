@@ -17,12 +17,13 @@ import MatIcon from "../common/MatIcon/MatIcon";
 import Box from "@mui/material/Box/Box";
 import CircularProgress from "@mui/material/CircularProgress/CircularProgress";
 import { useAuthContext } from "../../contexts/auth.context";
+import { useConfirm } from "material-ui-confirm";
+
 const ListingPage: React.FC = () => {
   const navigate = useNavigate();
   const params = useParams();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { isAuthenticated } = useAuthContext();
-
+  const confirm = useConfirm();
   const { user } = useAuthContext();
 
   const {
@@ -30,20 +31,14 @@ const ListingPage: React.FC = () => {
     setResult: setListing,
     loading: listing1Loading,
   } = useApi<any>(`/listing/${params.id}`);
-  const checkUserToken = () => {
-    const userToken = localStorage.getItem("user");
-    if (!userToken || userToken === "undefined") {
-      setIsLoggedIn(false);
-    }
-    setIsLoggedIn(true);
-  };
+
+  console.log(listing1);
+
   const {
     result: listings,
     loading,
     error,
   } = useApi<ListingDTO[]>(`/listing/similarlistings/${params.id}`);
-
-  useEffect(() => {}, []);
 
   const [open, setOpen] = React.useState(false);
 
@@ -54,6 +49,7 @@ const ListingPage: React.FC = () => {
       </Box>
     );
   }
+
   const toggleFavorite = () => {
     if (!isAuthenticated()) {
       return navigate("/signin");
@@ -68,15 +64,26 @@ const ListingPage: React.FC = () => {
         });
     }
   };
+
   const handleModalClose = () => {
     setOpen(false);
   };
+
   const handleModalOpen = () => {
     setOpen(true);
   };
 
   const openGmail = () => {
-    window.location.replace(`mailto:${listing1?.company.email}`);
+    window.location.replace(`mailto:${listing1?.company?.email}`);
+  };
+
+  const deleteListing = () => {
+    confirm({
+      content: "Are you sure you want to delete this listing?",
+      title: "Confirm Action",
+    }).then(() => {
+      api.delete(`listing/${listing1?.id}`).then(() => navigate("/listings"));
+    });
   };
 
   return (
@@ -172,6 +179,26 @@ const ListingPage: React.FC = () => {
                         }
                       />
                     </Link>
+                    <Box
+                      sx={{
+                        height: "100%",
+                        alignSelf: "start",
+                        marginTop: "5px",
+                      }}
+                    >
+                      {user?.id === listing1?.company?.userId && (
+                        <Box>
+                          <Button
+                            sx={{ m: 0, p: 0 }}
+                            onClick={() => deleteListing()}
+                          >
+                            <MatIcon style={{ fontSize: "2rem", color: "red" }}>
+                              delete
+                            </MatIcon>
+                          </Button>
+                        </Box>
+                      )}
+                    </Box>
                   </div>
                 </div>
               </div>
@@ -186,11 +213,6 @@ const ListingPage: React.FC = () => {
                     Apply Here
                   </Button>
                 }
-                {isLoggedIn && (
-                  <p className="text-2xl text-red-800 font-semibold ">
-                    To open form press button
-                  </p>
-                )}
               </div>
             </div>
           </div>

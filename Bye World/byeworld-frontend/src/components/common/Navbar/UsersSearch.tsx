@@ -37,7 +37,10 @@ const UsersSearch: FunctionComponent = () => {
   };
 
   return (
-    <FormControl style={{ margin: 0 }}>
+    <FormControl
+      style={{ margin: 0 }}
+      sx={{ bgcolor: "white", borderRadius: "5px" }}
+    >
       <TextField
         size="small"
         ref={ref}
@@ -57,7 +60,7 @@ const UsersSearch: FunctionComponent = () => {
               style={{ display: showClearIcon }}
               onClick={handleClear}
             >
-              <MatIcon>clear</MatIcon>
+              <MatIcon style={{ cursor: "pointer" }}>clear</MatIcon>
             </InputAdornment>
           ),
         }}
