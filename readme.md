@@ -1,11 +1,11 @@
 - Milan Stojković		[17999]
-- Stefan Stojadinović	[17975]
+- Stefan Stojadinović		[17975]
 - Nikola Davinić 		[17588]
 
 U bazi je kreirano dosta korisničkih naloga, neki od popunjenih kako bi se isprobale sve funkcionalnosti aplikacije jesu:
 <div>email: milanstojkovic2707@gmail.com</div>
 <div>lozinka: 123</div>
-
+<br>
 <div>email: davinicniki1@gmail.com</div>
 <div>lozinka: 123</div>
 <br>
