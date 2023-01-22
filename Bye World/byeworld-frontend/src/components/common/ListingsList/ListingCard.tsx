@@ -39,6 +39,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
             <div className="grid gap-1">
               <div className="flex items-center gap-1 w-full overflow-hidden ">
                 <p
+                  style={{ cursor: "pointer" }}
                   className="hover:opacity-50 font-bold text-lg"
                   onClick={() => navigate("/listing/" + listing.id)}
                 >

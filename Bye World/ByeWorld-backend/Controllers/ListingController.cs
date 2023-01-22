@@ -128,7 +128,7 @@ namespace ByeWorld_backend.Controllers
                 rc.As<Listing>().Description,
                 rc.As<Listing>().PostingDate,
                 rc.As<Listing>().ClosingDate,
-                c.As<City>().Name,
+                CityName = c.As<City>().Name,
                 Requirements = s.CollectAs<Skill>(),
                 CompanyName = co.As<Company>().Name,
                 CompanyLogoUrl = co.As<Company>().LogoUrl,

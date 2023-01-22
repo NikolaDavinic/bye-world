@@ -99,6 +99,7 @@ export default function UserPage() {
                       It's nice to see you back on ByeWorld!
                     </Typography>
                   )}
+                  <p className="font-medium text-left">{userp?.name}</p>
                   <p className="opacity-60 font-medium">{userp?.email}</p>
                 </div>
               </div>

@@ -14,6 +14,11 @@ export function useApi<T>(path: string, initialValue?: T) {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+
+    if (path.length === 0) {
+      return;
+    }
+
     api
       .get(path)
       .then((r) => {

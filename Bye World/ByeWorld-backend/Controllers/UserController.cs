@@ -189,6 +189,26 @@ namespace ByeWorld_backend.Controllers
             });
         }
 
+        [HttpGet("search")]
+        public async Task<ActionResult> Search([FromQuery] string name)
+        {
+            var query = _neo4j.Cypher
+                .Match("(u:User)")
+                .Where("u.Name =~ $query")
+                .OrWhere("u.Email =~ $query")
+                .WithParam("query", $"(?i).*{name ?? ""}.*")
+                .Return(u => new
+                {
+                    u.As<User>().Id,
+                    u.As<User>().Name,
+                    u.As<User>().Email,
+                    u.As<User>().ImageUrl
+                })
+                .Limit(5);
+
+            return Ok(await query.ResultsAsync);
+        }
+
         [Authorize]
         [HttpPut("signout")]
         public async Task<ActionResult> UserSignOut()

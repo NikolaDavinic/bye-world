@@ -65,13 +65,16 @@ export function AuthStateProvider({ children }: AuthStateProviderProps) {
   };
 
   const signout = () => {
+    if (lsGetSession() == null) {
+      return;
+    }
+
     setAuthState(null);
 
-    api.put("/user/signout", {}).then(() => {
+    api.put("/user/signout", {}).finally(() => {
       lsRemoveSession();
+      lsRemoveUser();
     });
-
-    lsRemoveUser();
   };
 
   const autoLogin = () => {

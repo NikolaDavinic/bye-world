@@ -10,10 +10,14 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import { Icon } from "@mui/material";
+import { Icon, Input } from "@mui/material";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import Footer from "../Footer/Footer";
 import { useAuthContext } from "../../../contexts/auth.context";
+import { styled, alpha } from "@mui/material/styles";
+import MatIcon from "../MatIcon/MatIcon";
+import TextField from "@mui/material/TextField";
+import UsersSearch from "./UsersSearch";
 
 const pages = ["Listings", "Companies"];
 
@@ -161,7 +165,12 @@ export const Navbar = () => {
                 </NavLink>
               ))}
             </Box>
-
+            <Box
+              sx={{ display: "block", bgcolor: "white", mx: "10px" }}
+              className="flex items-center justify-center"
+            >
+              <UsersSearch></UsersSearch>
+            </Box>
             {!isAuthenticated() ? (
               <Box sx={{ display: "block" }}>
                 <Button
