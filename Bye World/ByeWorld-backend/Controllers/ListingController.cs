@@ -59,7 +59,7 @@ namespace ByeWorld_backend.Controllers
 
             if (!includeExpired)
             {
-                query = query.AndWhere((Listing l) => l.ClosingDate < DateTime.Now);
+                query = query.AndWhere((Listing l) => l.ClosingDate > DateTime.Now);
             }
             if (!String.IsNullOrEmpty(keyword))
             {
