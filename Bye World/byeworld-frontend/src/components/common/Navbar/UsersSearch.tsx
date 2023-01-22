@@ -2,6 +2,7 @@ import {
   FormControl,
   InputAdornment,
   Popover,
+  Popper,
   TextField,
   Typography,
 } from "@mui/material";
@@ -65,20 +66,20 @@ const UsersSearch: FunctionComponent = () => {
           ),
         }}
       />
-      <Popover
+      <Popper
         onClick={handleClear}
         open={Boolean((users?.length ?? 0) > 0)}
         anchorEl={ref.current}
-        onClose={handleClear}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
+        // onClose={handleClear}
+        // anchorOrigin={{
+        //   vertical: "bottom",
+        //   horizontal: "left",
+        // }}
       >
         {users?.map((user) => (
           <UserCard key={user.id} user={user}></UserCard>
         ))}
-      </Popover>
+      </Popper>
     </FormControl>
   );
 };

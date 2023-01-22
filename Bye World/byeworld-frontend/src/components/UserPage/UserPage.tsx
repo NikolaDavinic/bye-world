@@ -67,7 +67,7 @@ export default function UserPage() {
 
   return (
     <Box>
-      {userp?.id == params.userId && (
+      {user?.id == Number(params.userId) && (
         <Box>
           <UserSuggestions></UserSuggestions>
         </Box>
