@@ -1,5 +1,7 @@
 import {
+  Box,
   Button,
+  CircularProgress,
   FormControlLabel,
   FormGroup,
   Icon,
@@ -34,8 +36,8 @@ export const Listings: React.FC = () => {
   const [sortNewest, setSortNewest] = useState<Boolean>(true);
   const [includeExpired, setIncludeExpired] = useState<Boolean>(false);
   const [listings, setListings] = useState<ListingDTO[]>([]);
-
   const { isAuthenticated, userIsCompany } = useAuthContext();
+  const [loading, setLoading] = useState<boolean>(false);
 
   //Paging
   //Increment of listings number
@@ -43,7 +45,7 @@ export const Listings: React.FC = () => {
   //Starting number of listings
   const [count, setCount] = useState<number>(3);
 
-  const onFilter = () => {
+  const onFilter = (skip: number) => {
     getFilteredListings(
       keyword,
       city,
@@ -51,10 +53,10 @@ export const Listings: React.FC = () => {
       seniority,
       sortNewest,
       includeExpired,
-      count
+      skip,
+      increment
     );
   };
-
   const toggleFavoriteListing = (id: number) => {
     setListings(
       listings.map((listing) => {
@@ -77,7 +79,7 @@ export const Listings: React.FC = () => {
 
   const fetchMoreListings = () => {
     setCount((prevCount) => prevCount + increment);
-    onFilter();
+    onFilter(listings.length);
   };
 
   async function getFilteredListings(
@@ -87,42 +89,57 @@ export const Listings: React.FC = () => {
     seniority: string,
     sortNewest: Boolean,
     includeExpired: Boolean,
+    skip: Number,
     take: Number
   ) {
-    const response = await api.get("/listing/filter", {
-      params: {
-        keyword,
-        city,
-        skill,
-        seniority,
-        sortNewest,
-        includeExpired,
-        take,
-      },
-    });
-    console.log(response.data);
-    setListings(response.data);
+    setLoading(true);
+    if (skip === 0) {
+      setListings([]);
+    }
+    api
+      .get<ListingDTO[]>("/listing/filter", {
+        params: {
+          keyword,
+          city,
+          skill,
+          seniority,
+          sortNewest,
+          includeExpired,
+          take,
+          skip,
+        },
+      })
+      .then((response) => {
+        setLoading(false);
+        setListings((prev) => {
+          if (skip === 0) {
+            return [...response.data];
+          }
+          const newitems = response.data.filter(
+            (item) => prev.findIndex((t) => t.id === item.id) === -1
+          );
+          return [...prev, ...newitems];
+        });
+      });
   }
+
   useEffect(() => {
-    onFilter();
+    onFilter(0);
   }, [sortNewest, includeExpired]);
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Enter") {
-      onFilter();
+      onFilter(0);
     }
   };
   // Modal testing
   const [open, setOpen] = React.useState(false);
-
   const handleModalClose = () => {
     setOpen(false);
   };
-
   const handleModalOpen = () => {
     setOpen(true);
   };
-
   return (
     <div>
       {isAuthenticated() && (
@@ -165,7 +182,7 @@ export const Listings: React.FC = () => {
           />
           <Button
             variant="contained"
-            onClick={() => onFilter()}
+            onClick={() => onFilter(0)}
             startIcon={
               <Icon
                 sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}
@@ -203,7 +220,7 @@ export const Listings: React.FC = () => {
               label="Include Expired"
             />
           </FormGroup>
-          {(isAuthenticated() && userIsCompany) && (
+          {isAuthenticated() && userIsCompany() && (
             <Button variant="outlined" onClick={() => handleModalOpen()}>
               New Listing
             </Button>
@@ -215,6 +232,13 @@ export const Listings: React.FC = () => {
           listings={listings}
           toggleFavorite={toggleFavoriteListing}
         />
+      </div>
+      <div>
+        {loading && (
+          <Box className="flex items-center justify-center">
+            <CircularProgress color="primary" />
+          </Box>
+        )}
       </div>
       <div className="flex  m-5  px-60">
         <Button
