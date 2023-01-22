@@ -34,13 +34,13 @@ const Companies: React.FC = () => {
   }, []);
 
   return (
-    <Stack justifyContent="center" alignItems="center">
+    <Stack justifyContent="center" alignItems="center" className="bg-gray-100">
       <Box className="w-full">
         <CompaniesPageHeader onChange={setSearchField} value={searchField} />
       </Box>
       <Box
         className="flex justify-center items-center w-4/5
-       pt-10 flex-wrap gap-5"
+       pt-10 flex-wrap gap-5 bg-gray-100"
       >
         {companies.map((company) => (
           <CompanyCard key={company.id} company={company} />

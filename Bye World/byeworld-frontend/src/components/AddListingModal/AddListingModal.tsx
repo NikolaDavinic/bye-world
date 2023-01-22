@@ -7,11 +7,11 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { useEffect, useState } from "react";
-import { Icon, IconButton, MenuItem, Select, Typography } from "@mui/material";
+import { CircularProgress, Icon, IconButton, MenuItem, Select, Typography } from "@mui/material";
 import { api } from "../../constants";
 import { useNavigate } from "react-router-dom";
 import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
+import Alert, { AlertColor } from "@mui/material/Alert";
 import { Company } from "../../model/Company";
 import { useApi } from "../../hooks/api.hook";
 import { useAuthContext } from "../../contexts/auth.context";
@@ -49,6 +49,7 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
   const [open, setOpen] = React.useState(false);
   const [showSnackbar, setShowSnackbar] = React.useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = React.useState<string>("");
+  const [snackbarSeverity, setSnackbarSeverity] = React.useState<AlertColor>("success");
 
   const navigate = useNavigate();
   const handleClose = () => {
@@ -58,7 +59,7 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
   const { isAuthenticated, user } = useAuthContext();
 
   const { result, loading, error } = useApi<any>(`company/user/${user?.id}`);
-
+  const [showSpinner, setShowSpinner] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [descriptionEditor, setDescriptionEditor] = useState<EditorState>();
@@ -67,10 +68,42 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
   const [closingDate, setClosingDate] = useState<Date>(new Date());
   const [postingDate, _] = useState<Date>(new Date());
   const [requirements, setRequirements] = useState<SkillDTO[]>([
-    { name: "", proficiency: "" },
+    { name: "", proficiency: "junior" },
   ]);
 
   const onSubmit = () => {
+    setShowSpinner(true);
+    var passed = true;
+    if (title.length == 0) {
+      setSnackbarSeverity("warning")
+      setSnackbarMessage("Listing title is required!");
+      setShowSnackbar(true);
+      passed = false;
+    }
+    else if (companyId == 0) {
+      setSnackbarSeverity("warning")
+      setSnackbarMessage("Company is required!");
+      setShowSnackbar(true);
+      passed = false;
+    }
+    else if (cityName.length == 0) {
+      setSnackbarSeverity("warning")
+      setSnackbarMessage("City is required!");
+      setShowSnackbar(true);
+      passed = false;
+    }
+    requirements.forEach((requirement: SkillDTO) => {
+      if (requirement.name.length == 0) {
+        setSnackbarSeverity("warning")
+        setSnackbarMessage("Skill name cant be empty!");
+        setShowSnackbar(true);
+        passed = false;
+      }
+    })
+    if (!passed) {
+      setShowSpinner(false);
+      return;
+    }
     const data: ListingDTO = {
       title: title,
       cityName: cityName,
@@ -90,6 +123,7 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
       })
       .catch((error) => {
         console.error(error);
+        setSnackbarSeverity("error");
         setSnackbarMessage(error);
         setShowSnackbar(true);
       });
@@ -106,6 +140,7 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
         fullWidth={true}
         maxWidth={"md"}
       >
+        {showSpinner && <CircularProgress className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />}
         <DialogTitle>New Listing</DialogTitle>
         <DialogContent>
           <DialogContentText>Enter new listing details.</DialogContentText>
@@ -269,7 +304,7 @@ export const AddListingModal: React.FC<AddListingModalProps> = ({
       >
         <Alert
           onClose={() => setShowSnackbar(false)}
-          severity="success"
+          severity={snackbarSeverity}
           sx={{ width: "100%" }}
         >
           {snackbarMessage}
