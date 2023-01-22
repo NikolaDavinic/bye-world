@@ -1,24 +1,29 @@
+import { Box, CircularProgress } from "@mui/material";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { api, constants } from "../../constants";
+import { useApi } from "../../hooks/api.hook";
 import { Company } from "../../model/Company";
 import AddCompanyForm from "../common/AddCompanyForm/AddCompanyForm";
 import UpdateCompanyForm from "../common/UpdateCompanyForm/UpdateCompanyForm";
 
 const UpdateCompanyPage = () => {
   const navigate = useNavigate();
+  const params = useParams();
+
+  const { result, loading } = useApi<Company>(`/company/${params.id}`);
 
   const onSubmit = async (company: Company) => {
-    console.log(company);
     let com = {
-      Name: company.name,
-      Description: company.description,
-      Email: company.email,
-      VAT: company.vat,
-      Address: company.address,
+      id: result?.id,
+      name: company.name,
+      description: company.description,
+      email: company.email,
+      address: company.address,
     };
+    console.log(com);
     api
-      .put(`/company/updatecompany`, com)
+      .put(`/company`, com)
       .then(({ data }) => {
         navigate(`/company/${data.id}`);
       })
@@ -27,9 +32,21 @@ const UpdateCompanyPage = () => {
       });
   };
 
+  if (loading) {
+    return (
+      <Box className="flex items-center justify-center">
+        <CircularProgress className="mt-20" color="primary" />
+      </Box>
+    );
+  }
+
+  if (!result) {
+    return <></>;
+  }
+
   return (
     <div>
-      <UpdateCompanyForm onSubmit={onSubmit} />
+      <UpdateCompanyForm onSubmit={onSubmit} company={result} />
     </div>
   );
 };

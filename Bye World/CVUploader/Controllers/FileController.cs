@@ -14,8 +14,13 @@ namespace CVUploader.Controllers
     {
         private readonly ILogger<FileController> _logger;
         private readonly IConnectionMultiplexer _redis;
-        public FileController(ILogger<FileController> logger, IConnectionMultiplexer redis)
+        private readonly IConfiguration _config;
+        public FileController(
+            ILogger<FileController> logger, 
+            IConnectionMultiplexer redis,
+            IConfiguration config)
         {
+            _config = config;
             _logger = logger;
             _redis = redis;
         }
@@ -40,7 +45,7 @@ namespace CVUploader.Controllers
                 }
                 fileContent.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/pdf");
                 var client = new HttpClient();
-                var response = await client.PostAsync("https://www.filestackapi.com/api/store/S3?key=***REMOVED***", fileContent);
+                var response = await client.PostAsync(_config.GetSection("FileApiKey").Value.ToString(), fileContent);
                 var responseBody = await response.Content.ReadAsStringAsync();
                 //
                 dynamic json = JsonConvert.DeserializeObject(responseBody);

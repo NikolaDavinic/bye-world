@@ -70,7 +70,10 @@ function App() {
               <Route path="/listing/:id" element={<ListingPage />}></Route>
               <Route path="*" element={<NotFound />}></Route>
               <Route path="/addcompany" element={<AddCompanyPage />}></Route>
-              <Route path="/updatecompany" element={<UpdateCompanyPage />}></Route>
+              <Route
+                path="/updatecompany/:id"
+                element={<UpdateCompanyPage />}
+              ></Route>
               <Route
                 path="/signin"
                 element={<AuthenticatedGuard>{<SignIn />}</AuthenticatedGuard>}

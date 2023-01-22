@@ -251,18 +251,22 @@ namespace ByeWorld_backend.Controllers
             return Ok(result?.Single() ?? 0);
         }
 
-        [HttpPut("/updatecompany")]
+        [Authorize(Roles = "Company")]
+        [HttpPut]
         public async Task<ActionResult> UpdateCompany([FromBody] UpdateCompanyDTO company)
         {
+            var userId = int.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");
+
             var query = _neo4j.Cypher
-                .Match("(c:Company)")
-                .Where((Company c) => c.Id == company.Id)
+                .Match("(c:Company)-[]-(u:User)")
+                .Where((Company c, User u) => c.Id == company.Id && u.Id == userId)
                 .Set("c = $company")
                 .WithParam("company", company)
                 .Return((c) => c.As<Company>())
                 .Limit(1);
 
             var result = (await query.ResultsAsync);
+
             if(!result.Any())
             {
                 return BadRequest();
@@ -271,7 +275,7 @@ namespace ByeWorld_backend.Controllers
             var db = _redis.GetDatabase();
             _ = db.KeyDeleteAsync($"companies:{company.Id}");
 
-            return Ok(result);
+            return Ok(result.SingleOrDefault());
         }
     }
 }

@@ -1,10 +1,12 @@
-import { Button, TextField } from "@mui/material";
+import { Button, CircularProgress, TextField } from "@mui/material";
 import { Box, Stack } from "@mui/system";
 import { useForm } from "react-hook-form";
 import { Company } from "../../../model/Company";
 import { useApi } from "../../../hooks/api.hook";
+import { useParams } from "react-router-dom";
 
 interface UpdateCompanyProps {
+  company: Company;
   onSubmit: (data: Company) => void;
 }
 
@@ -15,21 +17,23 @@ interface FormInputFields {
   address: string;
 }
 
+const UpdateCompanyForm = ({ onSubmit, company }: UpdateCompanyProps) => {
+  const params = useParams();
 
-const UpdateCompanyForm = ({ onSubmit }: UpdateCompanyProps) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<FormInputFields>({
     reValidateMode: "onSubmit",
+    values: {
+      address: company.address ?? "",
+      description: company.description ?? "",
+      email: company.email ?? "",
+      name: company.name ?? "",
+    },
   });
-
-  const {
-    result: company,
-    loading,
-    error,
-  } = useApi<Company>(`/company/${params.id}`);
 
   const onSubmitForm = (data: FormInputFields) => {
     onSubmit({

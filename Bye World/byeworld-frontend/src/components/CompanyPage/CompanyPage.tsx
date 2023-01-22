@@ -79,9 +79,7 @@ const CompanyPage = () => {
     });
   };
 
-  const updateCompany = () => {
-
-  }
+  const updateCompany = () => {};
 
   return (
     <>
@@ -108,7 +106,7 @@ const CompanyPage = () => {
                 <Box>
                   <Link to={`/updatecompany/${company.id}`}>
                     <Button sx={{ m: 0, p: 0 }} onClick={() => updateCompany()}>
-                      <MatIcon style={{ fontSize: "2rem", color: "red" }}>
+                      <MatIcon style={{ fontSize: "2rem" }} color="primary">
                         edit
                       </MatIcon>
                     </Button>
@@ -141,10 +139,11 @@ const CompanyPage = () => {
                         icon={
                           <Icon
                             style={{
-                              color: `${company.avgReview
+                              color: `${
+                                company.avgReview
                                   ? "RGB(246,190,0)"
                                   : "RGB(70, 70, 70)"
-                                }`,
+                              }`,
                             }}
                             className="material-symbols-outlined"
                           >
