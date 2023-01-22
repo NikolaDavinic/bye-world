@@ -36,21 +36,26 @@ export const Home: React.FC = () => {
     `/listing/newestlistings`
   );
 
+  const {user} = useAuthContext();
+
   const testArray = [
     {
       name: "Users",
       count: active,
       icon: 1,
+      link: ``
     },
     {
       name: "Listings",
       count: numberOfListings,
       icon: 2,
+      link: "listings"
     },
     {
       name: "Companies",
       count: numberOfCompanies,
       icon: 3,
+      link: "companies"
     },
   ];
 
@@ -156,6 +161,7 @@ export const Home: React.FC = () => {
                   name={el.name}
                   icon={el.icon}
                   count={el.count}
+                  link={el.link}
                   key={el.name}
                 />
               );
