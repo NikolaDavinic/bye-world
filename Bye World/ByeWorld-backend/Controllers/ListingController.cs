@@ -69,7 +69,6 @@ namespace ByeWorld_backend.Controllers
             {
                 query = query.AndWhere((Listing l,City c) => c.Name.Contains(city));
             }
-            //TODO: CONTAINS ili = kod pretragu, kad trazis za java da li da vrati i javascript??????
             if (!String.IsNullOrEmpty(position))
             {
                 query = query.AndWhere($"toLower(s.Name) CONTAINS toLower('{position}')");
@@ -86,7 +85,6 @@ namespace ByeWorld_backend.Controllers
                 .OptionalMatch("(u:User)-[hf:HAS_FAVORITE]-(l)")
                 .Where((User u) => u.Id == userId);
 
-            //TODO: Napravi DTO?
             var retVal = query.Return((l, c, s, co, hf) => new
             {
                 l.As<Listing>().Id,

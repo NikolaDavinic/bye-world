@@ -22,7 +22,7 @@ namespace ByeWorld_backend.Controllers
             _neo4j = neo4j;
             _ids = ids;
         }
-        //[Authorize] TODO:Ukljuci autorizaciju
+        [Authorize]
         [HttpGet("myskills")]
         public async Task<ActionResult> GetUserSkills()
         {
@@ -48,7 +48,7 @@ namespace ByeWorld_backend.Controllers
             return Ok(result);
         }
 
-        //[Authorize] TODO:Ukljuci autorizaciju
+        [Authorize]
         [HttpPut("edit")]
         public async Task<ActionResult> EditUserSkills([FromBody] List<SkillDTO> skills)
         {
@@ -74,7 +74,6 @@ namespace ByeWorld_backend.Controllers
                 .ExecuteWithoutResultsAsync();
 
             //Ukoliko ima skill-ova koje trazimo a ne postoje bazi, dodajemo ih
-            //TODO:id za novi skill?? problem sa kasnijom pretragom, isto i u ListingController
             var addQuery = _neo4j.Cypher
                         .Match("(u:User)")
                         .Where((User u) => u.Id == userId);
