@@ -21,6 +21,20 @@ const FavListings = () => {
     );
   }
 
+  const toggleFavoriteListing = (id: number) => {
+    if (listings) {
+      setListings(
+        listings.map((listing) => {
+          if (listing.id === id) {
+            return { ...listing, isFavorite: !Boolean(listing.isFavorite) };
+          } else {
+            return listing;
+          }
+        })
+      );
+    }
+  };
+
   if (!listings || listings.length === 0) {
     return (
       <Box>
@@ -36,7 +50,10 @@ const FavListings = () => {
   return (
     <Box>
       {listings && listings?.length > 0 && (
-        <ListingsList listings={listings ?? []}></ListingsList>
+        <ListingsList
+          listings={listings ?? []}
+          toggleFavorite={toggleFavoriteListing}
+        ></ListingsList>
       )}
     </Box>
   );

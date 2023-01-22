@@ -28,6 +28,7 @@ namespace CVUploader.Controllers
             {
                 var uid = long.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");
                 string finalPath = string.Empty;
+
                 _logger.LogInformation($"cv uploaded uid {uid}");
 
                 //UPLOAD CV TEST

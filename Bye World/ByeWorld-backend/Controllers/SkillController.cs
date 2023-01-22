@@ -28,20 +28,21 @@ namespace ByeWorld_backend.Controllers
         {
             var claims = HttpContext.User.Claims;
 
-            var userId = Int32.Parse(claims.Where(c => c.Type == "Id").FirstOrDefault()?.Value ?? "0");
+            var userId = Int32.Parse(claims.Where(c => c.Type == "Id").FirstOrDefault()?.Value ?? "-1");
 
-            var query = _neo4j.Cypher.Match("(s:Skill)-[h:HAS_SKILL]-(u:User)")
-                                             .Where((Skill s, User u, HasSkill h) => u.Id == userId)
-                                             .Return((s, u, h) => new
-                                             {
-                                                 HasSkill = h.As<HasSkill>(),
-                                                 Skill = s.As<Skill>()
-                                             });
+            var query = _neo4j.Cypher
+                .Match("(s:Skill)-[h:HAS_SKILL]-(u:User)")
+                .Where((Skill s, User u, HasSkill h) => u.Id == userId)
+                .Return((s, u, h) => new
+                {
+                    HasSkill = h.As<HasSkill>(),
+                    Skill = s.As<Skill>()
+                });
 
             var result = (await query.ResultsAsync).Select(r => new SkillDTO
             {
-                Name=r.Skill.Name,
-                Proficiency=r.HasSkill.Proficiency
+                Name = r.Skill.Name,
+                Proficiency = r.HasSkill.Proficiency
             });
 
             return Ok(result);

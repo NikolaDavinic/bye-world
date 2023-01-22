@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   CircularProgress,
   ListItem,
   Stack,
@@ -19,7 +20,7 @@ const UserSuggestions = () => {
     isAuthenticated() ? "listing/related" : ""
   );
 
-  if (isAuthenticated() == false) {
+  if (isAuthenticated() === false) {
     return <></>;
   }
 
@@ -48,10 +49,8 @@ const UserSuggestions = () => {
         <Grid container columns={{ xs: 1, md: 3 }}>
           {suggestions.map((item) => {
             return (
-              <Grid key={item.id} xs={1}>
-                <Link to={`/listing/${item.id}`}>
-                  <SimilarListingCard listing={item} divHeight={300} />
-                </Link>
+              <Grid key={item.id} xs={1} item>
+                <SimilarListingCard listing={item} divHeight={300} />
               </Grid>
             );
           })}

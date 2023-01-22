@@ -24,10 +24,8 @@ export const SimilarListingCard: React.FC<SimilarListingCardProps> = ({
 
   const { result: listing1 } = useApi<any>(`/listing/${listing?.id}`);
 
-  console.log(listing);
-
   return (
-    <Card sx={{ height: divHeight }}>
+    <Card sx={{ height: divHeight }} className="w-full">
       <CardContent className="h-full">
         <div className="flex flex-row justify-between h-full shadow-xl shadow-indigo-500/50">
           <div className="flex flex-col gap-3 px-4 md:pl-4 mb-4">

@@ -1,4 +1,4 @@
-import { Button, Chip, Icon } from "@mui/material";
+import { Button, Chip, Icon, TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { Listing } from "../../model/Listing";
 import { ListingCard } from "../common/ListingsList/ListingCard";
@@ -25,6 +25,7 @@ const ListingPage: React.FC = () => {
   const { isAuthenticated } = useAuthContext();
   const confirm = useConfirm();
   const { user } = useAuthContext();
+  const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const {
     result: listing1,
@@ -32,7 +33,9 @@ const ListingPage: React.FC = () => {
     loading: listing1Loading,
   } = useApi<any>(`/listing/${params.id}`);
 
-  console.log(listing1);
+  const [closingDate, setClosingDate] = useState<Date>(
+    listing1?.closingDate ?? new Date()
+  );
 
   const {
     result: listings,
@@ -86,6 +89,18 @@ const ListingPage: React.FC = () => {
     });
   };
 
+  const updateClosingDate = () => {
+    setIsEditing(false);
+    api
+      .put("listing", {
+        id: listing1?.id,
+        closingDate,
+      })
+      .then(() => {
+        setListing({ ...listing1, closingDate: closingDate });
+      });
+  };
+
   return (
     <main className="flex-1">
       <div className="relative max-w-7xl mx-auto md:flex md:gap-6 px-4 py-8">
@@ -134,15 +149,56 @@ const ListingPage: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
-                      <i className="print:hidden las la-clock text-lg leading-none"></i>
-                      <p className="text-sm font-semibold flex items-center">
-                        <Icon className="material-symbols-outlined">
-                          schedule
-                        </Icon>
-                        {new Date(listing1?.closingDate).toLocaleDateString(
-                          "de-DE"
-                        )}
-                      </p>
+                      {!isEditing ? (
+                        <>
+                          <p className="text-sm font-semibold items-center flex">
+                            <Icon className="material-symbols-outlined">
+                              schedule
+                            </Icon>
+                            &nbsp;
+                            {new Date(listing1?.closingDate).toLocaleDateString(
+                              "de-DE"
+                            )}
+                          </p>
+                          <div className="flex items-center">
+                            {user?.id === listing1?.company.userId && (
+                              <IconButton
+                                onClick={() => {
+                                  setIsEditing(true);
+                                  setClosingDate(
+                                    new Date(listing1?.closingDate)
+                                  );
+                                }}
+                              >
+                                <MatIcon color="primary">edit</MatIcon>
+                              </IconButton>
+                            )}
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex items-center justify-center">
+                            <TextField
+                              margin="dense"
+                              label="Closing Date"
+                              type="date"
+                              variant="standard"
+                              onChange={(e) =>
+                                setClosingDate(new Date(e.target.value))
+                              }
+                              value={closingDate.toISOString().split("T")[0]}
+                            />
+                            <IconButton onClick={() => updateClosingDate()}>
+                              <MatIcon
+                                color="primary"
+                                style={{ fontSize: "2rem" }}
+                              >
+                                check
+                              </MatIcon>
+                            </IconButton>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">

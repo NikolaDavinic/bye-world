@@ -155,6 +155,30 @@ namespace ByeWorld_backend.Controllers
             return Ok(await result.ResultsAsync);
         }
 
+        [HttpPut]
+        public async Task<ActionResult> UpdateClosingDate([FromBody] UpdateListingDTO dto)
+        {
+            var query = _neo4j.Cypher
+                .Match("(l:Listing)")
+                .Where((Listing l) => l.Id == dto.Id)
+                .Set("l.ClosingDate = $date")
+                .WithParam("date", dto.ClosingDate)
+                .Return((l) => l.As<Listing>().ClosingDate)
+                .Limit(1);
+
+            var result = (await query.ResultsAsync);
+
+            if (!result.Any())
+            {
+                return BadRequest();
+            }
+
+            var db = _redis.GetDatabase();
+            _ = db.KeyDeleteAsync($"listings:{dto.Id}");
+
+            return Ok(result);
+        }
+
         [HttpGet("favorites/{userId}")]
         public async Task<ActionResult> GetFavoriteListingsForUser(int userId)
         {
@@ -308,7 +332,7 @@ namespace ByeWorld_backend.Controllers
                     l.As<Listing>().Description,
                     l.As<Listing>().ClosingDate,
                     l.As<Listing>().PostingDate,
-                    co.As<Company>().LogoUrl,
+                    CompanyLogoUrl = co.As<Company>().LogoUrl,
                     Requirements = s.CollectAs<Skill>(),
                     CompanyName = co.As<Company>().Name,
                     CompanyId = co.As<Company>().Id,
@@ -332,14 +356,16 @@ namespace ByeWorld_backend.Controllers
                 .OptionalMatch("(u)-[hf:HAS_FAVORITE]-(l)")
                 .Where((User u) => u.Id == userId)
                 .Return((l, c, s, co, hf) => new {
-                    City = c.As<City>(),
+                    CityName = c.As<City>().Name,
                     l.As<Listing>().Id,
                     l.As<Listing>().Title,
                     l.As<Listing>().Description,
                     l.As<Listing>().ClosingDate,
                     l.As<Listing>().PostingDate,
+                    CompanyLogoUrl = co.As<Company>().LogoUrl,
                     Requirements = s.CollectAs<Skill>(),
-                    Company = co.As<Company>(),
+                    CompanyName = co.As<Company>().Name,
+                    CompanyId = co.As<Company>().Id,
                     IsFavorite = Return.As<bool>("CASE hf WHEN hf THEN TRUE ELSE FALSE END")
                 });
 
