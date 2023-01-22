@@ -1,9 +1,9 @@
-import { Button, Chip, Icon, Link } from "@mui/material";
+import { Button, Chip, Icon } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { Listing } from "../../model/Listing";
 import { ListingCard } from "../common/ListingsList/ListingCard";
 import { SimilarListingCard } from "./SimilarListingCard";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useApi } from "../../hooks/api.hook";
 import axios from "axios";
 import { ListingDTO } from "../listings/ListingsPage";
@@ -17,19 +17,19 @@ import MatIcon from "../common/MatIcon/MatIcon";
 import Box from "@mui/material/Box/Box";
 import CircularProgress from "@mui/material/CircularProgress/CircularProgress";
 import { useAuthContext } from "../../contexts/auth.context";
-
 const ListingPage: React.FC = () => {
   const navigate = useNavigate();
   const params = useParams();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { isAuthenticated } = useAuthContext();
 
+  const { user } = useAuthContext();
+
   const {
     result: listing1,
     setResult: setListing,
     loading: listing1Loading,
   } = useApi<any>(`/listing/${params.id}`);
-
   const checkUserToken = () => {
     const userToken = localStorage.getItem("user");
     if (!userToken || userToken === "undefined") {
@@ -37,12 +37,13 @@ const ListingPage: React.FC = () => {
     }
     setIsLoggedIn(true);
   };
-
   const {
     result: listings,
     loading,
     error,
   } = useApi<ListingDTO[]>(`/listing/similarlistings/${params.id}`);
+
+  useEffect(() => {}, []);
 
   const [open, setOpen] = React.useState(false);
 
@@ -53,15 +54,12 @@ const ListingPage: React.FC = () => {
       </Box>
     );
   }
-
   const toggleFavorite = () => {
     if (!isAuthenticated()) {
       return navigate("/signin");
     }
-
     if (listing1) {
       setListing({ ...listing1, isFavorite: !listing1.isFavorite });
-
       api
         .put(`listing/favorite/${listing1.id}`)
         .then()
@@ -70,13 +68,15 @@ const ListingPage: React.FC = () => {
         });
     }
   };
-
   const handleModalClose = () => {
     setOpen(false);
   };
-
   const handleModalOpen = () => {
     setOpen(true);
+  };
+
+  const openGmail = () => {
+    window.location.replace(`mailto:${listing1?.company.email}`);
   };
 
   return (
@@ -93,7 +93,6 @@ const ListingPage: React.FC = () => {
                       <span className="font-bold text-xl">
                         {listing1?.title}
                       </span>
-
                       <IconButton
                         className="flex justify-center"
                         onClick={toggleFavorite}
@@ -110,7 +109,7 @@ const ListingPage: React.FC = () => {
                     </h1>
                     <h4>
                       <Link
-                        href={`/company/${listing1?.company?.id}`}
+                        to={`/company/${listing1?.company?.id}`}
                         className="print:text-black print:no-underline link font-semibold"
                       >
                         {listing1?.company?.name}
@@ -158,7 +157,10 @@ const ListingPage: React.FC = () => {
                 </div>
                 <div className="flex justify-center align-center ">
                   <div className="print:mx-0 flex items-center justify-center md:mr-24 mt-4 md:mt-8 mb-4 mx-auto md:m-auto order-first md:order-last">
-                    <Link className="hover:opacity-75 bg-white p-2 rounded-md self-end">
+                    <Link
+                      to={`/company/${listing1?.company?.id}/about`}
+                      className="hover:opacity-75 bg-white p-2 rounded-md self-end"
+                    >
                       <img
                         alt=""
                         className="w-40 h-40"
@@ -167,9 +169,6 @@ const ListingPage: React.FC = () => {
                           listing1?.company?.logoUrl.length >= 0
                             ? listing1?.company?.logoUrl
                             : "https://www.adaptivewfs.com/wp-content/uploads/2020/07/logo-placeholder-image.png"
-                        }
-                        onClick={() =>
-                          navigate(`/company/${listing1?.company?.id}/about`)
                         }
                       />
                     </Link>
@@ -182,12 +181,8 @@ const ListingPage: React.FC = () => {
                                     border-t p-4"
             >
               <div className="flex flex-col w-full md:w-auto gap-1">
-                <p className="font-semibold text-red-600">
-                  If you want to participate, all you have to do is to fill out
-                  the form and send your CV.
-                </p>
                 {
-                  <Button variant="contained" onClick={handleModalOpen}>
+                  <Button variant="contained" onClick={openGmail}>
                     Apply Here
                   </Button>
                 }
@@ -221,5 +216,4 @@ const ListingPage: React.FC = () => {
     </main>
   );
 };
-
 export default ListingPage;
