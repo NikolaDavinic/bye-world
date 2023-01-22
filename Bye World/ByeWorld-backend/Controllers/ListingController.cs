@@ -41,7 +41,7 @@ namespace ByeWorld_backend.Controllers
 
 
         [HttpGet("filter")]
-        public async Task<ActionResult> GetAllListings([FromQuery] string? keyword, [FromQuery]string? city, 
+        public async Task<ActionResult> GetAllListings([FromQuery] string? keyword, [FromQuery]string? city, [FromQuery] int? skip,
                 [FromQuery]string? position, [FromQuery] string? seniority, [FromQuery] int? take, [FromQuery] bool sortNewest = true, [FromQuery] bool includeExpired = false)
         {
             var userId = long.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type.Equals("Id"))?.Value ?? "-1");
@@ -96,7 +96,7 @@ namespace ByeWorld_backend.Controllers
             else
                 retVal = retVal.OrderBy("l.ClosingDate ASC");
 
-            var result = await retVal.Limit(take).ResultsAsync;
+            var result = await retVal.Skip(skip).Limit(take).ResultsAsync;
 
             return Ok(result);
         }

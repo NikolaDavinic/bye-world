@@ -44,6 +44,7 @@ export const Listings: React.FC = () => {
   const [count, setCount] = useState<number>(3);
 
   const onFilter = () => {
+    const skip = listings.length;
     getFilteredListings(
       keyword,
       city,
@@ -51,6 +52,7 @@ export const Listings: React.FC = () => {
       seniority,
       sortNewest,
       includeExpired,
+      skip,
       count
     );
   };
@@ -87,9 +89,10 @@ export const Listings: React.FC = () => {
     seniority: string,
     sortNewest: Boolean,
     includeExpired: Boolean,
+    skip: Number,
     take: Number
   ) {
-    const response = await api.get("/listing/filter", {
+    const response = await api.get<ListingDTO[]>("/listing/filter", {
       params: {
         keyword,
         city,
@@ -98,11 +101,18 @@ export const Listings: React.FC = () => {
         sortNewest,
         includeExpired,
         take,
+        skip,
       },
     });
-    console.log(response.data);
-    setListings(response.data);
+
+    setListings((prev) => {
+      const newitems = response.data.filter(
+        (item) => prev.findIndex((t) => t.id === item.id) === -1
+      );
+      return [...prev, ...newitems];
+    });
   }
+
   useEffect(() => {
     onFilter();
   }, [sortNewest, includeExpired]);
@@ -203,7 +213,7 @@ export const Listings: React.FC = () => {
               label="Include Expired"
             />
           </FormGroup>
-          {(isAuthenticated() && userIsCompany) && (
+          {isAuthenticated() && userIsCompany() && (
             <Button variant="outlined" onClick={() => handleModalOpen()}>
               New Listing
             </Button>
