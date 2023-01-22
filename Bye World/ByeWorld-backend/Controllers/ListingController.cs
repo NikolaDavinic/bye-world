@@ -148,6 +148,30 @@ namespace ByeWorld_backend.Controllers
             return Ok(await result.ResultsAsync);
         }
 
+        [HttpPut]
+        public async Task<ActionResult> UpdateClosingDate([FromBody] UpdateListingDTO dto)
+        {
+            var query = _neo4j.Cypher
+                .Match("(l:Listing)")
+                .Where((Listing l) => l.Id == dto.Id)
+                .Set("l.ClosingDate = $date")
+                .WithParam("date", dto.ClosingDate)
+                .Return((l) => l.As<Listing>().ClosingDate)
+                .Limit(1);
+
+            var result = (await query.ResultsAsync);
+
+            if (!result.Any())
+            {
+                return BadRequest();
+            }
+
+            var db = _redis.GetDatabase();
+            _ = db.KeyDeleteAsync($"listings:{dto.Id}");
+
+            return Ok(result);
+        }
+
         [HttpGet("favorites/{userId}")]
         public async Task<ActionResult> GetFavoriteListingsForUser(int userId)
         {

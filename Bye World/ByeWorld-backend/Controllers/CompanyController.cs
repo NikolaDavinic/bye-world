@@ -143,12 +143,7 @@ namespace ByeWorld_backend.Controllers
 
             var result = await _cache.QueryCacheInParallel(query, $"companies:{id}");
 
-            if (result == null)
-            {
-                return Ok(null);
-            }
-
-            var company = result.Select((r) => new 
+            var company = result?.Select((r) => new 
             {
                 r.UserId,
                 r.Company.Address,
